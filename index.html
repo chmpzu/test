@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>KP360 • Knowledge Base Playground</title>
+<title>Knowledge Base Playground</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -40,7 +40,7 @@ main{width:min(1080px,100%);text-align:center;display:flex;flex-direction:column
   transition:transform .15s ease, box-shadow .25s ease, background .25s ease;
   will-change:transform; overflow:hidden; cursor:pointer; color:inherit;
 }
-button.card{ font:inherit; color:inherit; } /* keep Fredoka on button-cards */
+button.card{ font:inherit; color:inherit; }
 .card::before{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;opacity:0;
   background:conic-gradient(from 180deg,var(--accent),var(--accent-2),var(--accent-3),var(--accent));
   filter:blur(12px);transition:opacity .25s ease}
@@ -54,7 +54,6 @@ button.card{ font:inherit; color:inherit; } /* keep Fredoka on button-cards */
 .card p{margin:0;color:var(--muted);font-size:.98rem}
 .chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;padding:.25rem .55rem;border-radius:999px;background:#f2efff;color:#4e43ff;font-weight:600;margin-left:6px}
 .soon{cursor:not-allowed;opacity:.8}.soon .chip{background:#ffe9f6;color:#ff2a9e}
-/* stronger hover text */
 .card h3,.card p,.card .chip{transition:color .18s ease, background-color .18s ease, box-shadow .18s ease}
 .card:hover h3{color:#0f1020}.card:hover p{color:#2f2f48}
 .card:hover .chip{background:#e9e6ff;color:#3a2fff;box-shadow:0 0 0 2px rgba(106,92,255,.12) inset}
@@ -67,7 +66,7 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .spacer{flex:1 1 auto}
 
 /* ===== Arcade ===== */
-.arcade{position:relative;width:min(980px,100%);margin:28px auto 0;background:#ffffffba;border:1px solid rgba(0,0,0,.04);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.arcade{position:relative;width:min(980px,100%);margin:28px auto 0;background:#ffffffba;border:1px solid rgba(0,0,0,.04);border-radius:var(--radius);box-shadow:var(--shadow);overflow:visible} /* <- allow shadows to show */
 .arcade .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(180deg,#fff,#fafaff)}
 .tablist{display:flex;gap:8px;flex-wrap:wrap}
 .tab{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;color:#4a43ff}
@@ -87,26 +86,41 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .hole{position:relative;width:var(--tile);height:var(--tile);background:#fafaff;border:1px dashed #e6e4ff;border-radius:16px;display:grid;place-items:center;flex:0 0 var(--tile);overflow:hidden}
 .spot{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#fff;border:1px solid #eee;box-shadow:var(--shadow);font-size:28px;line-height:1;transform:translateY(110%)}
 .spot.live{transform:translateY(0)}
-/* FULL-TAB overlay for countdown */
 .overlay{position:absolute;inset:0;display:none;place-items:center;background:rgba(255,255,255,.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:5}
 .overlay.visible{display:grid}
 .count{font-size:clamp(3rem,12vw,6rem);font-weight:900;line-height:1;margin:0;letter-spacing:.02em;color:#1e1e2a}
 .legend{margin-top:10px;font-size:clamp(0.86rem,1.6vw,0.95rem);color:#7b7b97;line-height:1.35}
 
-/* ===== Memory Match — one line (with gutters to avoid clipping) ===== */
+/* ===== Memory Match — centered, uncut, one line ===== */
 .memory{position:relative}
 .memory .mm-hud{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;color:var(--muted);font-weight:600}
 .memory .mm-hud .pill{background:#f6f5ff;padding:.45rem .7rem;border-radius:999px}
 .memory .mm-hud button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
-.mm-grid{display:flex;flex-wrap:nowrap;gap:12px;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:6px calc(var(--game-pad-x) + 6px);scroll-padding-inline:calc(var(--game-pad-x) + 6px);justify-content:flex-start;align-items:center}
+.mm-grid{
+  /* generous gutters keep tile shadows away from rounded edges */
+  --gut: clamp(28px, calc(var(--game-pad-x) + 22px), 44px);
+  display:flex;gap:12px;flex-wrap:nowrap;width:100%;
+  padding:6px var(--gut);
+  scroll-padding-inline:var(--gut);
+  justify-content:center;          /* center when there's room */
+  align-items:center;
+  overflow-x:auto;                 /* scrolls on small screens */
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
 .mm-grid::-webkit-scrollbar{display:none}
-.mm-grid::before,.mm-grid::after{content:"";flex:0 0 calc(var(--game-pad-x) + 6px)}
-.mm-card{box-sizing:border-box;position:relative;width:72px;height:72px;flex:0 0 72px;border-radius:14px;cursor:pointer;transform-style:preserve-3d;transition:transform .35s ease}
-.mm-face{position:absolute;inset:0;display:grid;place-items:center;border-radius:14px;backface-visibility:hidden;user-select:none}
+.mm-grid::before,.mm-grid::after{content:"";flex:0 0 var(--gut)} /* edge spacers */
+
+.mm-card{
+  box-sizing:border-box;position:relative;flex:0 0 72px;width:72px;height:72px;
+  border-radius:14px;cursor:pointer;transform-style:preserve-3d;transition:transform .35s ease;
+  scroll-snap-align:center;
+}
+.mm-face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;user-select:none;display:flex;align-items:center;justify-content:center}
 .mm-front{background:linear-gradient(135deg,#f4f3ff,#eefbff);border:1px dashed #e6e4ff}
-.mm-back{background:#fff;border:1px solid #eee;box-shadow:var(--shadow);transform:rotateY(180deg);font-size:28px}
+.mm-back{background:#fff;border:1px solid #eee;box-shadow:var(--shadow);transform:rotateY(180deg);font-size:28px;line-height:1}
 .mm-card.revealed{transform:rotateY(180deg)}
 .mm-card.matched .mm-back{filter:saturate(120%);box-shadow:0 10px 26px rgba(0,194,255,.15)}
+
 .mm-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:inherit}
 .mm-overlay[hidden]{display:none!important}
 .mm-win{background:#fff;border:1px solid #eee;box-shadow:var(--shadow);border-radius:16px;padding:18px 20px;text-align:center;max-width:90%}
@@ -128,7 +142,7 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 /* ===== Inline Viewer (FULL PAGE) ===== */
 .viewer{position:fixed;inset:0;display:none;place-items:stretch;background:#fff;z-index:50}
 .viewer.visible{display:grid}
-.viewer-box{width:100vw;height:100vh;background:#fff;border:0;border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden}
+.viewer-box{width:100vw;height:100vh;background:#fff;display:flex;flex-direction:column;overflow:hidden}
 .viewer-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:10px 12px;background:linear-gradient(180deg,#fff,#fafaff);border-bottom:1px solid #f0f0f8}
 .viewer-title{font-weight:800}
 .viewer-actions{margin-left:auto;display:flex;gap:8px}
@@ -139,24 +153,20 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 body.viewer-open{overflow:hidden}
 
 /* ===== Trivia Sprint • Daily Modal ===== */
-.tv-modal{position:fixed;inset:0;display:none;place-items:center;z-index:60;
-  background:rgba(255,255,255,.36);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tv-modal{position:fixed;inset:0;display:none;place-items:center;z-index:60;background:rgba(255,255,255,.36);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .tv-modal.show{display:grid}
-.tv-card{width:min(720px,92vw);background:#fff;border:1px solid #eee;border-radius:18px;
-  box-shadow:0 20px 60px rgba(0,0,0,.12);padding:18px}
+.tv-card{width:min(720px,92vw);background:#fff;border:1px solid #eee;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.12);padding:18px}
 .tv-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:6px}
 .tv-title{font-weight:900;font-size:1.2rem}
 .tv-controls{display:flex;gap:8px}
-.tv-btn{appearance:none;border:0;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer;color:#fff;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
+.tv-btn{appearance:none;border:0;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
 .tv-ghost{background:#f7f7ff;color:#4a43ff;border:1px solid #ecebff}
 .tv-body{margin-top:6px}
 .tv-hud{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0}
 .tv-pill{background:#f6f5ff;padding:.45rem .7rem;border-radius:999px;font-weight:700;color:#5e5e76}
 .tv-q{margin:10px 0 8px;font-weight:800}
 .tv-choices{display:grid;gap:8px}
-.tv-choice{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:10px 12px;text-align:left;
-  cursor:pointer;font-weight:700;color:#4a43ff}
+.tv-choice{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:10px 12px;text-align:left;cursor:pointer;font-weight:700;color:#4a43ff}
 .tv-choice.correct{background:#e6fff0;border-color:#b7f5d1;color:#106b3b}
 .tv-choice.wrong{background:#fff3f3;border-color:#ffd3d3;color:#a12c2c}
 .tv-foot{margin-top:10px;text-align:center;color:#7b7b97}
@@ -164,9 +174,7 @@ body.viewer-open{overflow:hidden}
 @media (max-width:380px){.board{--tile:64px}}
 </style>
 </head><body>
-<!-- GLOBAL sparkle surface -->
 <div class="sparkle-layer" aria-hidden="true"></div>
-
 <div class="halo" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 
 <main>
@@ -191,6 +199,7 @@ body.viewer-open{overflow:hidden}
 
   <div class="spacer" aria-hidden="true"></div>
 
+  <!-- ===== Arcade Tabs ===== -->
   <section class="arcade" aria-label="Arcade">
     <div class="bar">
       <div class="tablist" role="tablist" aria-label="Game tabs">
@@ -334,7 +343,7 @@ setTimeout(()=>s.remove(),d+250)}})();
   });
 })();
 
-/* GLOBAL sparkle trail (with style presets) */
+/* GLOBAL sparkle trail */
 (function(){
   const layer=document.querySelector('.sparkle-layer'); if(!layer) return;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -389,7 +398,7 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
   window.KP360Whack={ end };
 })();
 
-/* ===== Memory Match (one-line) ===== */
+/* ===== Memory Match (centered, uncut) ===== */
 (function(){
   const grid=document.getElementById('mmGrid'); if(!grid) return;
   const startBtn=document.getElementById('mmStart'),againBtn=document.getElementById('mmAgain');
@@ -424,7 +433,7 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
   trailRow.querySelectorAll('.trail').forEach(b=>{ b.addEventListener('click',()=>{ if(b.classList.contains('lock')) return; applyTrail(b.dataset.style); }); });
 })();
 
-/* ===== Trivia Sprint (PO Hub) • Daily auto-modal ===== */
+/* ===== Trivia Sprint (PO Hub, SOPs only) • Daily auto-modal ===== */
 (function(){
   if(typeof ensureAudio!=='function'){ window.ensureAudio=function(){} }
   if(typeof beep!=='function'){ window.beep=function(){} }
@@ -442,7 +451,6 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
   if(!modal) return;
 
   const todayKey = (()=>{ const d=new Date(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `kp360_trivia_seen_${d.getFullYear()}-${m}-${day}` })();
-
   let best = Number(localStorage.getItem('kp360_trivia_best')||0) || 0; bestEl.textContent = best;
 
   const CANDIDATES = [
@@ -450,66 +458,86 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
     'https://kp360-po.github.io/KB/trivia.json',
     'https://kp360-po.github.io/KPP/trivia.json'
   ];
-  const FALLBACK_HTML = [
-    'https://kp360-po.github.io/Hub/',
-    'https://kp360-po.github.io/KB/',
-    'https://kp360-po.github.io/KPP/'
-  ];
 
   async function tryFetch(url){ const r=await fetch(url,{mode:'cors'}); if(!r.ok) throw new Error(r.status); const ct=r.headers.get('content-type')||''; return ct.includes('application/json')? r.json(): r.text(); }
-  function shuffle(a){ for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1)); [a[j],a[j=k]]=[a[j=k],a[j]] } return a }
-  // ^^ small shuffle micro-opt to keep size tiny
+  function shuffle(a){ for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1)); [a[j],a[k]]=[a[k],a[j]] } return a; }
+
+  // SOP-focused HTML fallback
+  function buildFromHtml(doc){
+    const sopRoots=new Set();
+    doc.querySelectorAll('[id*="sop"], [class*="sop"]').forEach(n=>sopRoots.add(n));
+    [...doc.querySelectorAll('h1,h2,h3,h4')].forEach(h=>{
+      const t=h.textContent.trim().toLowerCase();
+      if(/\bsop\b|\bsops\b|standard\s*operating\s*procedure/.test(t)){
+        sopRoots.add(h.closest('section,article,main,div')||h.parentElement||h);
+      }
+    });
+    if(!sopRoots.size) return [];
+    const qs=[];
+    for(const root of sopRoots){
+      const heads=[...root.querySelectorAll('h2,h3,h4')];
+      for(const h of heads){
+        const ul=(h.nextElementSibling && h.nextElementSibling.matches('ul,ol'))?h.nextElementSibling:null;
+        if(!ul) continue;
+        const items=[...ul.querySelectorAll(':scope>li')].map(li=>li.textContent.trim()).filter(Boolean).slice(0,4);
+        if(items.length>=2){ qs.push({q:h.textContent.trim(), a:items, c:0}); }
+      }
+      if(qs.length<5){
+        const anyList=[...root.querySelectorAll('ul,ol')];
+        for(const L of anyList){
+          const items=[...L.querySelectorAll(':scope>li')].map(li=>li.textContent.trim()).filter(Boolean);
+          if(items.length>=3){
+            const title=root.querySelector('h2,h3,h4')?.textContent?.trim()||'SOPs';
+            const choices=items.slice(0,4);
+            qs.push({q:`Which of the following belongs under “${title}”?`, a:choices, c:0});
+            if(qs.length>=8) break;
+          }
+        }
+      }
+    }
+    const seen=new Set(); return qs.filter(q=>!seen.has(q.q) && seen.add(q.q));
+  }
+  async function loadFromHtml(){
+    const pages=[
+      'https://kp360-po.github.io/Hub/sops/',
+      'https://kp360-po.github.io/Hub/standard-operating-procedures/',
+      'https://kp360-po.github.io/Hub/',
+      'https://kp360-po.github.io/KB/',
+      'https://kp360-po.github.io/KPP/'
+    ];
+    for(const u of pages){
+      try{ const html=await (await fetch(u,{mode:'cors'})).text();
+        const d=document.implementation.createHTMLDocument(''); d.documentElement.innerHTML=html;
+        const qs=buildFromHtml(d); if(qs.length>=5) return qs;
+      }catch(_){}
+    } return null;
+  }
 
   async function loadFromJson(){
     for(const u of CANDIDATES){
       try{ const data=await tryFetch(u); if(Array.isArray(data)&&data.length&&data[0].q&&data[0].a) return data; }catch(_){}
     } return null;
   }
-  function htmlToDoc(html){ const d=document.implementation.createHTMLDocument(''); d.documentElement.innerHTML=html; return d; }
-  function buildFromHtml(doc){
-    const qs=[]; const heads=[...doc.querySelectorAll('h1,h2,h3')];
-    heads.forEach(h=>{
-      const ul = h.nextElementSibling && h.nextElementSibling.matches('ul,ol') ? h.nextElementSibling : null;
-      if(!ul) return;
-      const items=[...ul.querySelectorAll('li')].map(li=>li.textContent.trim()).filter(Boolean).slice(0,4);
-      if(items.length>=2){ qs.push({q:h.textContent.trim(), a:items, c:0}); }
-    }); return qs;
-  }
-  async function loadFromHtml(){
-    for(const u of FALLBACK_HTML){
-      try{ const html=await tryFetch(u); if(typeof html==='string'){ const doc=htmlToDoc(html); const qs=buildFromHtml(doc); if(qs.length>=5) return qs; } }catch(_){}
-    } return null;
-  }
 
   function makeDeck(pool){
-    const base = (pool.slice ? pool.slice() : Array.from(pool)); shuffle(base); const pick=base.slice(0,5);
+    const base=shuffle(pool.slice()); const pick=base.slice(0,5);
     return pick.map(q=>{
       const arr=q.a.slice(0,4); while(arr.length<4) arr.push('None of the above');
-      const ord=[0,1,2,3]; shuffle(ord); const a=ord.map(k=>arr[k]); const c=ord.indexOf(Math.min(q.c||0, arr.length-1));
+      const ord=[0,1,2,3]; shuffle(ord); const a=ord.map(k=>arr[k]); const c=ord.indexOf(Math.min(q.c||0,arr.length-1));
       return {q:String(q.q), a, c};
     });
   }
 
   let deck=[], time=60, score=0, idx=0, timer=null;
-
-  function paint(){
-    const cur=deck[idx]; qText.textContent=cur.q; choices.innerHTML='';
-    cur.a.forEach((t,i)=>{ const b=document.createElement('button'); b.className='tv-choice'; b.textContent=t; b.onclick=()=>choose(i); choices.appendChild(b); });
-    box.hidden=false;
-  }
-  function choose(i){
-    const cur=deck[idx]; const nodes=[...choices.querySelectorAll('.tv-choice')]; nodes.forEach(n=>n.disabled=true);
+  function paint(){ const cur=deck[idx]; qText.textContent=cur.q; choices.innerHTML=''; cur.a.forEach((t,i)=>{ const b=document.createElement('button'); b.className='tv-choice'; b.textContent=t; b.onclick=()=>choose(i); choices.appendChild(b); }); box.hidden=false; }
+  function choose(i){ const cur=deck[idx]; const nodes=[...choices.querySelectorAll('.tv-choice')]; nodes.forEach(n=>n.disabled=true);
     if(i===cur.c){ nodes[i].classList.add('correct'); score++; scoreEl.textContent=score; ensureAudio(); beep(820,.08); }
     else{ nodes[i].classList.add('wrong'); nodes[cur.c].classList.add('correct'); ensureAudio(); beep(320,.06); }
-    setTimeout(()=>{ idx++; (idx<deck.length)? paint(): finish(); },600);
+    setTimeout(()=>{ idx++; (idx<deck.length)?paint():finish(); },600);
   }
   function tick(){ time--; timeEl.textContent=time; if(time<=0) finish(); }
   function start(){ ensureAudio(); score=0; idx=0; time=60; timeEl.textContent=time; scoreEl.textContent=score; status.textContent=''; clearInterval(timer); timer=setInterval(tick,1000); paint(); }
-  function finish(){
-    clearInterval(timer); box.hidden=true; status.textContent = `You got ${score}/5 correct in ${60-time}s.`;
-    if(score>(best||0)){ best=score; bestEl.textContent=best; localStorage.setItem('kp360_trivia_best', String(best)); }
-    localStorage.setItem(todayKey,'1'); btnStart.textContent='Play Again';
-  }
+  function finish(){ clearInterval(timer); box.hidden=true; status.textContent=`You got ${score}/5 correct in ${60-time}s.`; if(score>(best||0)){ best=score; bestEl.textContent=best; localStorage.setItem('kp360_trivia_best', String(best)); } localStorage.setItem(todayKey,'1'); btnStart.textContent='Play Again'; }
   function closeNow(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); localStorage.setItem(todayKey,'1'); }
 
   btnSkip.addEventListener('click', closeNow);
@@ -521,17 +549,16 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
     status.textContent='Loading questions from PO Hub…';
     let qs=null; const cached=sessionStorage.getItem('kp360_trivia_cache');
     if(cached){ try{ qs=JSON.parse(cached) }catch{} }
-    if(!qs){ qs = await loadFromJson(); if(!qs) qs = await loadFromHtml(); if(qs) sessionStorage.setItem('kp360_trivia_cache', JSON.stringify(qs)); }
+    if(!qs){ qs=await loadFromJson(); if(!qs) qs=await loadFromHtml(); if(qs) sessionStorage.setItem('kp360_trivia_cache', JSON.stringify(qs)); }
     if(!qs || !qs.length){
       status.textContent='Could not load PO Hub questions. Try again later.';
-      const sample=[{q:'PO stands for…',a:['Purchase Order','Product Option','Price Offer','Post Office'],c:0},
-                    {q:'Best place for SOPs?',a:['PO Hub','Random DM','Local PC','Whiteboard'],c:0},
-                    {q:'CSV stands for…',a:['Comma-Separated Values','Central Source Vault','Cost/Sales Value','Copy Saved Version'],c:0},
-                    {q:'WooCommerce runs on…',a:['WordPress','Drupal','Shopify','Magento'],c:0},
-                    {q:'404 means…',a:['Not Found','OK','Server Error','Redirect'],c:0}];
-      qs=sample;
+      qs=[{q:'PO stands for…',a:['Purchase Order','Product Option','Price Offer','Post Office'],c:0},
+          {q:'Best place for SOPs?',a:['PO Hub','Random DM','Local PC','Whiteboard'],c:0},
+          {q:'CSV stands for…',a:['Comma-Separated Values','Central Source Vault','Cost/Sales Value','Copy Saved Version'],c:0},
+          {q:'WooCommerce runs on…',a:['WordPress','Drupal','Shopify','Magento'],c:0},
+          {q:'404 means…',a:['Not Found','OK','Server Error','Redirect'],c:0}];
     }
-    deck = makeDeck(qs);
+    deck=makeDeck(qs);
     status.textContent='Ready when you are.';
     if(!localStorage.getItem(todayKey)){
       modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
