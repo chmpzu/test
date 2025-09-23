@@ -91,42 +91,17 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .count{font-size:clamp(3rem,12vw,6rem);font-weight:900;line-height:1;margin:0;letter-spacing:.02em;color:#1e1e2a}
 .legend{margin-top:10px;font-size:clamp(0.86rem,1.6vw,0.95rem);color:#7b7b97;line-height:1.35}
 
-/* ===== Memory Match — centered, uncut, one line ===== */
-.memory{position:relative}
-.memory .mm-hud{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;color:var(--muted);font-weight:600}
-.memory .mm-hud .pill{background:#f6f5ff;padding:.45rem .7rem;border-radius:999px}
-.memory .mm-hud button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
-.mm-grid{
-  /* generous gutters keep tile shadows away from rounded edges */
-  --gut: clamp(28px, calc(var(--game-pad-x) + 22px), 44px);
-  display:flex;gap:12px;flex-wrap:nowrap;width:100%;
-  padding:6px var(--gut);
-  scroll-padding-inline:var(--gut);
-  justify-content:center;          /* center when there's room */
-  align-items:center;
-  overflow-x:auto;                 /* scrolls on small screens */
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
-}
-.mm-grid::-webkit-scrollbar{display:none}
-.mm-grid::before,.mm-grid::after{content:"";flex:0 0 var(--gut)} /* edge spacers */
-
-.mm-card{
-  box-sizing:border-box;position:relative;flex:0 0 72px;width:72px;height:72px;
-  border-radius:14px;cursor:pointer;transform-style:preserve-3d;transition:transform .35s ease;
-  scroll-snap-align:center;
-}
-.mm-face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;user-select:none;display:flex;align-items:center;justify-content:center}
-.mm-front{background:linear-gradient(135deg,#f4f3ff,#eefbff);border:1px dashed #e6e4ff}
-.mm-back{background:#fff;border:1px solid #eee;box-shadow:var(--shadow);transform:rotateY(180deg);font-size:28px;line-height:1}
-.mm-card.revealed{transform:rotateY(180deg)}
-.mm-card.matched .mm-back{filter:saturate(120%);box-shadow:0 10px 26px rgba(0,194,255,.15)}
-
-.mm-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:inherit}
-.mm-overlay[hidden]{display:none!important}
-.mm-win{background:#fff;border:1px solid #eee;box-shadow:var(--shadow);border-radius:16px;padding:18px 20px;text-align:center;max-width:90%}
-.mm-title{font-weight:900;font-size:1.35rem;margin-bottom:4px}.mm-sub{color:var(--muted);margin-bottom:12px}
-.mm-win button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-
+/* ===== Click When Green ===== */
+.green-game{position:relative;margin:0 auto;text-align:center}
+.green-wrap{display:grid;place-items:center;padding:12px}
+.green{position:relative;width:140px;height:140px;border-radius:50%;border:0;cursor:not-allowed;box-shadow:var(--shadow);transition:transform .15s ease, filter .15s ease, background-color .15s ease}
+.green::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 40%, rgba(255,255,255,.85), rgba(255,255,255,0) 48%), radial-gradient(circle at 50% 60%, rgba(0,0,0,.08), transparent 60%)}
+.green.state-idle{background:#e9e9ef}
+.green.state-armed{background:#ffb3b3;filter:saturate(110%)}
+.green.state-wait{background:#ffe8a3}
+.green.state-go{background:#b7f5d1;filter:saturate(120%);animation:pulse 0.9s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+  
 /* ===== Inline Viewer (FULL PAGE) ===== */
 .viewer{position:fixed;inset:0;display:none;place-items:stretch;background:#fff;z-index:50}
 .viewer.visible{display:grid}
@@ -160,6 +135,11 @@ body.viewer-open{overflow:hidden}
 .tv-foot{margin-top:10px;text-align:center;color:#7b7b97}
 
 @media (max-width:380px){.board{--tile:64px}}
+
+/* sparkle layer (fixed overlay above content, below modals) */
+.sparkle-layer{position:fixed;inset:0;pointer-events:none;z-index:30}
+.sparkle-layer .sparkle{position:absolute;display:block;will-change:transform,opacity}
+
 </style>
 </head><body>
 <div class="sparkle-layer" aria-hidden="true"></div>
@@ -192,6 +172,7 @@ body.viewer-open{overflow:hidden}
     <div class="bar">
       <div class="tablist" role="tablist" aria-label="Game tabs">
         <button class="tab" role="tab" aria-selected="true"  aria-controls="panel-whack"   id="tab-whack">🔨 Whack-a-Hub</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-green"   id="tab-green">🟢 Click When Green</button>
       </div>
     </div>
 
@@ -220,7 +201,26 @@ body.viewer-open{overflow:hidden}
         </div>
         <p class="legend">Hit the popping emoji! Use mouse/tap or press <kbd>1–9</kbd>. Press <kbd>Space</kbd>/<kbd>S</kbd> to start.</p>
       </div>
-    </div><!-- ===== Inline Viewer Overlay ===== -->
+    </div>
+
+<!-- Click When Green -->
+<div class="panel" id="panel-green" role="tabpanel" aria-labelledby="tab-green" aria-hidden="true">
+  <h3 class="game-tag">⚡ Test your reflex — click as soon as it turns green!</h3>
+  <div class="game green-game" aria-label="Click When Green game">
+    <div class="hud" role="status" aria-live="polite">
+      <span class="pill">⏱️ Last: <strong id="gLast">–</strong> ms</span>
+      <span class="pill">🏆 Best: <strong id="gBest">–</strong> ms</span>
+      <button id="gStart" type="button">Start</button>
+    </div>
+    <div class="green-wrap">
+      <button id="gLight" class="green state-idle" type="button" aria-label="reaction target" disabled></button>
+      <div id="gStatus" class="legend" aria-live="polite">Press Start, then click when it turns green.</div>
+    </div>
+    <p class="legend">Tip: You can also press <kbd>Space</kbd>/<kbd>Enter</kbd> to click.</p>
+  </div>
+</div>
+
+<!-- ===== Inline Viewer Overlay ===== -->
 <div class="viewer" id="viewer" aria-hidden="true" aria-label="Hub viewer">
   <div class="viewer-box" role="dialog" aria-modal="true">
     <div class="viewer-bar">
@@ -314,7 +314,7 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
 /* ===== Tabs (generic) ===== */
 (function(){
   const tabs=[...document.querySelectorAll('.tab')], panels=[...document.querySelectorAll('.panel')];
-  const show=(id)=>{tabs.forEach(t=>t.setAttribute('aria-selected', String(t.id===`tab-${id}`))); panels.forEach(p=>p.setAttribute('aria-hidden', String(p.id!==`panel-${id}`))); if(id!=='whack' && window.KP360Whack?.end) KP360Whack.end();};
+  const show=(id)=>{tabs.forEach(t=>t.setAttribute('aria-selected', String(t.id===`tab-${id}`))); panels.forEach(p=>p.setAttribute('aria-hidden', String(p.id!==`panel-${id}`))); if(id!=='whack' && window.KP360Whack?.end) KP360Whack.end(); if(id!=='green' && window.KP360Green?.end) KP360Green.end();};
   tabs.forEach(t=>t.addEventListener('click',()=>show(t.id.replace('tab-',''))));
 })();
 
@@ -338,6 +338,112 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
   startBtn.addEventListener('click',()=>{ ensureAudio(); arm(); });
   addEventListener('keydown',e=>{ if(document.getElementById('panel-whack').getAttribute('aria-hidden')==='true') return; if(e.key>='1'&&e.key<='9'){const i=Number(e.key)-1;if(i<holes.length)hit(i)} else if(e.key===' '||e.key.toLowerCase()==='s'){e.preventDefault(); ensureAudio(); arm()} });
   window.KP360Whack={ end };
+})();
+
+
+/* ===== Click When Green (reaction test) ===== */
+(function(){
+  const panel = document.getElementById('panel-green'); if(!panel) return;
+  const btnStart = document.getElementById('gStart');
+  const light = document.getElementById('gLight');
+  const status = document.getElementById('gStatus');
+  const lastEl = document.getElementById('gLast');
+  const bestEl = document.getElementById('gBest');
+  const avgEl  = document.getElementById('gAvg');
+
+  const KEY = 'kp360_green_best';
+  let best = Number(localStorage.getItem(KEY)||0) || null;
+  if(best && best > 0) bestEl.textContent = best;
+
+  let running = false, armed = false, go = false, startAt = 0, timer = null, samples = [];
+
+  function setState(s){
+    light.classList.remove('state-idle','state-armed','state-wait','state-go');
+    light.classList.add('state-'+s);
+  }
+  function reset(){
+    running=false; armed=false; go=false; startAt=0;
+    clearTimeout(timer); timer=null;
+    btnStart.disabled=false;
+    light.disabled=true; light.style.cursor='not-allowed';
+    setState('idle');
+  }
+  function avg5(arr){
+    if(!arr.length) return null;
+    const a = arr.slice(-5);
+    return Math.round(a.reduce((p,c)=>p+c,0)/a.length);
+  }
+  function scheduleGo(){
+    const delay = 1000 + Math.random()*2000; // 1–3s
+    setState('armed');
+    status.textContent = 'Wait for green…';
+    armed = true;
+    timer = setTimeout(()=>{
+      go = true; armed = false;
+      setState('go');
+      light.disabled=false;
+      light.style.cursor='pointer';
+      startAt = performance.now();
+    }, delay);
+  }
+  function start(){
+    ensureAudio?.();
+    reset();
+    running = true;
+    btnStart.disabled = true;
+    setState('wait');
+    status.textContent = 'Get ready…';
+    beep?.(660,0.06);
+    setTimeout(scheduleGo, 600);
+  }
+  function recordTooSoon(){
+    status.textContent = 'Too soon! Try again.';
+    ensureAudio?.(); beep?.(300,0.06);
+    lastEl.textContent = '–';
+    setState('idle');
+    btnStart.disabled=false;
+  }
+  function recordHit(ms){
+    const t = Math.round(ms);
+    samples.push(t);
+    lastEl.textContent = String(t);
+    const a = avg5(samples);
+    avgEl.textContent = a==null ? '–' : String(a);
+    if(!best || t < best){
+      best = t;
+      bestEl.textContent = String(best);
+      localStorage.setItem(KEY, String(best));
+    }
+    status.textContent = 'Nice! Press Start for another run.';
+    ensureAudio?.(); beep?.(820,0.07);
+    reset();
+  }
+
+  function onTargetClick(){
+    if(!running) return;
+    if(armed && !go){ recordTooSoon(); return; }
+    if(go){
+      const delta = performance.now() - startAt;
+      recordHit(delta);
+    }
+  }
+
+  btnStart.addEventListener('click', start);
+  light.addEventListener('click', onTargetClick);
+  // Keyboard support
+  addEventListener('keydown', (e)=>{
+    if(panel.getAttribute('aria-hidden')==='true') return;
+    if(e.key===' '||e.key==='Enter'){
+      e.preventDefault();
+      if(!running) { start(); }
+      else { onTargetClick(); }
+    }
+  });
+
+  function end(){
+    reset();
+  }
+  window.KP360Green = { end };
 })();
 
 /* ===== Memory Match (centered, uncut) ===== */
@@ -381,11 +487,7 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
   const todayKey = (()=>{ const d=new Date(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `kp360_trivia_seen_${d.getFullYear()}-${m}-${day}` })();
   let best = Number(localStorage.getItem('kp360_trivia_best')||0) || 0; bestEl.textContent = best;
 
-  const CANDIDATES = [
-    'https://kp360-po.github.io/Hub/trivia.json',
-    'https://kp360-po.github.io/KB/trivia.json',
-    'https://kp360-po.github.io/KPP/trivia.json'
-  ];
+  const CANDIDATES = ['https://kp360-po.github.io/Hub/trivia.json','https://kp360-po.github.io/KB/trivia.json','https://kp360-po.github.io/KPP/trivia.json'];
 
   async function tryFetch(url){ const r=await fetch(url,{mode:'cors'}); if(!r.ok) throw new Error(r.status); const ct=r.headers.get('content-type')||''; return ct.includes('application/json')? r.json(): r.text(); }
   function shuffle(a){ for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1)); [a[j],a[k]]=[a[k],a[j]] } return a; }
