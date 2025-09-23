@@ -57,10 +57,17 @@ main{width:min(1080px,100%);text-align:center;display:flex;flex-direction:column
 .card .emoji{font-size:2rem;margin-bottom:8px;display:inline-block;transform-origin:bottom}
 .card:hover .emoji{ animation:bob .8s ease-in-out infinite }
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.card h3{margin:4px 0 8px;font-size:1.25rem}.card p{margin:0;color:var(--muted);font-size:.98rem}
+.card h3{margin:4px 0 8px;font-size:1.25rem}
+.card p{margin:0;color:var(--muted);font-size:.98rem}
 a.card{text-decoration:none;color:inherit}
 .chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;padding:.25rem .55rem;border-radius:999px;background:#f2efff;color:#4e43ff;font-weight:600;margin-left:6px}
 .soon{cursor:not-allowed;opacity:.8}.soon .chip{background:#ffe9f6;color:#ff2a9e}
+
+/* intensify text on hover */
+.card h3,.card p,.card .chip{transition:color .18s ease, background-color .18s ease, box-shadow .18s ease}
+.card:hover h3{color:#0f1020}
+.card:hover p{color:#2f2f48}
+.card:hover .chip{background:#e9e6ff;color:#3a2fff;box-shadow:0 0 0 2px rgba(106,92,255,.12) inset}
 
 /* ripple click */
 .ripple{position:absolute;width:12px;height:12px;border-radius:999px;background:radial-gradient(circle,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 70%);pointer-events:none;transform:translate(-50%,-50%) scale(1);opacity:.9}
@@ -82,6 +89,16 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .hud button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
 .hud button:disabled{opacity:.6;cursor:not-allowed}
 
+/* playful tagline above HUD */
+.game-tag{
+  margin:0 0 10px;
+  font-size:clamp(1.05rem,2.1vw,1.25rem);
+  font-weight:800;letter-spacing:.2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.6))
+}
+
 .board{width:100%;display:flex;gap:var(--gap);justify-content:center;overflow-x:auto;padding:6px var(--board-pad-x);-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 .board::-webkit-scrollbar{display:none}
 .hole{position:relative;width:var(--tile);height:var(--tile);background:#fafaff;border:1px dashed #e6e4ff;border-radius:16px;display:grid;place-items:center;flex:0 0 var(--tile);overflow:hidden}
@@ -102,16 +119,18 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .sparkle-layer{position:fixed;inset:0;pointer-events:none;z-index:2}
 .sparkle{position:absolute;pointer-events:none;z-index:1;will-change:transform,opacity}
 
+/* smaller, softer helper text under the game */
+.legend{margin-top: 10px;font-size: clamp(0.86rem, 1.6vw, 0.95rem);color: #7b7b97;line-height: 1.35;}
+
 @media (max-width:380px){:root{--tile:64px;--gap:10px;--board-pad-x:10px;--game-pad-x:14px}}
 </style>
 </head><body>
-<!-- GLOBAL sparkle surface -->
 <div class="sparkle-layer" aria-hidden="true"></div>
 
 <div class="halo" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 
 <main>
-  <div class="badge">🎉 welcome aboard <span class="chip">KP360</span></div>
+  <div class="badge">🎉 welcome aboard <span class="chip">PO Team</span></div>
   <h1 class="title">Your Knowledge Base Playground</h1>
   <p class="subtitle">Quick links to the hubs you use every day. Click a card to jump in!</p>
 
@@ -134,6 +153,9 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 
   <!-- Game -->
   <section class="game" aria-label="Whack-a-Hub game">
+    <!-- playful tagline -->
+    <h3 class="game-tag">☕ Take a quick break — whack a hub for 30 seconds!</h3>
+
     <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-live="assertive" aria-label="Game starting"><div id="count" class="count">3</div></div>
 
     <div class="hud" role="status" aria-live="polite">
