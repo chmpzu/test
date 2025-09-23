@@ -18,17 +18,18 @@ body{
    linear-gradient(180deg,#fafcff,#fff);
   display:grid;place-items:start center;padding:32px 18px 56px;overflow-x:hidden
 }
+/* halo blobs */
 .halo{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
 .halo .blob{position:absolute;width:38vmax;height:38vmax;filter:blur(50px);opacity:.45;border-radius:50%;animation:float 18s ease-in-out infinite;mix-blend-mode:multiply}
-.blob.b1{background:#ffd2f1;left:-10vmax;top:-8vmax}.blob.b2{background:#d6eaff;right:-12vmax;top:10vmax;animation-delay:3s}.blob.b3{background:#e2ffef;left:15vmax;bottom:-12vmax;animation-delay:6s}
+.blob.b1{background:#ffd2f1;left:-10vmax;top:-8vmax}
+.blob.b2{background:#d6eaff;right:-12vmax;top:10vmax;animation-delay:3s}
+.blob.b3{background:#e2ffef;left:15vmax;bottom:-12vmax;animation-delay:6s}
 @keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-20px,0)}}
 
 main{width:min(1080px,100%);text-align:center;display:flex;flex-direction:column;min-height:100%}
-.headerFX{position:relative} /* sparkle container */
 .badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .8rem;border-radius:999px;background:#ffffffc7;box-shadow:var(--shadow);font-size:.9rem;letter-spacing:.25px;align-self:center}
 .title{margin:16px 0 6px;font-size:clamp(2rem,4.5vw,3.25rem);line-height:1.05}
 .subtitle{margin:0 auto 28px;color:var(--muted);max-width:55ch;font-size:clamp(1rem,2.2vw,1.15rem)}
-
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:24px}
 
 /* ===== Playful Cards (tilt + gradient shine + ripple) ===== */
@@ -39,13 +40,11 @@ main{width:min(1080px,100%);text-align:center;display:flex;flex-direction:column
   transition:transform .15s ease, box-shadow .25s ease, background .25s ease;
   will-change:transform; overflow:hidden
 }
-/* gradient outline glow */
 .card::before{
   content:""; position:absolute; inset:-2px; border-radius:inherit; pointer-events:none; opacity:0;
   background:conic-gradient(from 180deg,var(--accent),var(--accent-2),var(--accent-3),var(--accent));
   filter:blur(12px); transition:opacity .25s ease
 }
-/* brand-gradient swipe (replaces white sweep) */
 .card::after{
   content:""; position:absolute; inset:0;
   background:linear-gradient(120deg,transparent 35%, rgba(106,92,255,.18) 45%, rgba(255,110,199,.18) 50%, rgba(0,194,255,.18) 55%, transparent 65%);
@@ -63,7 +62,7 @@ a.card{text-decoration:none;color:inherit}
 .chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;padding:.25rem .55rem;border-radius:999px;background:#f2efff;color:#4e43ff;font-weight:600;margin-left:6px}
 .soon{cursor:not-allowed;opacity:.8}.soon .chip{background:#ffe9f6;color:#ff2a9e}
 
-/* click ripple */
+/* ripple click */
 .ripple{position:absolute;width:12px;height:12px;border-radius:999px;background:radial-gradient(circle,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 70%);pointer-events:none;transform:translate(-50%,-50%) scale(1);opacity:.9}
 @keyframes ripple{to{opacity:0;transform:translate(-50%,-50%) scale(12)}}
 
@@ -99,19 +98,22 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .popper{position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:0;pointer-events:none;z-index:4}
 @media (prefers-reduced-motion:no-preference){.popper{animation:burst .52s ease-out forwards}@keyframes burst{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.4)}}}
 
-@media (max-width:380px){:root{--tile:64px;--gap:10px;--board-pad-x:10px;--game-pad-x:14px}}
-/* ===== Sparkle trail bits ===== */
+/* Global sparkle layer (non-blocking) */
+.sparkle-layer{position:fixed;inset:0;pointer-events:none;z-index:2}
 .sparkle{position:absolute;pointer-events:none;z-index:1;will-change:transform,opacity}
+
+@media (max-width:380px){:root{--tile:64px;--gap:10px;--board-pad-x:10px;--game-pad-x:14px}}
 </style>
 </head><body>
+<!-- GLOBAL sparkle surface -->
+<div class="sparkle-layer" aria-hidden="true"></div>
+
 <div class="halo" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 
 <main>
-  <div class="headerFX">
-    <div class="badge">🎉 welcome aboard <span class="chip">KP360</span></div>
-    <h1 class="title">Your Knowledge Base Playground</h1>
-    <p class="subtitle">Quick links to the hubs you use every day. Click a card to jump in!</p>
-  </div>
+  <div class="badge">🎉 welcome aboard <span class="chip">KP360</span></div>
+  <h1 class="title">Your Knowledge Base Playground</h1>
+  <p class="subtitle">Quick links to the hubs you use every day. Click a card to jump in!</p>
 
   <section class="grid" aria-label="Knowledge base links">
     <a class="card tilt" href="https://kp360-po.github.io/Hub/#home" target="_blank" rel="noopener">
@@ -188,26 +190,40 @@ setTimeout(()=>s.remove(),d+250)}})();
   });
 })();
 
-/* Sparkle trail over header (throttled, motion-aware) */
+/* GLOBAL sparkle trail (whole page, throttled, motion-aware) */
 (function(){
-  const wrap=document.querySelector('.headerFX'); if(!wrap) return;
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches; if(reduced) return;
-  const colors=['#6a5cff','#ff6ec7','#00c2ff','#ffd166','#7effb2']; let last=0;
-  wrap.addEventListener('pointermove',e=>{
-    const now=performance.now(); if(now-last<22) return; last=now; // ~45fps throttle
-    const r=wrap.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
-    const s=document.createElement('span'); s.className='sparkle';
-    const size=6+Math.random()*10;
-    Object.assign(s.style,{
-      left:x+'px', top:y+'px', width:size+'px', height:size+'px', borderRadius:'50%',
-      background:colors[Math.floor(Math.random()*colors.length)],
+  const layer = document.querySelector('.sparkle-layer'); if(!layer) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; if(reduced) return;
+
+  const colors = ['#6a5cff','#ff6ec7','#00c2ff','#ffd166','#7effb2'];
+  let last = 0;
+
+  function spawn(x, y){
+    const s = document.createElement('span');
+    s.className = 'sparkle';
+    const size = 6 + Math.random()*10;
+    Object.assign(s.style, {
+      left: x + 'px', top: y + 'px', width: size + 'px', height: size + 'px',
+      borderRadius:'50%', background: colors[Math.floor(Math.random()*colors.length)],
       filter:'blur(1px)', boxShadow:'0 0 12px rgba(255,255,255,.6)'
     });
-    wrap.appendChild(s);
-    s.animate?.([{opacity:.95, transform:'translateY(0) scale(1)'},{opacity:0, transform:`translateY(-10px) scale(${1+Math.random()*0.6})`}],{duration:600,easing:'ease-out',fill:'forwards'})
+    layer.appendChild(s);
+    s.animate?.([{opacity:.95,transform:'translateY(0) scale(1)'},
+                 {opacity:0,transform:`translateY(-10px) scale(${1+Math.random()*0.6})`}],
+                {duration:600,easing:'ease-out',fill:'forwards'})
       ?.addEventListener('finish',()=>s.remove());
     setTimeout(()=>s.remove(),650);
-  });
+  }
+
+  addEventListener('pointermove', e=>{
+    const now = performance.now(); if(now-last<22) return; last=now; // ~45fps
+    spawn(e.clientX, e.clientY);
+  }, {passive:true});
+
+  addEventListener('touchmove', e=>{
+    const now = performance.now(); if(now-last<22) return; last=now;
+    for(const t of e.touches) spawn(t.clientX, t.clientY);
+  }, {passive:true});
 })();
 
 /* Whack-a-Hub game */
