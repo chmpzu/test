@@ -127,18 +127,6 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .mm-title{font-weight:900;font-size:1.35rem;margin-bottom:4px}.mm-sub{color:var(--muted);margin-bottom:12px}
 .mm-win button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
 
-/* ===== Avatar & Stickers ===== */
-.stickers{display:grid;gap:14px;place-items:center}
-.avrow,.trailrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.av{font-size:28px;line-height:1;appearance:none;border:1px solid #ecebff;background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer}
-.av.selected,.trail.selected{box-shadow:0 0 0 3px rgba(106,92,255,.25)}
-.lock{opacity:.5;filter:grayscale(1);cursor:not-allowed}
-.trail{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:8px 10px;font-weight:700;color:#4a43ff;cursor:pointer}
-
-/* Global sparkle layer */
-.sparkle-layer{position:fixed;inset:0;pointer-events:none;z-index:2}
-.sparkle{position:absolute;pointer-events:none;z-index:1;will-change:transform,opacity}
-
 /* ===== Inline Viewer (FULL PAGE) ===== */
 .viewer{position:fixed;inset:0;display:none;place-items:stretch;background:#fff;z-index:50}
 .viewer.visible{display:grid}
@@ -204,8 +192,6 @@ body.viewer-open{overflow:hidden}
     <div class="bar">
       <div class="tablist" role="tablist" aria-label="Game tabs">
         <button class="tab" role="tab" aria-selected="true"  aria-controls="panel-whack"   id="tab-whack">🔨 Whack-a-Hub</button>
-        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-memory"  id="tab-memory">🧠 Memory Match</button>
-        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-avatar"  id="tab-avatar">🖼️ Avatar & Stickers</button>
       </div>
     </div>
 
@@ -234,51 +220,7 @@ body.viewer-open{overflow:hidden}
         </div>
         <p class="legend">Hit the popping emoji! Use mouse/tap or press <kbd>1–9</kbd>. Press <kbd>Space</kbd>/<kbd>S</kbd> to start.</p>
       </div>
-    </div>
-
-    <!-- Memory Match -->
-    <div class="panel" id="panel-memory" role="tabpanel" aria-labelledby="tab-memory" aria-hidden="true">
-      <h3 class="game-tag">🧠 Memory Match — find all pairs!</h3>
-      <div class="memory">
-        <div class="mm-hud" role="status" aria-live="polite">
-          <span class="pill">⏱️ Time: <strong id="mmTime">0</strong>s</span>
-          <span class="pill">🎮 Moves: <strong id="mmMoves">0</strong></span>
-          <span class="pill">🏆 Best: <strong id="mmBest">—</strong></span>
-          <button id="mmStart" type="button">Start / Reset</button>
-        </div>
-        <div class="mm-grid" id="mmGrid" aria-label="Card strip"></div>
-        <p class="legend">Flip two cards. Match all pairs to win!</p>
-        <div class="mm-overlay" id="mmOverlay" hidden>
-          <div class="mm-win"><div class="mm-title">🎉 Nice one!</div>
-            <div class="mm-sub">You finished in <strong id="mmWinTime">0</strong>s with <strong id="mmWinMoves">0</strong> moves.</div>
-            <button id="mmAgain" type="button">Play Again</button></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Avatar & Stickers -->
-    <div class="panel" id="panel-avatar" role="tabpanel" aria-labelledby="tab-avatar" aria-hidden="true">
-      <h3 class="game-tag">🖼️ Avatar & Stickers</h3>
-      <div class="stickers">
-        <div class="avrow" id="avRow">
-          <button class="av">🙂</button><button class="av">😎</button><button class="av">🧑‍💻</button>
-          <button class="av">🧙‍♂️</button><button class="av">🦊</button><button class="av">🐯</button>
-        </div>
-        <div class="trailrow" id="trailRow">
-          <button class="trail" data-style="sparkles">✨ Sparkles</button>
-          <button class="trail" data-style="stars">🌟 Stars</button>
-          <button class="trail" data-style="hearts" id="lockHearts" title="Unlock by Whack best ≥ 12">💖 Hearts</button>
-          <button class="trail" data-style="ribbons" id="lockRibbons" title="Unlock by Memory best ≤ 16 moves">🎀 Ribbons</button>
-        </div>
-        <p class="legend">Your picks save to this browser. Unlocked by your best scores (Hearts: Whack ≥ 12, Ribbons: Memory ≤ 16).</p>
-      </div>
-    </div>
-  </section>
-
-  <footer>Tip: when Costing Hub is ready, swap its card to an <code>&lt;a&gt;</code> with the URL.</footer>
-</main>
-
-<!-- ===== Inline Viewer Overlay ===== -->
+    </div><!-- ===== Inline Viewer Overlay ===== -->
 <div class="viewer" id="viewer" aria-hidden="true" aria-label="Hub viewer">
   <div class="viewer-box" role="dialog" aria-modal="true">
     <div class="viewer-bar">
@@ -417,20 +359,6 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() |
     else{ lock=true; beepMM(300,.05,'square',.04); setTimeout(()=>{ btn.classList.remove('revealed'); first.classList.remove('revealed'); first=null; lock=false; },520); } }
   function finish(){ clearInterval(timer); winTime.textContent=time; winMoves.textContent=moves; showOverlay(true); if(!best || moves<best){ best=moves; localStorage.setItem('kp360_memory_best',String(best)); bestEl.textContent=best; } }
   startBtn.addEventListener('click',start); againBtn.addEventListener('click',start); reset();
-})();
-
-/* ===== Avatar & Stickers ===== */
-(function(){
-  const badge=document.getElementById('avatarBadge'); const avRow=document.getElementById('avRow'); const trailRow=document.getElementById('trailRow');
-  function applyAvatar(emoji){ badge.textContent = emoji+' welcome aboard'; localStorage.setItem('kp360_avatar',emoji); }
-  function applyTrail(style){ localStorage.setItem('kp360_trail',style); [...trailRow.querySelectorAll('.trail')].forEach(b=>b.classList.toggle('selected', b.dataset.style===style)); }
-  const savedAv=localStorage.getItem('kp360_avatar'); if(savedAv) applyAvatar(savedAv);
-  const savedTrail=localStorage.getItem('kp360_trail')||'sparkles'; applyTrail(savedTrail);
-  avRow.querySelectorAll('.av').forEach(b=>{ if(b.textContent===savedAv) b.classList.add('selected'); b.addEventListener('click',()=>{ avRow.querySelectorAll('.av').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); applyAvatar(b.textContent); }); });
-  const whBest=Number(localStorage.getItem('kp360_whack_best')||0); const mmBest=Number(localStorage.getItem('kp360_memory_best')||999);
-  if(whBest<12) document.getElementById('lockHearts').classList.add('lock');
-  if(mmBest>16) document.getElementById('lockRibbons').classList.add('lock');
-  trailRow.querySelectorAll('.trail').forEach(b=>{ b.addEventListener('click',()=>{ if(b.classList.contains('lock')) return; applyTrail(b.dataset.style); }); });
 })();
 
 /* ===== Trivia Sprint (PO Hub, SOPs only) • Daily auto-modal ===== */
