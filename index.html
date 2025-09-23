@@ -88,6 +88,9 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .hud .pill{background:#f6f5ff;padding:.45rem .7rem;border-radius:999px}
 .hud button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
 .hud button:disabled{opacity:.6;cursor:not-allowed}
+/* mute button look */
+.hud .mute{background:#f0f0ff;color:#4a43ff}
+.hud .mute.active{background:#ffe6f6;color:#d91b8d}
 
 /* playful tagline above HUD */
 .game-tag{
@@ -248,44 +251,105 @@ setTimeout(()=>s.remove(),d+250)}})();
   }, {passive:true});
 })();
 
-/* Whack-a-Hub game */
+/* === Whack-a-Hub game + SOUND === */
 (function(){
   const board=document.getElementById('board'),holes=[...board.querySelectorAll('.hole')],spots=holes.map(h=>h.querySelector('.spot'));
   const startBtn=document.getElementById('startBtn'),timeEl=document.getElementById('time'),scoreEl=document.getElementById('score'),bestEl=document.getElementById('best');
-  const overlay=document.getElementById('overlay'),countEl=document.getElementById('count');
+  const overlay=document.getElementById('overlay'),countEl=document.getElementById('count'),muteBtn=document.getElementById('muteBtn');
+
   let time=30,score=0,best=Number(localStorage.getItem('kp360_whack_best')||0),playing=false,counting=false,tick=null,popT=null,cdT=null,vis=-1;
   bestEl.textContent=best;
+
+  /* ---- sound setup ---- */
+  let ctx=null;                                          // AudioContext (lazy)
+  let soundOn = localStorage.getItem('kp360_sound')!=='off';
+  function ensureAudio(){ if(ctx) return; try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  function beep(freq=880, dur=0.07, type='square', vol=0.06){
+    if(!soundOn || !ctx) return;
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.value=freq; g.gain.value=vol;
+    o.connect(g); g.connect(ctx.destination);
+    const now=ctx.currentTime;
+    o.start(now); o.stop(now+dur);
+    g.gain.setValueAtTime(vol, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+  }
+  // add mute button behavior
+  if(muteBtn){
+    if(!soundOn) muteBtn.classList.add('active'), muteBtn.textContent='🔇 Muted';
+    muteBtn.addEventListener('click',()=>{
+      soundOn = !soundOn;
+      localStorage.setItem('kp360_sound', soundOn ? 'on':'off');
+      muteBtn.classList.toggle('active', !soundOn);
+      muteBtn.textContent = soundOn ? '🔊 Sound' : '🔇 Muted';
+      if(soundOn){ ensureAudio(); beep(520,0.06,'square',0.05); }
+    });
+  }
+
   const setTime=t=>{time=t;timeEl.textContent=t},setScore=s=>{score=s;scoreEl.textContent=s};
   const rand=ex=>{let i;do{i=Math.floor(Math.random()*holes.length)}while(i===ex);return i};
   const hide=()=>{spots.forEach(s=>s.classList.remove('live'));vis=-1};
+
   function pop(){const speed=Math.max(400,900-score*20),i=rand(vis),spot=spots[i];
     spot.textContent=['🎉','✨','🎈','💫','🌟','🪄','🎊','🎀','🔔'][Math.floor(Math.random()*9)];
     hide(); spot.classList.add('live'); vis=i; clearTimeout(popT); popT=setTimeout(pop,speed);
   }
+
   function burst(h){const c=['#6a5cff','#ff6ec7','#00c2ff','#7effb2','#ffd166'],rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
     for(let i=0;i<10;i++){const p=document.createElement('span');p.className='popper';
       p.style.setProperty('--tx',(Math.random()*80-40)+'px');p.style.setProperty('--ty',(Math.random()*80-40)+'px');p.style.background=c[i%c.length];
       if(rm){p.style.opacity='0'} h.appendChild(p); setTimeout(()=>p.remove(),550);
     }
   }
-  function hit(i){if(!playing||i!==vis)return;const hole=holes[i],spot=spots[i];
+
+  function hit(i){
+    if(!playing||i!==vis)return;
+    const hole=holes[i],spot=spots[i];
     spot.animate?.([{transform:'scale(1)'},{transform:'scale(.85)'},{transform:'scale(1)'}],{duration:120,easing:'ease-out'});
-    burst(hole); setScore(score+1); pop();
+    burst(hole);
+    setScore(score+1);
+    ensureAudio(); beep(480+Math.min(score,6)*40,0.06,'square',0.05);  // pop beep
+    pop();
   }
-  function begin(){playing=true;setTime(30);setScore(0);startBtn.disabled=true;
+
+  function begin(){
+    playing=true;setTime(30);setScore(0);startBtn.disabled=true;
     holes.forEach((h,i)=>{h.disabled=false;h.addEventListener('click',()=>hit(i))});
-    pop(); clearInterval(tick); tick=setInterval(()=>{setTime(time-1); if(time<=0) end();},1000);
+    pop(); clearInterval(tick);
+    tick=setInterval(()=>{setTime(time-1); if(time<=0) end();},1000);
   }
+
   function show(txt){countEl.textContent=txt;countEl.classList.remove('animate');void countEl.offsetWidth;countEl.classList.add('animate');overlay.classList.add('visible')}
   function hideOv(){overlay.classList.remove('visible')}
-  function arm(){if(playing||counting)return;counting=true;setTime(30);setScore(0);startBtn.disabled=true;
-    const seq=['3','2','1','Go!'];let k=0;show(seq[k]);
-    clearInterval(cdT);cdT=setInterval(()=>{k++;if(k<seq.length)show(seq[k]);else{clearInterval(cdT);setTimeout(()=>{hideOv();counting=false;begin()},400)}},1000);
+
+  function arm(){
+    if(playing||counting)return;
+    counting=true; setTime(30); setScore(0); startBtn.disabled=true;
+    const seq=['3','2','1','Go!']; let k=0; show(seq[k]);
+    ensureAudio(); beep(660,0.08,'square',0.06);                // first tick
+    clearInterval(cdT);
+    cdT=setInterval(()=>{
+      k++;
+      if(k<seq.length){
+        show(seq[k]);
+        ensureAudio(); beep(k<seq.length-1 ? 660 : 880, 0.08, 'square', 0.06); // higher on "Go!"
+      } else {
+        clearInterval(cdT);
+        setTimeout(()=>{ hideOv(); counting=false; begin(); },400);
+      }
+    },1000);
   }
-  function end(){playing=false;clearInterval(tick);clearTimeout(popT);hide();startBtn.disabled=false;
-    if(score>best){best=score;localStorage.setItem('kp360_whack_best',String(best));bestEl.textContent=best}}
-  startBtn.addEventListener('click',arm);
-  addEventListener('keydown',e=>{if(e.key>='1'&&e.key<='9'){const i=Number(e.key)-1;if(i<holes.length)hit(i)}else if(e.key===' '||e.key.toLowerCase()==='s'){e.preventDefault();arm()}});
+
+  function end(){
+    playing=false;clearInterval(tick);clearTimeout(popT);hide();startBtn.disabled=false;
+    if(score>best){best=score;localStorage.setItem('kp360_whack_best',String(best));bestEl.textContent=best}
+  }
+
+  startBtn.addEventListener('click',()=>{ ensureAudio(); arm(); });
+  addEventListener('keydown',e=>{
+    if(e.key>='1'&&e.key<='9'){const i=Number(e.key)-1;if(i<holes.length)hit(i)}
+    else if(e.key===' '||e.key.toLowerCase()==='s'){e.preventDefault(); ensureAudio(); arm()}
+  });
   holes.forEach((h,i)=>{h.setAttribute('type','button');h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hit(i)}})});
 })();
 </script>
