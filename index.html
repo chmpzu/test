@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>KB Playground</title>
+<title>KP360 • Knowledge Base</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -40,9 +40,7 @@ main{width:min(1080px,100%);text-align:center;display:flex;flex-direction:column
   transition:transform .15s ease, box-shadow .25s ease, background .25s ease;
   will-change:transform; overflow:hidden; cursor:pointer; color:inherit;
 }
-/* keep Fredoka on button cards */
-button.card{ font:inherit; color:inherit; }
-
+button.card{ font:inherit; color:inherit; } /* keep Fredoka on button-cards */
 .card::before{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;opacity:0;
   background:conic-gradient(from 180deg,var(--accent),var(--accent-2),var(--accent-3),var(--accent));
   filter:blur(12px);transition:opacity .25s ease}
@@ -68,10 +66,10 @@ button.card{ font:inherit; color:inherit; }
 footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .spacer{flex:1 1 auto}
 
-/* ===== Arcade (tabs with both games) ===== */
+/* ===== Arcade ===== */
 .arcade{position:relative;width:min(980px,100%);margin:28px auto 0;background:#ffffffba;border:1px solid rgba(0,0,0,.04);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 .arcade .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(180deg,#fff,#fafaff)}
-.tablist{display:flex;gap:8px}
+.tablist{display:flex;gap:8px;flex-wrap:wrap}
 .tab{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;color:#4a43ff}
 .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(106,92,255,.2)}
 .arcade .mute{margin-left:auto;background:#f0f0ff;color:#4a43ff;border:1px solid #ecebff;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer}
@@ -89,21 +87,21 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .hole{position:relative;width:var(--tile);height:var(--tile);background:#fafaff;border:1px dashed #e6e4ff;border-radius:16px;display:grid;place-items:center;flex:0 0 var(--tile);overflow:hidden}
 .spot{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#fff;border:1px solid #eee;box-shadow:var(--shadow);font-size:28px;line-height:1;transform:translateY(110%)}
 .spot.live{transform:translateY(0)}
-  
 /* FULL-TAB overlay for countdown */
 .overlay{position:absolute;inset:0;display:none;place-items:center;background:rgba(255,255,255,.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:5}
 .overlay.visible{display:grid}
 .count{font-size:clamp(3rem,12vw,6rem);font-weight:900;line-height:1;margin:0;letter-spacing:.02em;color:#1e1e2a}
 .legend{margin-top:10px;font-size:clamp(0.86rem,1.6vw,0.95rem);color:#7b7b97;line-height:1.35}
 
-/* ===== Memory Match — ONE LINE ===== */
+/* ===== Memory Match — one line (with gutters to avoid clipping) ===== */
 .memory{position:relative}
 .memory .mm-hud{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;color:var(--muted);font-weight:600}
 .memory .mm-hud .pill{background:#f6f5ff;padding:.45rem .7rem;border-radius:999px}
 .memory .mm-hud button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
-.mm-grid{display:flex; gap:12px; width:100%; max-width:100%;padding:6px var(--board-pad-x); margin:0 auto; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; justify-content:center; flex-wrap:nowrap;}
+.mm-grid{display:flex;flex-wrap:nowrap;gap:12px;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:6px calc(var(--game-pad-x) + 6px);scroll-padding-inline:calc(var(--game-pad-x) + 6px);justify-content:flex-start;align-items:center}
 .mm-grid::-webkit-scrollbar{display:none}
-.mm-card{position:relative; width:72px; height:72px; flex:0 0 72px;border-radius:14px; cursor:pointer; transform-style:preserve-3d; transition:transform .35s ease;}
+.mm-grid::before,.mm-grid::after{content:"";flex:0 0 calc(var(--game-pad-x) + 6px)}
+.mm-card{box-sizing:border-box;position:relative;width:72px;height:72px;flex:0 0 72px;border-radius:14px;cursor:pointer;transform-style:preserve-3d;transition:transform .35s ease}
 .mm-face{position:absolute;inset:0;display:grid;place-items:center;border-radius:14px;backface-visibility:hidden;user-select:none}
 .mm-front{background:linear-gradient(135deg,#f4f3ff,#eefbff);border:1px dashed #e6e4ff}
 .mm-back{background:#fff;border:1px solid #eee;box-shadow:var(--shadow);transform:rotateY(180deg);font-size:28px}
@@ -115,24 +113,53 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem}
 .mm-title{font-weight:900;font-size:1.35rem;margin-bottom:4px}.mm-sub{color:var(--muted);margin-bottom:12px}
 .mm-win button{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
 
+/* ===== Avatar & Stickers ===== */
+.stickers{display:grid;gap:14px;place-items:center}
+.avrow,.trailrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.av{font-size:28px;line-height:1;appearance:none;border:1px solid #ecebff;background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer}
+.av.selected,.trail.selected{box-shadow:0 0 0 3px rgba(106,92,255,.25)}
+.lock{opacity:.5;filter:grayscale(1);cursor:not-allowed}
+.trail{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:8px 10px;font-weight:700;color:#4a43ff;cursor:pointer}
+
 /* Global sparkle layer */
 .sparkle-layer{position:fixed;inset:0;pointer-events:none;z-index:2}
 .sparkle{position:absolute;pointer-events:none;z-index:1;will-change:transform,opacity}
 
 /* ===== Inline Viewer (FULL PAGE) ===== */
-.viewer{position:fixed; inset:0;display:none; place-items:stretch;background:#fff; z-index:50;}
-.viewer.visible{ display:grid }
-.viewer-box{width:100vw; height:100vh;background:#fff; border:0; border-radius:0; box-shadow:none;display:flex; flex-direction:column; overflow:hidden;}
-.viewer-bar{position:sticky; top:0; z-index:2;display:flex; align-items:center; gap:10px;padding:10px 12px;background:linear-gradient(180deg,#fff,#fafaff);border-bottom:1px solid #f0f0f8;}
-.viewer-title{ font-weight:800 }
-.viewer-actions{ margin-left:auto; display:flex; gap:8px }
-.viewer-actions button{ appearance:none; border:0; border-radius:10px; padding:8px 12px; font-weight:800; cursor:pointer }
-.viewer-close{ background:#ffe6f6; color:#d91b8d }
-.viewer-open{  background:#f0f0ff; color:#4a43ff }
-.viewer-iframe{ flex:1; border:0; width:100% }
+.viewer{position:fixed;inset:0;display:none;place-items:stretch;background:#fff;z-index:50}
+.viewer.visible{display:grid}
+.viewer-box{width:100vw;height:100vh;background:#fff;border:0;border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden}
+.viewer-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:10px 12px;background:linear-gradient(180deg,#fff,#fafaff);border-bottom:1px solid #f0f0f8}
+.viewer-title{font-weight:800}
+.viewer-actions{margin-left:auto;display:flex;gap:8px}
+.viewer-actions button{appearance:none;border:0;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer}
+.viewer-close{background:#ffe6f6;color:#d91b8d}
+.viewer-open{background:#f0f0ff;color:#4a43ff}
+.viewer-iframe{flex:1;border:0;width:100%}
+body.viewer-open{overflow:hidden}
 
-/* lock background scroll while viewer is open */
-body.viewer-open{ overflow:hidden }
+/* ===== Trivia Sprint • Daily Modal ===== */
+.tv-modal{position:fixed;inset:0;display:none;place-items:center;z-index:60;
+  background:rgba(255,255,255,.36);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tv-modal.show{display:grid}
+.tv-card{width:min(720px,92vw);background:#fff;border:1px solid #eee;border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.12);padding:18px}
+.tv-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:6px}
+.tv-title{font-weight:900;font-size:1.2rem}
+.tv-controls{display:flex;gap:8px}
+.tv-btn{appearance:none;border:0;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 10px 20px rgba(106,92,255,.25)}
+.tv-ghost{background:#f7f7ff;color:#4a43ff;border:1px solid #ecebff}
+.tv-body{margin-top:6px}
+.tv-hud{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.tv-pill{background:#f6f5ff;padding:.45rem .7rem;border-radius:999px;font-weight:700;color:#5e5e76}
+.tv-q{margin:10px 0 8px;font-weight:800}
+.tv-choices{display:grid;gap:8px}
+.tv-choice{appearance:none;border:1px solid #ecebff;background:#f7f7ff;border-radius:10px;padding:10px 12px;text-align:left;
+  cursor:pointer;font-weight:700;color:#4a43ff}
+.tv-choice.correct{background:#e6fff0;border-color:#b7f5d1;color:#106b3b}
+.tv-choice.wrong{background:#fff3f3;border-color:#ffd3d3;color:#a12c2c}
+.tv-foot{margin-top:10px;text-align:center;color:#7b7b97}
 
 @media (max-width:380px){.board{--tile:64px}}
 </style>
@@ -143,7 +170,7 @@ body.viewer-open{ overflow:hidden }
 <div class="halo" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 
 <main>
-  <div class="badge">🎉 welcome aboard <span class="chip">KP360</span></div>
+  <div class="badge">🎉 <span id="avatarBadge">welcome aboard</span> <span class="chip">KP360</span></div>
   <h1 class="title">Your Knowledge Base Playground</h1>
   <p class="subtitle">Quick links to the hubs you use every day. Click a card to jump in!</p>
 
@@ -154,7 +181,7 @@ body.viewer-open{ overflow:hidden }
     </button>
     <button class="card tilt" type="button" data-url="https://kp360-po.github.io/WooHub/" data-title="WooHub">
       <div class="emoji">🛒</div><h3>WooHub <span class="chip">live</span></h3>
-      <p>WooParts and AutoApex workflows, guides, and integrations.</p>
+      <p>WooCommerce workflows, guides, and integrations.</p>
     </button>
     <button class="card tilt soon" type="button" disabled title="Coming soon!">
       <div class="emoji">💸</div><h3>Costing Hub <span class="chip">coming soon</span></h3>
@@ -164,34 +191,29 @@ body.viewer-open{ overflow:hidden }
 
   <div class="spacer" aria-hidden="true"></div>
 
-  <!-- ===== Arcade Tabs ===== -->
+  <!-- ===== Arcade Tabs (Jukebox & Team panels removed) ===== -->
   <section class="arcade" aria-label="Arcade">
     <div class="bar">
       <div class="tablist" role="tablist" aria-label="Game tabs">
-        <button class="tab" role="tab" aria-selected="true" aria-controls="panel-whack" id="tab-whack">🔨 Whack-a-Hub</button>
-        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-memory" id="tab-memory">🧠 Memory Match</button>
+        <button class="tab" role="tab" aria-selected="true"  aria-controls="panel-whack"   id="tab-whack">🔨 Whack-a-Hub</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-memory"  id="tab-memory">🧠 Memory Match</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-avatar"  id="tab-avatar">🖼️ Avatar & Stickers</button>
       </div>
       <button id="muteBtn" class="mute" type="button" title="Toggle sound">🔊 Sound</button>
     </div>
 
-    <!-- Whack-a-Hub panel -->
+    <!-- Whack-a-Hub -->
     <div class="panel" id="panel-whack" role="tabpanel" aria-labelledby="tab-whack" aria-hidden="false">
-      <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-live="assertive" aria-label="Game starting">
-        <div id="count" class="count">3</div>
-      </div>
-
+      <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-live="assertive"><div id="count" class="count">3</div></div>
       <h3 class="game-tag">☕ Take a quick break — whack a hub for 30 seconds!</h3>
-
       <div class="game" aria-label="Whack-a-Hub game"
            style="cursor:url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;32&quot; height=&quot;32&quot; viewBox=&quot;0 0 32 32&quot;><g fill=&quot;%23333&quot;><path d=&quot;M20.8 3.6c-.7-.6-1.8-.6-2.4.1l-3 3 2.9 2.9 3-3c.7-.7.7-1.7-.1-2.4l-.4-.4z&quot;/><path d=&quot;M6.1 20.2l7.7-7.7 3.2 3.2-7.7 7.7c-.5.5-1.2.8-1.9.8l-3.1.3.3-3.1c.1-.8.4-1.5.9-2.1z&quot;/></g></svg>') 6 6,pointer">
-
         <div class="hud" role="status" aria-live="polite">
           <span class="pill">⏱️ Time: <strong id="time">30</strong>s</span>
           <span class="pill">🎯 Score: <strong id="score">0</strong></span>
           <span class="pill">🏆 Best: <strong id="best">0</strong></span>
           <button id="startBtn" type="button">Start Game</button>
         </div>
-
         <div class="board" id="board">
           <button class="hole" aria-label="Hole 1"><span class="spot" aria-hidden="true">🎉</span></button>
           <button class="hole" aria-label="Hole 2"><span class="spot" aria-hidden="true">✨</span></button>
@@ -203,15 +225,13 @@ body.viewer-open{ overflow:hidden }
           <button class="hole" aria-label="Hole 8"><span class="spot" aria-hidden="true">🎀</span></button>
           <button class="hole" aria-label="Hole 9"><span class="spot" aria-hidden="true">🔔</span></button>
         </div>
-
         <p class="legend">Hit the popping emoji! Use mouse/tap or press <kbd>1–9</kbd>. Press <kbd>Space</kbd>/<kbd>S</kbd> to start.</p>
       </div>
     </div>
 
-    <!-- Memory Match panel -->
+    <!-- Memory Match -->
     <div class="panel" id="panel-memory" role="tabpanel" aria-labelledby="tab-memory" aria-hidden="true">
       <h3 class="game-tag">🧠 Memory Match — find all pairs!</h3>
-
       <div class="memory">
         <div class="mm-hud" role="status" aria-live="polite">
           <span class="pill">⏱️ Time: <strong id="mmTime">0</strong>s</span>
@@ -219,19 +239,31 @@ body.viewer-open{ overflow:hidden }
           <span class="pill">🏆 Best: <strong id="mmBest">—</strong></span>
           <button id="mmStart" type="button">Start / Reset</button>
         </div>
-
-        <!-- ONE-LINE card strip -->
         <div class="mm-grid" id="mmGrid" aria-label="Card strip"></div>
-
         <p class="legend">Flip two cards. Match all pairs to win!</p>
-
         <div class="mm-overlay" id="mmOverlay" hidden>
-          <div class="mm-win">
-            <div class="mm-title">🎉 Nice one!</div>
+          <div class="mm-win"><div class="mm-title">🎉 Nice one!</div>
             <div class="mm-sub">You finished in <strong id="mmWinTime">0</strong>s with <strong id="mmWinMoves">0</strong> moves.</div>
-            <button id="mmAgain" type="button">Play Again</button>
-          </div>
+            <button id="mmAgain" type="button">Play Again</button></div>
         </div>
+      </div>
+    </div>
+
+    <!-- Avatar & Stickers -->
+    <div class="panel" id="panel-avatar" role="tabpanel" aria-labelledby="tab-avatar" aria-hidden="true">
+      <h3 class="game-tag">🖼️ Avatar & Stickers</h3>
+      <div class="stickers">
+        <div class="avrow" id="avRow">
+          <button class="av">🙂</button><button class="av">😎</button><button class="av">🧑‍💻</button>
+          <button class="av">🧙‍♂️</button><button class="av">🦊</button><button class="av">🐯</button>
+        </div>
+        <div class="trailrow" id="trailRow">
+          <button class="trail" data-style="sparkles">✨ Sparkles</button>
+          <button class="trail" data-style="stars">🌟 Stars</button>
+          <button class="trail" data-style="hearts" id="lockHearts" title="Unlock by Whack best ≥ 12">💖 Hearts</button>
+          <button class="trail" data-style="ribbons" id="lockRibbons" title="Unlock by Memory best ≤ 16 moves">🎀 Ribbons</button>
+        </div>
+        <p class="legend">Your picks save to this browser. Unlocked by your best scores (Hearts: Whack ≥ 12, Ribbons: Memory ≤ 16).</p>
       </div>
     </div>
   </section>
@@ -239,17 +271,40 @@ body.viewer-open{ overflow:hidden }
   <footer>Tip: when Costing Hub is ready, swap its card to an <code>&lt;a&gt;</code> with the URL.</footer>
 </main>
 
-<!-- ===== Inline Viewer Overlay (full page) ===== -->
+<!-- ===== Inline Viewer Overlay ===== -->
 <div class="viewer" id="viewer" aria-hidden="true" aria-label="Hub viewer">
   <div class="viewer-box" role="dialog" aria-modal="true">
     <div class="viewer-bar">
       <button class="viewer-close" id="viewerBack" type="button">← Back</button>
       <div class="viewer-title" id="viewerTitle">Hub</div>
-      <div class="viewer-actions">
-        <button class="viewer-open" id="viewerOpen" type="button">Open in new tab</button>
-      </div>
+      <div class="viewer-actions"><button class="viewer-open" id="viewerOpen" type="button">Open in new tab</button></div>
     </div>
     <iframe class="viewer-iframe" id="viewerFrame" title="Hub content" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"></iframe>
+  </div>
+</div>
+
+<!-- ===== Trivia Sprint • Daily Modal (outside Arcade) ===== -->
+<div id="tvModal" class="tv-modal" aria-hidden="true" aria-label="Trivia Sprint modal">
+  <div class="tv-card" role="dialog" aria-modal="true">
+    <div class="tv-head">
+      <div class="tv-title">🧩 Trivia Sprint — quick 5 from PO Hub</div>
+      <div class="tv-controls">
+        <button id="tvSkip"  class="tv-btn tv-ghost" type="button" title="Close for now">Skip</button>
+        <button id="tvStart" class="tv-btn" type="button">Start</button>
+      </div>
+    </div>
+    <div class="tv-body">
+      <div class="tv-hud">
+        <span class="tv-pill">⏱️ <b id="tvTime">60</b>s</span>
+        <span class="tv-pill">✅ <b id="tvScore">0</b>/5</span>
+        <span class="tv-pill">🏆 Best: <b id="tvBest">0</b></span>
+      </div>
+      <div id="tvBox" hidden>
+        <p class="tv-q" id="tvQ">Question…</p>
+        <div class="tv-choices" id="tvChoices"></div>
+      </div>
+      <p id="tvStatus" class="tv-foot">Loading questions from PO Hub…</p>
+    </div>
   </div>
 </div>
 
@@ -269,50 +324,28 @@ setTimeout(()=>s.remove(),d+250)}})();
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const viewer=document.getElementById('viewer'), frame=document.getElementById('viewerFrame');
   const vTitle=document.getElementById('viewerTitle'), vOpen=document.getElementById('viewerOpen'), vBack=document.getElementById('viewerBack');
-
-  function openViewer(url,title){
-    vTitle.textContent=title||'Hub';
-    vOpen.onclick=()=>window.open(url,'_blank','noopener');
-    frame.src=url;
-    viewer.classList.add('visible');
-    viewer.setAttribute('aria-hidden','false');
-    document.body.classList.add('viewer-open');  // lock background scroll
-  }
-  function closeViewer(){
-    viewer.classList.remove('visible');
-    viewer.setAttribute('aria-hidden','true');
-    frame.removeAttribute('src');               // stop loading
-    document.body.classList.remove('viewer-open');
-  }
-
-  vBack.addEventListener('click',closeViewer);
-  viewer.addEventListener('click',(e)=>{ if(e.target===viewer) closeViewer(); });
+  function openViewer(url,title){vTitle.textContent=title||'Hub';vOpen.onclick=()=>window.open(url,'_blank','noopener');frame.src=url;viewer.classList.add('visible');viewer.setAttribute('aria-hidden','false');document.body.classList.add('viewer-open')}
+  function closeViewer(){viewer.classList.remove('visible');viewer.setAttribute('aria-hidden','true');frame.removeAttribute('src');document.body.classList.remove('viewer-open')}
+  vBack.addEventListener('click',closeViewer); viewer.addEventListener('click',(e)=>{ if(e.target===viewer) closeViewer(); });
   addEventListener('keydown',(e)=>{ if(e.key==='Escape'&&viewer.classList.contains('visible')) closeViewer(); });
 
   cards.forEach(card=>{
-    // tilt & ripple
-    card.addEventListener('pointermove',e=>{
-      if(reduced) return;
-      const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
-      card.style.transform=`perspective(700px) rotateX(${(y-.5)*8}deg) rotateY(${(x-.5)*-10}deg) translateZ(0)`;
-    });
-    card.addEventListener('pointerleave',()=>{card.style.transform='perspective(700px) rotateX(0) rotateY(0)';});
-    card.addEventListener('click',(e)=>{
-      const r=card.getBoundingClientRect(),dot=document.createElement('span');dot.className='ripple';
-      dot.style.left=(e.clientX-r.left)+'px';dot.style.top=(e.clientY-r.top)+'px';card.appendChild(dot);
-      dot.style.animation='ripple .7s ease-out forwards';setTimeout(()=>dot.remove(),750);
-
-      const url=card.dataset.url; if(url){ openViewer(url, card.dataset.title || card.querySelector('h3')?.textContent?.trim()); }
-    },{passive:true});
+    card.addEventListener('pointermove',e=>{ if(reduced) return; const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height; card.style.transform=`perspective(700px) rotateX(${(y-.5)*8}deg) rotateY(${(x-.5)*-10}deg)`; });
+    card.addEventListener('pointerleave',()=>{card.style.transform='perspective(700px) rotateX(0) rotateY(0)'});
+    card.addEventListener('click',(e)=>{const r=card.getBoundingClientRect(),dot=document.createElement('span');dot.className='ripple';dot.style.left=(e.clientX-r.left)+'px';dot.style.top=(e.clientY-r.top)+'px';card.appendChild(dot);dot.style.animation='ripple .7s ease-out forwards';setTimeout(()=>dot.remove(),750); const url=card.dataset.url; if(url){ openViewer(url,card.dataset.title||card.querySelector('h3')?.textContent?.trim()); }},{passive:true});
   });
 })();
 
-/* GLOBAL sparkle trail */
+/* GLOBAL sparkle trail (with style presets) */
 (function(){
   const layer=document.querySelector('.sparkle-layer'); if(!layer) return;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const colors=['#6a5cff','#ff6ec7','#00c2ff','#ffd166','#7effb2']; let last=0;
-  function spawn(x,y){const s=document.createElement('span');s.className='sparkle';
+  const palettes={ sparkles:['#6a5cff','#ff6ec7','#00c2ff','#ffd166','#7effb2'], stars:['#ffd166','#fff','#ffe9a8'], hearts:['#ff6ec7','#ff9ac8','#ff2a9e'], ribbons:['#a78bfa','#60a5fa','#34d399'] };
+  let last=0;
+  function currentStyle(){return localStorage.getItem('kp360_trail')||'sparkles'}
+  function spawn(x,y){
+    const st=currentStyle(), colors=palettes[st]||palettes.sparkles;
+    const s=document.createElement('span');s.className='sparkle';
     const size=6+Math.random()*10; Object.assign(s.style,{left:x+'px',top:y+'px',width:size+'px',height:size+'px',borderRadius:'50%',background:colors[Math.floor(Math.random()*colors.length)],filter:'blur(1px)',boxShadow:'0 0 12px rgba(255,255,255,.6)'}); layer.appendChild(s);
     s.animate?.([{opacity:.95,transform:'translateY(0) scale(1)'},{opacity:0,transform:`translateY(-10px) scale(${1+Math.random()*0.6})`}],{duration:600,easing:'ease-out',fill:'forwards'})?.addEventListener('finish',()=>s.remove());
     setTimeout(()=>s.remove(),650);
@@ -321,74 +354,44 @@ setTimeout(()=>s.remove(),d+250)}})();
   addEventListener('touchmove',e=>{const n=performance.now();if(n-last<22)return;last=n;for(const t of e.touches)spawn(t.clientX,t.clientY)},{passive:true});
 })();
 
-/* ===== Shared sound state ===== */
+/* ===== Sound (beeps) ===== */
 let KP360_AUDIO_CTX=null;
 function ensureAudio(){ if(KP360_AUDIO_CTX) return; try{ KP360_AUDIO_CTX=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
 function soundEnabled(){ return localStorage.getItem('kp360_sound')!=='off'; }
 function setSoundEnabled(on){ localStorage.setItem('kp360_sound', on?'on':'off'); }
-function beep(freq=880, dur=0.07, type='square', vol=0.06){
-  if(!soundEnabled() || !KP360_AUDIO_CTX) return;
-  const o=KP360_AUDIO_CTX.createOscillator(), g=KP360_AUDIO_CTX.createGain();
-  o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g); g.connect(KP360_AUDIO_CTX.destination);
-  const t=KP360_AUDIO_CTX.currentTime; o.start(t); o.stop(t+dur);
-  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-}
-(function(){ const btn=document.getElementById('muteBtn'); if(!btn) return;
-  const apply=()=>{btn.classList.toggle('active', !soundEnabled()); btn.textContent = soundEnabled() ? '🔊 Sound' : '🔇 Muted';}
-  apply(); btn.addEventListener('click',()=>{ setSoundEnabled(!soundEnabled()); apply(); if(soundEnabled()){ ensureAudio(); beep(520,0.06,'square',0.05); } });
-})();
+function beep(freq=880, dur=0.07, type='square', vol=0.06){ if(!soundEnabled() || !KP360_AUDIO_CTX) return; const o=KP360_AUDIO_CTX.createOscillator(), g=KP360_AUDIO_CTX.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g); g.connect(KP360_AUDIO_CTX.destination); const t=KP360_AUDIO_CTX.currentTime; o.start(t); o.stop(t+dur); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); }
+(function(){ const btn=document.getElementById('muteBtn'); if(!btn) return; const apply=()=>{btn.classList.toggle('active', !soundEnabled()); btn.textContent = soundEnabled() ? '🔊 Sound' : '🔇 Muted';}; apply(); btn.addEventListener('click',()=>{ setSoundEnabled(!soundEnabled()); apply(); if(soundEnabled()){ ensureAudio(); beep(520,0.06); } });})();
 
-/* ===== Tabs logic ===== */
+/* ===== Tabs (generic) ===== */
 (function(){
-  const tabs=[...document.querySelectorAll('.tab')];
-  const panels=[...document.querySelectorAll('.panel')];
-  function show(id){
-    tabs.forEach(t=>t.setAttribute('aria-selected', String(t.id==='tab-'+id)));
-    panels.forEach(p=>p.setAttribute('aria-hidden', String(p.id!=='panel-'+id)));
-    if(id==='memory' && window.KP360Whack?.end) window.KP360Whack.end();
-  }
-  document.getElementById('tab-whack').addEventListener('click',()=>show('whack'));
-  document.getElementById('tab-memory').addEventListener('click',()=>show('memory'));
+  const tabs=[...document.querySelectorAll('.tab')], panels=[...document.querySelectorAll('.panel')];
+  const show=(id)=>{tabs.forEach(t=>t.setAttribute('aria-selected', String(t.id===`tab-${id}`))); panels.forEach(p=>p.setAttribute('aria-hidden', String(p.id!==`panel-${id}`))); if(id!=='whack' && window.KP360Whack?.end) KP360Whack.end();};
+  tabs.forEach(t=>t.addEventListener('click',()=>show(t.id.replace('tab-',''))));
 })();
 
-/* ===== Whack-a-Hub (exposes end()) ===== */
+/* ===== Whack-a-Hub ===== */
 (function(){
   const board=document.getElementById('board'),holes=[...board.querySelectorAll('.hole')],spots=holes.map(h=>h.querySelector('.spot'));
   const startBtn=document.getElementById('startBtn'),timeEl=document.getElementById('time'),scoreEl=document.getElementById('score'),bestEl=document.getElementById('best');
   const overlay=document.getElementById('overlay'),countEl=document.getElementById('count');
   let time=30,score=0,best=Number(localStorage.getItem('kp360_whack_best')||0),playing=false,counting=false,tick=null,popT=null,cdT=null,vis=-1;
-  bestEl.textContent=best;
-  const setTime=t=>{time=t;timeEl.textContent=t},setScore=s=>{score=s;scoreEl.textContent=s};
-  const rand=ex=>{let i;do{i=Math.floor(Math.random()*holes.length)}while(i===ex);return i};
-  const hide=()=>{spots.forEach(s=>s.classList.remove('live'));vis=-1};
-  function pop(){const speed=Math.max(400,900-score*20),i=rand(vis),spot=spots[i];
-    spot.textContent=['🎉','✨','🎈','💫','🌟','🪄','🎊','🎀','🔔'][Math.floor(Math.random()*9)];
-    hide(); spot.classList.add('live'); vis=i; clearTimeout(popT); popT=setTimeout(pop,speed);
-  }
-  function burst(h){const c=['#6a5cff','#ff6ec7','#00c2ff','#7effb2','#ffd166']; for(let i=0;i<10;i++){const p=document.createElement('span');p.className='popper';
-    p.style.setProperty('--tx',(Math.random()*80-40)+'px');p.style.setProperty('--ty',(Math.random()*80-40)+'px');p.style.background=c[i%c.length]; h.appendChild(p); setTimeout(()=>p.remove(),550);}}
-  function hit(i){ if(!playing||i!==vis)return; const hole=holes[i],spot=spots[i];
-    spot.animate?.([{transform:'scale(1)'},{transform:'scale(.85)'},{transform:'scale(1)'}],{duration:120,easing:'ease-out'});
-    burst(hole); setScore(score+1); ensureAudio(); beep(480+Math.min(score,6)*40,0.06,'square',0.05); pop(); }
-  function begin(){ playing=true; setTime(30); setScore(0); startBtn.disabled=true;
-    holes.forEach((h,i)=>{ h.disabled=false; h.onclick=()=>hit(i) }); pop();
-    clearInterval(tick); tick=setInterval(()=>{ setTime(time-1); if(time<=0) end(); },1000); }
+  bestEl.textContent=best; const setTime=t=>{time=t;timeEl.textContent=t},setScore=s=>{score=s;scoreEl.textContent=s};
+  const rand=ex=>{let i;do{i=Math.floor(Math.random()*holes.length)}while(i===ex);return i}; const hide=()=>{spots.forEach(s=>s.classList.remove('live'));vis=-1};
+  function pop(){const speed=Math.max(400,900-score*20),i=rand(vis),spot=spots[i]; spot.textContent=['🎉','✨','🎈','💫','🌟','🪄','🎊','🎀','🔔'][Math.floor(Math.random()*9)]; hide(); spot.classList.add('live'); vis=i; clearTimeout(popT); popT=setTimeout(pop,speed); }
+  function burst(h){const c=['#6a5cff','#ff6ec7','#00c2ff','#7effb2','#ffd166']; for(let i=0;i<10;i++){const p=document.createElement('span');p.className='popper';p.style.setProperty('--tx',(Math.random()*80-40)+'px');p.style.setProperty('--ty',(Math.random()*80-40)+'px');p.style.background=c[i%c.length]; h.appendChild(p); setTimeout(()=>p.remove(),550);}}
+  function hit(i){ if(!playing||i!==vis)return; const hole=holes[i],spot=spots[i]; spot.animate?.([{transform:'scale(1)'},{transform:'scale(.85)'},{transform:'scale(1)'}],{duration:120,easing:'ease-out'}); burst(hole); setScore(score+1); ensureAudio(); beep(480+Math.min(score,6)*40,0.06); pop(); }
+  function begin(){ playing=true; setTime(30); setScore(0); startBtn.disabled=true; holes.forEach((h,i)=>{ h.disabled=false; h.onclick=()=>hit(i) }); pop(); clearInterval(tick); tick=setInterval(()=>{ setTime(time-1); if(time<=0) end(); },1000); }
   function show(txt){countEl.textContent=txt;countEl.classList.remove('animate');void countEl.offsetWidth;countEl.classList.add('animate');overlay.classList.add('visible')}
   function hideOv(){overlay.classList.remove('visible')}
-  function arm(){ if(playing||counting) return; counting=true; setTime(30); setScore(0); startBtn.disabled=true;
-    const seq=['3','2','1','Go!']; let k=0; show(seq[k]); ensureAudio(); beep(660,0.08,'square',0.06);
-    clearInterval(cdT); cdT=setInterval(()=>{ k++; if(k<seq.length){ show(seq[k]); ensureAudio(); beep(k<seq.length-1?660:880,0.08,'square',0.06); }
-      else { clearInterval(cdT); setTimeout(()=>{ hideOv(); counting=false; begin(); },400); } },1000); }
-  function end(){ playing=false; clearInterval(tick); clearTimeout(popT); hide(); startBtn.disabled=false;
-    if(score>best){best=score;localStorage.setItem('kp360_whack_best',String(best));bestEl.textContent=best;} }
+  function arm(){ if(playing||counting) return; counting=true; setTime(30); setScore(0); startBtn.disabled=true; const seq=['3','2','1','Go!']; let k=0; show(seq[k]); ensureAudio(); beep(660,0.08);
+    clearInterval(cdT); cdT=setInterval(()=>{ k++; if(k<seq.length){ show(seq[k]); ensureAudio(); beep(k<seq.length-1?660:880,0.08); } else { clearInterval(cdT); setTimeout(()=>{ hideOv(); counting=false; begin(); },400); } },1000); }
+  function end(){ playing=false; clearInterval(tick); clearTimeout(popT); hide(); startBtn.disabled=false; if(score>best){best=score;localStorage.setItem('kp360_whack_best',String(best));bestEl.textContent=best;} }
   startBtn.addEventListener('click',()=>{ ensureAudio(); arm(); });
-  addEventListener('keydown',e=>{ if(document.getElementById('panel-whack').getAttribute('aria-hidden')==='true') return;
-    if(e.key>='1'&&e.key<='9'){const i=Number(e.key)-1;if(i<holes.length)hit(i)} else if(e.key===' '||e.key.toLowerCase()==='s'){e.preventDefault(); ensureAudio(); arm()} });
-
+  addEventListener('keydown',e=>{ if(document.getElementById('panel-whack').getAttribute('aria-hidden')==='true') return; if(e.key>='1'&&e.key<='9'){const i=Number(e.key)-1;if(i<holes.length)hit(i)} else if(e.key===' '||e.key.toLowerCase()==='s'){e.preventDefault(); ensureAudio(); arm()} });
   window.KP360Whack={ end };
 })();
 
-/* ===== Emoji Memory Match (one-line) ===== */
+/* ===== Memory Match (one-line) ===== */
 (function(){
   const grid=document.getElementById('mmGrid'); if(!grid) return;
   const startBtn=document.getElementById('mmStart'),againBtn=document.getElementById('mmAgain');
@@ -398,23 +401,144 @@ function beep(freq=880, dur=0.07, type='square', vol=0.06){
   let best=Number(localStorage.getItem('kp360_memory_best')||0)||null; if(best){bestEl.textContent=best;}
   function beepMM(f=660,d=.06,t='square',v=.05){ ensureAudio(); beep(f,d,t,v); }
   function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; }
-  function build(){ grid.innerHTML=''; const deck=shuffle([...EMOJI,...EMOJI]);
-    cards=deck.map((em)=>{ const btn=document.createElement('button'); btn.className='mm-card'; btn.type='button'; btn.setAttribute('aria-label','card');
-      btn.innerHTML=`<span class="mm-face mm-front"></span><span class="mm-face mm-back" aria-hidden="true">${em}</span>`;
-      btn.dataset.emoji=em; btn.onclick=()=>onFlip(btn); btn.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onFlip(btn)}}; grid.appendChild(btn); return btn;});
-  }
+  function build(){ grid.innerHTML=''; const deck=shuffle([...EMOJI,...EMOJI]); cards=deck.map((em)=>{ const btn=document.createElement('button'); btn.className='mm-card'; btn.type='button'; btn.setAttribute('aria-label','card'); btn.innerHTML=`<span class="mm-face mm-front"></span><span class="mm-face mm-back" aria-hidden="true">${em}</span>`; btn.dataset.emoji=em; btn.onclick=()=>onFlip(btn); btn.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onFlip(btn)}}; grid.appendChild(btn); return btn;}); }
   function showOverlay(on){ overlay.hidden=!on; overlay.style.display=on?'grid':'none'; }
-  function reset(){ matched=0; first=null; lock=false; moves=0; time=0; clearInterval(timer);
-    movesEl.textContent='0'; timeEl.textContent='0'; showOverlay(false); build(); }
-  function start(){ ensureAudio(); reset(); cards.forEach(c=>c.classList.add('revealed')); setTimeout(()=>cards.forEach(c=>c.classList.remove('revealed')),900);
-    clearInterval(timer); timer=setInterval(()=>{ time++; timeEl.textContent=time; },1000); }
-  function onFlip(btn){ if(lock||btn.classList.contains('matched')||btn===first) return; btn.classList.add('revealed'); beepMM(520,.05);
-    if(!first){ first=btn; return; } moves++; movesEl.textContent=moves;
+  function reset(){ matched=0; first=null; lock=false; moves=0; time=0; clearInterval(timer); movesEl.textContent='0'; timeEl.textContent='0'; showOverlay(false); build(); }
+  function start(){ ensureAudio(); reset(); cards.forEach(c=>c.classList.add('revealed')); setTimeout(()=>cards.forEach(c=>c.classList.remove('revealed')),900); clearInterval(timer); timer=setInterval(()=>{ time++; timeEl.textContent=time; },1000); }
+  function onFlip(btn){ if(lock||btn.classList.contains('matched')||btn===first) return; btn.classList.add('revealed'); beepMM(520,.05); if(!first){ first=btn; return; } moves++; movesEl.textContent=moves;
     if(btn.dataset.emoji===first.dataset.emoji){ btn.classList.add('matched'); first.classList.add('matched'); matched+=2; beepMM(820,.07); first=null; if(cards.length>0 && matched===cards.length) finish(); }
     else{ lock=true; beepMM(300,.05,'square',.04); setTimeout(()=>{ btn.classList.remove('revealed'); first.classList.remove('revealed'); first=null; lock=false; },520); } }
-  function finish(){ clearInterval(timer); winTime.textContent=time; winMoves.textContent=moves; showOverlay(true);
-    if(!best || moves<best){ best=moves; localStorage.setItem('kp360_memory_best',String(best)); bestEl.textContent=best; } }
+  function finish(){ clearInterval(timer); winTime.textContent=time; winMoves.textContent=moves; showOverlay(true); if(!best || moves<best){ best=moves; localStorage.setItem('kp360_memory_best',String(best)); bestEl.textContent=best; } }
   startBtn.addEventListener('click',start); againBtn.addEventListener('click',start); reset();
+})();
+
+/* ===== Avatar & Stickers ===== */
+(function(){
+  const badge=document.getElementById('avatarBadge'); const avRow=document.getElementById('avRow'); const trailRow=document.getElementById('trailRow');
+  function applyAvatar(emoji){ badge.textContent = emoji+' welcome aboard'; localStorage.setItem('kp360_avatar',emoji); }
+  function applyTrail(style){ localStorage.setItem('kp360_trail',style); [...trailRow.querySelectorAll('.trail')].forEach(b=>b.classList.toggle('selected', b.dataset.style===style)); }
+  const savedAv=localStorage.getItem('kp360_avatar'); if(savedAv) applyAvatar(savedAv);
+  const savedTrail=localStorage.getItem('kp360_trail')||'sparkles'; applyTrail(savedTrail);
+  avRow.querySelectorAll('.av').forEach(b=>{ if(b.textContent===savedAv) b.classList.add('selected'); b.addEventListener('click',()=>{ avRow.querySelectorAll('.av').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); applyAvatar(b.textContent); }); });
+  const whBest=Number(localStorage.getItem('kp360_whack_best')||0); const mmBest=Number(localStorage.getItem('kp360_memory_best')||999);
+  if(whBest<12) document.getElementById('lockHearts').classList.add('lock');
+  if(mmBest>16) document.getElementById('lockRibbons').classList.add('lock');
+  trailRow.querySelectorAll('.trail').forEach(b=>{ b.addEventListener('click',()=>{ if(b.classList.contains('lock')) return; applyTrail(b.dataset.style); }); });
+})();
+
+/* ===== Trivia Sprint (PO Hub) • Daily auto-modal ===== */
+(function(){
+  if(typeof ensureAudio!=='function'){ window.ensureAudio=function(){} }
+  if(typeof beep!=='function'){ window.beep=function(){} }
+
+  const modal   = document.getElementById('tvModal');
+  const btnSkip = document.getElementById('tvSkip');
+  const btnStart= document.getElementById('tvStart');
+  const timeEl  = document.getElementById('tvTime');
+  const scoreEl = document.getElementById('tvScore');
+  const bestEl  = document.getElementById('tvBest');
+  const status  = document.getElementById('tvStatus');
+  const box     = document.getElementById('tvBox');
+  const qText   = document.getElementById('tvQ');
+  const choices = document.getElementById('tvChoices');
+  if(!modal) return;
+
+  const todayKey = (()=>{ const d=new Date(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `kp360_trivia_seen_${d.getFullYear()}-${m}-${day}` })();
+
+  let best = Number(localStorage.getItem('kp360_trivia_best')||0) || 0; bestEl.textContent = best;
+
+  const CANDIDATES = [
+    'https://kp360-po.github.io/Hub/trivia.json',
+    'https://kp360-po.github.io/KB/trivia.json',
+    'https://kp360-po.github.io/KPP/trivia.json'
+  ];
+  const FALLBACK_HTML = [
+    'https://kp360-po.github.io/Hub/',
+    'https://kp360-po.github.io/KB/',
+    'https://kp360-po.github.io/KPP/'
+  ];
+
+  async function tryFetch(url){ const r=await fetch(url,{mode:'cors'}); if(!r.ok) throw new Error(r.status); const ct=r.headers.get('content-type')||''; return ct.includes('application/json')? r.json(): r.text(); }
+  function shuffle(a){ for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1)); [a[j],a[j=k]]=[a[j=k],a[j]] } return a }
+  // ^^ small shuffle micro-opt to keep size tiny
+
+  async function loadFromJson(){
+    for(const u of CANDIDATES){
+      try{ const data=await tryFetch(u); if(Array.isArray(data)&&data.length&&data[0].q&&data[0].a) return data; }catch(_){}
+    } return null;
+  }
+  function htmlToDoc(html){ const d=document.implementation.createHTMLDocument(''); d.documentElement.innerHTML=html; return d; }
+  function buildFromHtml(doc){
+    const qs=[]; const heads=[...doc.querySelectorAll('h1,h2,h3')];
+    heads.forEach(h=>{
+      const ul = h.nextElementSibling && h.nextElementSibling.matches('ul,ol') ? h.nextElementSibling : null;
+      if(!ul) return;
+      const items=[...ul.querySelectorAll('li')].map(li=>li.textContent.trim()).filter(Boolean).slice(0,4);
+      if(items.length>=2){ qs.push({q:h.textContent.trim(), a:items, c:0}); }
+    }); return qs;
+  }
+  async function loadFromHtml(){
+    for(const u of FALLBACK_HTML){
+      try{ const html=await tryFetch(u); if(typeof html==='string'){ const doc=htmlToDoc(html); const qs=buildFromHtml(doc); if(qs.length>=5) return qs; } }catch(_){}
+    } return null;
+  }
+
+  function makeDeck(pool){
+    const base = (pool.slice ? pool.slice() : Array.from(pool)); shuffle(base); const pick=base.slice(0,5);
+    return pick.map(q=>{
+      const arr=q.a.slice(0,4); while(arr.length<4) arr.push('None of the above');
+      const ord=[0,1,2,3]; shuffle(ord); const a=ord.map(k=>arr[k]); const c=ord.indexOf(Math.min(q.c||0, arr.length-1));
+      return {q:String(q.q), a, c};
+    });
+  }
+
+  let deck=[], time=60, score=0, idx=0, timer=null;
+
+  function paint(){
+    const cur=deck[idx]; qText.textContent=cur.q; choices.innerHTML='';
+    cur.a.forEach((t,i)=>{ const b=document.createElement('button'); b.className='tv-choice'; b.textContent=t; b.onclick=()=>choose(i); choices.appendChild(b); });
+    box.hidden=false;
+  }
+  function choose(i){
+    const cur=deck[idx]; const nodes=[...choices.querySelectorAll('.tv-choice')]; nodes.forEach(n=>n.disabled=true);
+    if(i===cur.c){ nodes[i].classList.add('correct'); score++; scoreEl.textContent=score; ensureAudio(); beep(820,.08); }
+    else{ nodes[i].classList.add('wrong'); nodes[cur.c].classList.add('correct'); ensureAudio(); beep(320,.06); }
+    setTimeout(()=>{ idx++; (idx<deck.length)? paint(): finish(); },600);
+  }
+  function tick(){ time--; timeEl.textContent=time; if(time<=0) finish(); }
+  function start(){ ensureAudio(); score=0; idx=0; time=60; timeEl.textContent=time; scoreEl.textContent=score; status.textContent=''; clearInterval(timer); timer=setInterval(tick,1000); paint(); }
+  function finish(){
+    clearInterval(timer); box.hidden=true; status.textContent = `You got ${score}/5 correct in ${60-time}s.`;
+    if(score>(best||0)){ best=score; bestEl.textContent=best; localStorage.setItem('kp360_trivia_best', String(best)); }
+    localStorage.setItem(todayKey,'1'); btnStart.textContent='Play Again';
+  }
+  function closeNow(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); localStorage.setItem(todayKey,'1'); }
+
+  btnSkip.addEventListener('click', closeNow);
+  btnStart.addEventListener('click', start);
+  modal.addEventListener('click', e=>{ if(e.target===modal) closeNow(); });
+  addEventListener('keydown', e=>{ if(e.key==='Escape' && modal.classList.contains('show')) closeNow(); });
+
+  (async function initTrivia(){
+    status.textContent='Loading questions from PO Hub…';
+    let qs=null; const cached=sessionStorage.getItem('kp360_trivia_cache');
+    if(cached){ try{ qs=JSON.parse(cached) }catch{} }
+    if(!qs){ qs = await loadFromJson(); if(!qs) qs = await loadFromHtml(); if(qs) sessionStorage.setItem('kp360_trivia_cache', JSON.stringify(qs)); }
+    if(!qs || !qs.length){
+      status.textContent='Could not load PO Hub questions. Try again later.';
+      const sample=[{q:'PO stands for…',a:['Purchase Order','Product Option','Price Offer','Post Office'],c:0},
+                    {q:'Best place for SOPs?',a:['PO Hub','Random DM','Local PC','Whiteboard'],c:0},
+                    {q:'CSV stands for…',a:['Comma-Separated Values','Central Source Vault','Cost/Sales Value','Copy Saved Version'],c:0},
+                    {q:'WooCommerce runs on…',a:['WordPress','Drupal','Shopify','Magento'],c:0},
+                    {q:'404 means…',a:['Not Found','OK','Server Error','Redirect'],c:0}];
+      qs=sample;
+    }
+    deck = makeDeck(qs);
+    status.textContent='Ready when you are.';
+    if(!localStorage.getItem(todayKey)){
+      modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
+    }
+  })();
 })();
 </script>
 </body></html>
