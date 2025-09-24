@@ -1,0 +1,712 @@
+[
+  {
+    "q": "How do you check BO for EAGLE?",
+    "a": [
+      "Go to the EAGLE website ➜ Order Status; if marked OOS after PO, it appears in Tracking Info/Remark.",
+      "Ask the supplier by phone only.",
+      "Wait for warehouse to report it.",
+      "Check Marketplace messages for auto-cancellations."
+    ],
+    "c": 0
+  },
+  {
+    "q": "How do you check BO for TYC?",
+    "a": [
+      "Go to Purchase mailbox (iStore SO# email) and compare ordered vs allocated QTY, or check PO-TYC ➜ backordered folder.",
+      "Open the Vendor Slack and search for BO.",
+      "Use Google Voice call logs.",
+      "Check WooHub announcements."
+    ],
+    "c": 0
+  },
+  {
+    "q": "What is an NSF SKU?",
+    "a": [
+      "A SKU no longer sold by the supplier, fulfilled with an alternate SKU.",
+      "A newly launched supplier SKU.",
+      "A SKU that is always shipped LTL.",
+      "A SKU with free freight from supplier."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which of the following is a valid example of an NSF SKU?",
+    "a": [
+      "323-2003L-UF",
+      "PLX-2003-UF",
+      "KAR-NSF-2003",
+      "EAG-2003L"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Where do you check daily feed inventory from suppliers?",
+    "a": [
+      "Purchase Mailbox ➜ Daily Inv Update",
+      "Warehouse whiteboard",
+      "Google Drive ➜ Random Notes",
+      "Slack #general"
+    ],
+    "c": 0
+  },
+  {
+    "q": "How do you cancel a USAuto order that already has a quote ID?",
+    "a": [
+      "Email Team Kool Vue East via the purchase mailbox with the PO Number and Order ID.",
+      "Delete the PO from the spreadsheet.",
+      "Open a carrier claim with FedEx.",
+      "Message the buyer to cancel directly in Marketplace."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Who are our current wholesale customers?",
+    "a": [
+      "KEMA and AAG",
+      "Kema and WooParts",
+      "AAG and Artotek",
+      "KSI and Alpharex"
+    ],
+    "c": 0
+  },
+  {
+    "q": "What do we call shipments used for large items (hoods, bumpers, large grilles)?",
+    "a": [
+      "LTL",
+      "Parcel Priority",
+      "AMZL",
+      "Express Saver"
+    ],
+    "c": 0
+  },
+  {
+    "q": "What is the component SKU of CLX-M1-322-2027L-AG-CL360A3?",
+    "a": [
+      "322-2027L-AG",
+      "323-2027L-AG",
+      "CLX-2027L-AG",
+      "M1-2027L-AG"
+    ],
+    "c": 0
+  },
+  {
+    "q": "How will you know if a SKU is a set SKU?",
+    "a": [
+      "Check supplier description: if listed as CLX, order 1 SKU and receive both sides.",
+      "PLX means set; always order one and get both sides.",
+      "Any SKU with “M1” is automatically a set.",
+      "Any SKU containing a hyphen is a set."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Golden SKU vs Component SKU — which statement is correct?",
+    "a": [
+      "Golden SKUs are the marketplace SKUs; Component SKUs are the supplier-ordered SKUs.",
+      "Golden SKUs are supplier SKUs; Component SKUs are marketplace SKUs.",
+      "Both are the same; names vary by team.",
+      "Golden SKUs only apply to LTL items."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Why do we send a JWL for an OOS Amazon order?",
+    "a": [
+      "To avoid removal when there’s a same-SKU cancellation within 30 days.",
+      "To upgrade orders to expedited shipping.",
+      "To request partial shipment from supplier.",
+      "To bypass marketplace metrics entirely."
+    ],
+    "c": 0
+  },
+  {
+    "q": "What’s the purpose of JWL on eBay?",
+    "a": [
+      "Reduce cancellations and late shipments when an item is OOS.",
+      "Enable automatic returns approval.",
+      "Request tax exemption.",
+      "Submit carrier claims."
+    ],
+    "c": 0
+  },
+  {
+    "q": "When someone provides only a SKU and asks for order details, where do you look first?",
+    "a": [
+      "NJ PO spreadsheet (Find across Workbook for the SKU) to get PO name, order #, customer and address.",
+      "Google Voice history.",
+      "Carrier website tracking search.",
+      "Warehouse bin logs."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Give an example of a shipping restriction with USAuto.",
+    "a": [
+      "PO Box addresses",
+      "Oversized cartons",
+      "Residential addresses",
+      "Saturday delivery"
+    ],
+    "c": 0
+  },
+  {
+    "q": "USAuto order has a PO Box. What’s the correct approach?",
+    "a": [
+      "Verify in CA/MP; if a physical address exists validate in SS and update; otherwise email buyer for a physical address and cancel/refund if none.",
+      "Ship anyway via FedEx.",
+      "Change to AMZL automatically.",
+      "Ask warehouse to rebox and ship UPS."
+    ],
+    "c": 0
+  },
+  {
+    "q": "A WC order (not USAuto) has a PO Box and only FedEx meets EDD/cost. What’s the process?",
+    "a": [
+      "Verify address in CA/MP, check DIM and NPM, contact buyer for a physical address.",
+      "Ship FedEx anyway; PO Boxes are fine.",
+      "Switch to USPS automatically.",
+      "Ask warehouse to deliver by hand."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Buyer later provides a physical address for that order. What’s next?",
+    "a": [
+      "Validate the address in SS and proceed with labeling as usual.",
+      "Ask the buyer to reorder.",
+      "Refund the order anyway.",
+      "Move it to LTL."
+    ],
+    "c": 0
+  },
+  {
+    "q": "If a customer includes both a physical address and a PO Box, what should you do?",
+    "a": [
+      "Use the physical address after validation (SS/CA) and confirm if needed.",
+      "Use the PO Box to avoid residential surcharges.",
+      "Split into two shipments—one to each address.",
+      "Cancel by default."
+    ],
+    "c": 0
+  },
+  {
+    "q": "How do we submit orders from Alpharex and KSource?",
+    "a": [
+      "Via Email",
+      "Via EDI only",
+      "Through Slack forms",
+      "Via SMS"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which carriers are NOT allowed for KEMA orders?",
+    "a": [
+      "AMZL, UPS, OnTrac",
+      "FedEx, USPS, DHL",
+      "USPS only",
+      "Any carrier is fine"
+    ],
+    "c": 0
+  },
+  {
+    "q": "What are the PO cut-off times (morning and afternoon)?",
+    "a": [
+      "8 AM and 3 PM",
+      "7 AM and 2 PM",
+      "9 AM and 4 PM",
+      "10 AM and 5 PM"
+    ],
+    "c": 0
+  },
+  {
+    "q": "A warehouse says a returned item arrived. What should you do?",
+    "a": [
+      "Search tracking in SS/CA, get the order #, review MP/3D conversations for reason, inform WH and ask to stock if appropriate.",
+      "Create a return label and resend.",
+      "Refund immediately without checking.",
+      "Ask carrier to destroy the item."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Can we cancel an Amazon order if the item is OOS?",
+    "a": [
+      "Yes, provided there’s no cancellation of the exact same SKU within 30 days and it’s OOS everywhere.",
+      "Yes, always allowed with no conditions.",
+      "No, Amazon orders can’t be cancelled.",
+      "Only if the buyer opens a case."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Proper uses of Google Voice for the team include…",
+    "a": [
+      "Contacting suppliers, verifying customer info, and addressing carrier calls when needed.",
+      "Internal chit-chat only.",
+      "Uploading tracking numbers to MP.",
+      "Submitting purchase orders to suppliers."
+    ],
+    "c": 0
+  },
+  {
+    "q": "You see an ARTOTEK order in ZM. What should you do?",
+    "a": [
+      "Check if it’s in-house; if not, cross-fulfill to Big 3/other suppliers (we no longer order from Artotek).",
+      "Proceed to order from Artotek as usual.",
+      "Cancel immediately without checking.",
+      "Wait for buyer instructions."
+    ],
+    "c": 0
+  },
+  {
+    "q": "CSV files are separated by…",
+    "a": [
+      "Commas",
+      "Tabs",
+      "Pipes",
+      "Spaces"
+    ],
+    "c": 0
+  },
+  {
+    "q": "CSV stands for…",
+    "a": [
+      "Comma-Separated Values",
+      "Central Source Vault",
+      "Cost/Sales Value",
+      "Copy Saved Version"
+    ],
+    "c": 0
+  },
+  {
+    "q": "WooCommerce runs on…",
+    "a": [
+      "WordPress",
+      "Drupal",
+      "Magento",
+      "Shopify"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which HTTP status means “Not Found”?",
+    "a": [
+      "404",
+      "200",
+      "301",
+      "500"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Best place to store SOPs?",
+    "a": [
+      "PO Hub",
+      "Random DM",
+      "Local PC",
+      "Whiteboard only"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which metrics are directly impacted if an order is shipped after the Ship-By Date?",
+    "a": [
+      "LSR & OTDR",
+      "CTR & AHT",
+      "NPS & CSAT",
+      "ADR & FCR"
+    ],
+    "c": 0
+  },
+  {
+    "q": "By when must orders be shipped to avoid Ship-By violations?",
+    "a": [
+      "eBay / Walmart / BigCommerce: before 12:00 AM ET; Amazon: before 3:00 AM ET (12:00 AM PT)",
+      "All marketplaces: before 5:00 PM local time",
+      "Amazon: before 12:00 PM ET; others: before 3:00 PM ET",
+      "eBay only: before 11:59 PM PT; others anytime same day"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Mixed-supplier order with a 'ship by today' deadline: one part shipped, the other not. What should you do to protect metrics?",
+    "a": [
+      "Mark the unshipped part as shipped using the same tracking, then update the customer about multiple shipments.",
+      "Cancel the entire order immediately.",
+      "Create a new order for the second part and ignore the original order.",
+      "Wait for the second tracking and do nothing."
+    ],
+    "c": 0
+  },
+  {
+    "q": "EOD shows OOS. What are the correct actions?",
+    "a": [
+      "Check cross-fulfillment; if OOS everywhere, tag OOS in SS, inform buyer, refund; if available elsewhere and NPM fits, move and highlight Yellow with note 'OOS EOD. Moved to (Supplier/WH)'.",
+      "Always cancel immediately without checking cross-fulfillment.",
+      "Move to any supplier that has stock without checking NPM.",
+      "Ship partial without informing the buyer."
+    ],
+    "c": 0
+  },
+  {
+    "q": "OOS can be cross-fulfilled to the SAME warehouse but a different supplier. What’s the right process?",
+    "a": [
+      "Calculate NPM; if within paid/allowance, move to the supplier with stock and highlight Yellow with 'OOS EOD. Moved to (Supplier)'.",
+      "Move first, calculate NPM later.",
+      "Refund automatically.",
+      "Escalate to carrier claims."
+    ],
+    "c": 0
+  },
+  {
+    "q": "OOS can only be cross-fulfilled to a DIFFERENT warehouse. What are the steps?",
+    "a": [
+      "Find a supplier/WH with stock, calculate NPM; if within paid/allowance, move; highlight original sheet Yellow with 'OOS EOD. Moved to ***'.",
+      "Cancel immediately and notify finance.",
+      "Move and always upgrade to Express.",
+      "Keep the order in the original warehouse until restock."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Can you select USPS Ground Advantage for KEMA orders?",
+    "a": [
+      "Yes",
+      "No",
+      "Only on Mondays",
+      "Only for returns"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which carrier is NOT allowed for KEMA orders?",
+    "a": [
+      "UPS",
+      "USPS",
+      "AMZL",
+      "FedEx"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Why is selecting the correct Shipping Account important when labeling?",
+    "a": [
+      "Ensures the cost is deducted from the correct carrier account (AMZL/USPS/FedEx/UPS/ABS).",
+      "Improves customer NPS directly.",
+      "Speeds up marketplace syncing.",
+      "Avoids address validation entirely."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Who are our representatives for DEPO, TYC, and EAGLE?",
+    "a": [
+      "DEPO – Marissa; TYC – William; EAGLE – Beatriz",
+      "DEPO – William; TYC – Marissa; EAGLE – Leo",
+      "DEPO – Alexis; TYC – Randy; EAGLE – Jim",
+      "DEPO – Jim; TYC – Leo; EAGLE – Alexis"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Who is our rep in ShipStation?",
+    "a": [
+      "Jim McNamara (james.mcnamara@auctane.com)",
+      "William TYC",
+      "Marissa (DEPO)",
+      "Alexis (KSI)"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Our representatives for KSI and LKQ are…",
+    "a": [
+      "KSI – Alexis; LKQ – Leo",
+      "KSI – Randy; LKQ – Alexis",
+      "KSI – Marissa; LKQ – William",
+      "KSI – Jim; LKQ – Beatriz"
+    ],
+    "c": 0
+  },
+  {
+    "q": "When an item is super discounted, how do we label and note it?",
+    "a": [
+      "Check the internal note in SS; add ***DISCOUNTED*** in ZS.",
+      "Only note it in Slack.",
+      "Create a new SKU variant ending in -DISC.",
+      "No special action is required."
+    ],
+    "c": 0
+  },
+  {
+    "q": "SPIN order in 100 Ryan is OOS. Can you cross-fulfill?",
+    "a": [
+      "Yes if NPM fits the total paid/allowance; not if the SPIN order is super discounted.",
+      "Yes always; discounts don’t matter.",
+      "No; SPIN cannot be cross-fulfilled.",
+      "Only with AMZL labels"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Are we allowed to use AMZL for WooParts?",
+    "a": [
+      "Yes",
+      "No",
+      "Only weekends",
+      "Only during Q4"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Are we allowed to use AMZL for KEMA?",
+    "a": [
+      "Yes",
+      "No",
+      "Only for returns",
+      "Only for LTL"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Label conditions for Eagle NJ on Mondays vs non-Mondays:",
+    "a": [
+      "Avoid USPS on Mondays; USPS is okay on non-Mondays.",
+      "Always use USPS on Mondays only.",
+      "Use UPS only on Mondays.",
+      "No special conditions."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which locations were recently moved to NJ during PO?",
+    "a": [
+      "VA & NC",
+      "CA & NV",
+      "TX & FL",
+      "WA & OR"
+    ],
+    "c": 0
+  },
+  {
+    "q": "USPS label has no movement. Are we charged?",
+    "a": [
+      "Yes",
+      "No",
+      "Only after 60 days",
+      "Only if over 5 lb"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Up to how many days can you void a USPS label to avoid charges?",
+    "a": [
+      "28 days",
+      "7 days",
+      "14 days",
+      "30 days"
+    ],
+    "c": 0
+  },
+  {
+    "q": "For USAUTO orders, 'Processing (with Quote and Order ID)' means…",
+    "a": [
+      "The item is in stock and is being prepared for shipping.",
+      "The order is cancelled by the supplier.",
+      "Payment is pending and stock is unknown.",
+      "The label has been generated and package shipped."
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which locations were recently moved to IL during PO?",
+    "a": [
+      "AR, TN and OK",
+      "VA & NC",
+      "MT, WY, CO",
+      "CA & NV"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Who is our new Wholesale customer?",
+    "a": [
+      "Crown Auto",
+      "Artotek",
+      "WooParts",
+      "LKQ"
+    ],
+    "c": 0
+  },
+  {
+    "q": "When can you cross-fulfill LKQ to KSI?",
+    "a": [
+      "If price diff ≤ 20% and NPM up to −20%",
+      "If price diff ≤ $5 and NPM up to −$20",
+      "Only if both are in the same warehouse",
+      "Never allowed between LKQ and KSI"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which are our current will-call suppliers?",
+    "a": [
+      "Depo, TYC, KSI, Eagle, LKQ",
+      "Alpharex, Meyer, USAuto",
+      "KEMA, AAG, Crown Auto",
+      "KSource only"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Alpharex is a…",
+    "a": [
+      "Dropship supplier",
+      "Will-call only supplier",
+      "3PL carrier",
+      "Marketplace"
+    ],
+    "c": 0
+  },
+  {
+    "q": "If you see an ARTOTEK order in ZM, what should you do?",
+    "a": [
+      "Do not order from Artotek; check in-house, then cross-fulfill to Big 3/others if available",
+      "Place the order with Artotek as usual",
+      "Cancel immediately without checking",
+      "Wait for buyer to message first"
+    ],
+    "c": 0
+  },
+  {
+    "q": "eBay label rule: if the next label that can meet EDD is > $3 more than the cheapest option…",
+    "a": [
+      "Select the next cheaper label even if it won’t meet EDD",
+      "Always pick AMZL regardless of cost",
+      "Upgrade to fastest label automatically",
+      "Cancel the order"
+    ],
+    "c": 0
+  },
+  {
+    "q": "After voiding a Walmart label, what must you do?",
+    "a": [
+      "Update the tracking number, monitor it on Walmart, and post to the Walmart Tracking Update sheet",
+      "Do nothing; Walmart updates automatically",
+      "Message the buyer only",
+      "Recreate the order"
+    ],
+    "c": 0
+  },
+  {
+    "q": "What do we call shipments for hoods, bumpers, and large grilles?",
+    "a": [
+      "LTL",
+      "Parcel",
+      "AMZL",
+      "Express Saver"
+    ],
+    "c": 0
+  },
+  {
+    "q": "What is eBay’s end-of-day sweeping cutoff?",
+    "a": [
+      "11:59 PM",
+      "12:00 PM",
+      "3:00 AM ET",
+      "5:00 PM"
+    ],
+    "c": 0
+  },
+  {
+    "q": "What’s the allowed girth limit to avoid penalty?",
+    "a": [
+      "105",
+      "108",
+      "90",
+      "72"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Component SKUs of PLX-M1-326-2025N-AG-CL360A3 (non-existent SKU used for format test) are…",
+    "a": [
+      "327-2025N-AG and 327-2026N-AG",
+      "322-2025N-AG and 322-2026N-AG",
+      "CLX-2025N-AG and CLX-2026N-AG",
+      "M1-2025N-AG and M1-2026N-AG"
+    ],
+    "c": 0
+  },
+  {
+    "q": "When do we send JWL?",
+    "a": [
+      "eBay: avoid cancellation/late shipment when OOS; Amazon: when same-SKU cancellation within 30 days risk; Walmart: duplicate orders (check performance first)",
+      "Only when a shipment is expedited",
+      "Only for recycled UPCs",
+      "Never on Amazon"
+    ],
+    "c": 0
+  },
+  {
+    "q": "As of Week 1-2025, who are our wholesale customers?",
+    "a": [
+      "KEMA, AAG, Crown Auto",
+      "KEMA and AAG only",
+      "Crown Auto only",
+      "KSI and Alpharex"
+    ],
+    "c": 0
+  },
+  {
+    "q": "USAuto-SET SKU is OOS. What’s the correct handling?",
+    "a": [
+      "Order parts separately in USAuto if available; otherwise cross-fulfill to WC ensuring both sides from the same supplier—if not possible, refund",
+      "Ship one side and backorder the other",
+      "Always refund immediately",
+      "Switch to AMZL and ship partial"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Before confirming a request for RS, what must you check?",
+    "a": [
+      "Item availability (esp. OE), correct SKU, price differences, address validity; avoid international RS if not preferred",
+      "Only price and address",
+      "Only SKU format",
+      "Only warehouse bin stock"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Where should PR be placed during PO?",
+    "a": [
+      "NJ/GA",
+      "CA/NV",
+      "IL/NJ",
+      "TX/FL"
+    ],
+    "c": 0
+  },
+  {
+    "q": "Which states were recently moved to IL (Week 1-2025)?",
+    "a": [
+      "MT, WY, CO",
+      "AR, TN, OK",
+      "VA & NC",
+      "CA & NV"
+    ],
+    "c": 0
+  },
+  {
+    "q": "When cross-fulfilling LKQ to KSI, what price difference is allowed?",
+    "a": [
+      "20%",
+      "10%",
+      "$20 flat",
+      "5%"
+    ],
+    "c": 0
+  }
+]
