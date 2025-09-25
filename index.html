@@ -89,6 +89,8 @@ body{
 a{ color:inherit; text-decoration:none }
 .container{ width:min(1400px,96%); margin-inline:auto }
 
+
+.page.container:not([data-page="home"]){ width:min(1970px,100%); }
 /* ---------- Header ---------- */
 .site-header{
   position:sticky; top:0; z-index:60;
@@ -1496,11 +1498,27 @@ function domReadyForSearch(){
   }
   return true;
 }
+/* Ensure Apps Script-backed tabs are loaded before searching */
+async function ensureAllTabsLoaded(){
+  const tabs = Object.keys(TAB_REGISTRY);
+  const empties = tabs.filter(t => Array.isArray(TAB_REGISTRY[t]) && TAB_REGISTRY[t].length === 0);
+  if (empties.length === 0) return;
+  try{
+    await Promise.all(empties.map(tab =>
+      fetchSheetRows(tab).then(({ headers, rows }) => {
+        const items = rowsToLinkItems(headers, rows);
+        TAB_REGISTRY[tab].splice(0, TAB_REGISTRY[tab].length, ...items);
+      }).catch(()=>{})
+    ));
+  }catch(_e){ /* swallow */ }
+}
 
-function doSearch(){
+
+async function doSearch(){
   if (!domReadyForSearch()) return;
   const q = (searchInput.value||'').trim().toLowerCase();
   if (!q) { resultsEl.classList.remove('visible'); resultsEl.innerHTML=''; return; }
+  await ensureAllTabsLoaded();
   const idx = buildIndex();
   const res = idx.filter(e => e.haystack.includes(q));
   res.sort((a,b)=>{
