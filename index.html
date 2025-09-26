@@ -44,8 +44,8 @@ td.kp-hl-red input, td.kp-hl-yellow input { background-color: inherit !important
 <style id="kp360-service-col-style">
 /* === KP360: widen Service/Carrier column === */
 th.kp-service-col, td.kp-service-col {
-  min-width: 130px !important;   /* give it breathing room */
-  width: 130px !important;
+  min-width: 120px !important;   /* give it breathing room */
+  width: 120px !important;
   white-space: normal;            /* allow wrapping where needed */
   word-break: break-word;         /* but avoid overflow */
 }
@@ -56,6 +56,33 @@ th.kp-service-col, td.kp-service-col {
 tr.kp-row-warn > td { 
   background: #fef3c7 !important;   /* light yellow across the whole line */
 }
+</style>
+
+<style id="kp360-tip-bubble-style">
+/* === KP360: Tip bubble for highlights === */
+.kp-tip {
+  position: fixed;
+  z-index: 999999;
+  max-width: 320px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.35;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .12s ease, transform .12s ease;
+  white-space: normal;
+  word-break: break-word;
+}
+.kp-tip.show { opacity: 0.96; transform: translateY(0); }
+.kp-tip strong { font-weight: 600; }
+.kp-tip .kp-tip-head { display: block; margin-bottom: 4px; font-weight: 600; color: #fef3c7; } /* light yellow title */
+.kp-tip .kp-tip-rule { color: #cbd5e1; }
+td.kp-hl-red, td.kp-hl-yellow, tr.kp-row-warn > td { position: relative; }
 </style>
 </head>
 <body>
@@ -794,6 +821,148 @@ tr.kp-row-warn > td {
   // re-apply on DOM changes
   var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
   obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
+})();
+</script>
+
+<script id="kp360-tip-bubble-script">
+(function(){
+  // Utilities
+  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
+  function headerIndex(table, name){
+    if (!table || !table.tHead) return -1;
+    var ths = table.tHead.querySelectorAll('th');
+    var key = norm(name);
+    for (var i=0;i<ths.length;i++){ if (norm(ths[i].textContent) === key) return i; }
+    return -1;
+  }
+  function getHeaderText(table, idx){
+    if (!table || !table.tHead) return '';
+    var ths = table.tHead.querySelectorAll('th');
+    if (idx >= 0 && idx < ths.length) return (ths[idx].textContent||'').trim();
+    return '';
+  }
+  function val(td){
+    if (!td) return '';
+    var inp = td.querySelector('input,textarea,select');
+    if (inp) return (inp.value||'').trim();
+    return (td.textContent||'').trim();
+  }
+  function looksLikeSalesOrder(table){
+    return headerIndex(table,'PO REFERENCE NUMBER') >= 0;
+  }
+  function hasPLXorPAIR(s){ s = norm(s); return /\bPLX\b/.test(s) || /\bPAIR\b/.test(s); }
+  function hasFBA(s){ s = norm(s); return /(^|[^A-Z0-9])FBA([^A-Z0-9]|$)/.test(s); }
+  function shipFromVendor(s){ s = norm(s); return (/\bUSAUTO\b/.test(s) || /\bUS AUTO\b/.test(s) || /MEYER/.test(s) || /TONSA/.test(s)); }
+
+  // Tooltip element
+  var tip = document.createElement('div');
+  tip.className = 'kp-tip';
+  document.body.appendChild(tip);
+
+  var currentTarget = null;
+
+  function showTip(target, html){
+    tip.innerHTML = html;
+    tip.classList.add('show');
+    currentTarget = target;
+  }
+  function hideTip(){
+    tip.classList.remove('show');
+    currentTarget = null;
+  }
+  function positionTip(ev){
+    var x = ev.clientX + 12;
+    var y = ev.clientY + 12;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var vw = document.documentElement.clientWidth;
+    var vh = document.documentElement.clientHeight;
+    if (x + w + 12 > vw) x = Math.max(8, vw - w - 12);
+    if (y + h + 12 > vh) y = Math.max(8, vh - h - 12);
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+
+  function reasonForCell(td){
+    var table = td.closest('table');
+    var idx = Array.prototype.indexOf.call(td.parentNode.children, td);
+    var header = getHeaderText(table, idx);
+    var clsRed = td.classList.contains('kp-hl-red');
+    var clsYellow = td.classList.contains('kp-hl-yellow');
+
+    // Gather row values for special rules
+    var idxSKU = headerIndex(table,'ITEM SKU');
+    var idxCF2 = headerIndex(table,'CUSTOM FIELD 2');
+    var idxService = headerIndex(table,'SERVICE'); if (idxService<0) idxService = headerIndex(table,'CARRIER');
+    var idxRate = headerIndex(table,'CARRIER FEE'); if (idxRate<0) idxRate = headerIndex(table,'RATE');
+    var idxTrack = headerIndex(table,'TRACKING NUMBER');
+    var idxShipFrom = headerIndex(table,'SHIP FROM');
+
+    var tr = td.parentNode;
+    var sku = idxSKU>=0 ? val(tr.children[idxSKU]) : '';
+    var shipFrom = idxShipFrom>=0 ? val(tr.children[idxShipFrom]) : '';
+
+    if (clsRed){
+      if (norm(header) === 'CUSTOM FIELD 2'){
+        if (!looksLikeSalesOrder(table) && hasPLXorPAIR(sku) && !hasFBA(sku)){
+          return '<span class="kp-tip-head">Missing required field</span><span class="kp-tip-rule">Custom Field 2 is required for PLX/PAIR SKUs on the Sales Report (ignored if SKU contains FBA).</span>';
+        }
+        return '<span class="kp-tip-head">Missing value</span><span class="kp-tip-rule">Custom Field 2 is empty.</span>';
+      }
+      return '<span class="kp-tip-head">Missing value</span><span class="kp-tip-rule">'+(header||'This field')+' is required.</span>';
+    }
+    if (clsYellow){
+      if (idxService===idx) return '<span class="kp-tip-head">Carrier Missing</span><span class="kp-tip-rule">Please provide a carrier/service.</span>';
+      if (idxRate===idx) return '<span class="kp-tip-head">Carrier Fee Missing</span><span class="kp-tip-rule">Please provide a fee if applicable.</span>';
+      if (idxTrack===idx) return '<span class="kp-tip-head">Tracking Number Missing</span><span class="kp-tip-rule">Add tracking when available.</span>';
+      return '<span class="kp-tip-head">Needs attention</span><span class="kp-tip-rule">'+(header||'This field')+' is empty.</span>';
+    }
+    // If part of a row-warn, defer to row reason
+    if (td.parentNode.classList.contains('kp-row-warn')){
+      return reasonForRow(td.parentNode);
+    }
+    return '<span class="kp-tip-head">Info</span><span class="kp-tip-rule">Highlighted cell.</span>';
+  }
+
+  function reasonForRow(tr){
+    var table = tr.closest('table');
+    var idxShipFrom = headerIndex(table,'SHIP FROM');
+    var idxRate = headerIndex(table,'CARRIER FEE'); if (idxRate<0) idxRate = headerIndex(table,'RATE');
+    var ship = idxShipFrom>=0 ? val(tr.children[idxShipFrom]) : '';
+    var fee = idxRate>=0 ? val(tr.children[idxRate]) : '';
+    if (shipFromVendor(ship) && fee !== ''){
+      return '<span class="kp-tip-head">Review: Unexpected Carrier Fee</span><span class="kp-tip-rule">This line has a Carrier Fee, but Ship From is '+(ship||'vendor')+'.</span>';
+    }
+    return '<span class="kp-tip-head">Row highlighted</span><span class="kp-tip-rule">Please review this line.</span>';
+  }
+
+  function attachHandlers(){
+    // target all highlighted cells and rows
+    var cells = document.querySelectorAll('td.kp-hl-red, td.kp-hl-yellow, tr.kp-row-warn > td');
+    cells.forEach(function(td){
+      // Avoid duplicate listeners
+      if (td._kpTipBound) return;
+      td._kpTipBound = true;
+      td.addEventListener('mouseenter', function(ev){
+        var html = td.parentNode.classList.contains('kp-row-warn') ? reasonForRow(td.parentNode) : reasonForCell(td);
+        showTip(td, html); positionTip(ev);
+      });
+      td.addEventListener('mousemove', positionTip);
+      td.addEventListener('mouseleave', hideTip);
+      td.addEventListener('scroll', hideTip, {passive:true});
+    });
+  }
+
+  function scheduleAttach(){
+    attachHandlers();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleAttach);
+  } else { scheduleAttach(); }
+
+  // Re-attach on DOM updates
+  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList' || m[i].type==='attributes'){ scheduleAttach(); break; }}});
+  obs.observe(document.documentElement||document.body, {subtree:true, childList:true, attributes:true});
 })();
 </script>
 </body>
