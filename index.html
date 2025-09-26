@@ -44,10 +44,17 @@ td.kp-hl-red input, td.kp-hl-yellow input { background-color: inherit !important
 <style id="kp360-service-col-style">
 /* === KP360: widen Service/Carrier column === */
 th.kp-service-col, td.kp-service-col {
-  min-width: 120px !important;   /* give it breathing room */
-  width: 120px !important;
+  min-width: 130px !important;   /* give it breathing room */
+  width: 130px !important;
   white-space: normal;            /* allow wrapping where needed */
   word-break: break-word;         /* but avoid overflow */
+}
+</style>
+
+<style id="kp360-row-warning-style">
+/* === KP360: row-level warning === */
+tr.kp-row-warn > td { 
+  background: #fef3c7 !important;   /* light yellow across the whole line */
 }
 </style>
 </head>
@@ -579,6 +586,213 @@ th.kp-service-col, td.kp-service-col {
       if (m[i].type === 'childList'){ apply(); break; }
     }
   });
+  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
+})();
+</script>
+
+<script id="kp360-cf2-sales-report-only">
+(function(){
+  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
+  function headerIndex(table, name){
+    if (!table || !table.tHead) return -1;
+    var ths = table.tHead.querySelectorAll('th');
+    for (var i=0;i<ths.length;i++){
+      if (norm(ths[i].textContent) === norm(name)) return i;
+    }
+    return -1;
+  }
+  function looksLikeSalesOrder(table){
+    // Sales Order view in this app uses "PO Reference Number"
+    return headerIndex(table,'PO REFERENCE NUMBER') >= 0;
+  }
+  function apply(){
+    var tables = document.querySelectorAll('table');
+    for (var t=0;t<tables.length;t++){
+      var table = tables[t];
+      if (!looksLikeSalesOrder(table)) continue; // rule only needs to remove on SO
+
+      var cf2Idx = headerIndex(table,'CUSTOM FIELD 2');
+      if (cf2Idx < 0) continue;
+      for (var b=0;b<table.tBodies.length;b++){
+        var rows = table.tBodies[b].rows;
+        for (var r=0;r<rows.length;r++){
+          var td = rows[r].children[cf2Idx];
+          if (td) td.classList.remove('kp-hl-red'); // ensure CF2 never red-highlighted on SO
+        }
+      }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+  // re-apply on DOM mutations
+  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
+  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
+})();
+</script>
+
+<script id="kp360-row-warning-script">
+(function(){
+  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
+  function headerIndex(table, name){
+    if (!table || !table.tHead) return -1;
+    var ths = table.tHead.querySelectorAll('th');
+    var key = norm(name);
+    for (var i=0;i<ths.length;i++){
+      if (norm(ths[i].textContent) === key) return i;
+    }
+    return -1;
+  }
+  function val(td){
+    if (!td) return '';
+    var inp = td.querySelector('input,textarea,select');
+    if (inp) return (inp.value||'').trim();
+    return (td.textContent||'').trim();
+  }
+  function hasVendorSKU(s){
+    s = norm(s);
+    return /\bUSAUTO\b/.test(s) || /\BMEYER\b/.test(s) || /\BTONSA\b/.test(s) || /\bUS AUTO\b/.test(s);
+  }
+  function apply(){
+    var tables = document.querySelectorAll('table');
+    for (var t=0;t<tables.length;t++){
+      var table = tables[t];
+      if (!table.tBodies || !table.tBodies.length) continue;
+
+      var idxSKU = headerIndex(table, 'ITEM SKU');
+      var idxFee = headerIndex(table, 'CARRIER FEE');
+      if (idxFee < 0) idxFee = headerIndex(table, 'RATE'); // Report uses "Rate"
+      var idxPO  = headerIndex(table, 'PO NUMBER') >= 0 ? headerIndex(table, 'PO NUMBER') : headerIndex(table, 'PO REFERENCE NUMBER');
+
+      for (var b=0;b<table.tBodies.length;b++){
+        var rows = table.tBodies[b].rows;
+        for (var r=0;r<rows.length;r++){
+          var tr = rows[r];
+          tr.classList.remove('kp-row-warn');
+          var sku = val(tr.children[idxSKU]);
+          var fee = val(tr.children[idxFee]);
+          var po  = val(tr.children[idxPO]);
+          if (idxSKU>=0 && idxFee>=0 && hasVendorSKU(sku) && fee !== '' && (po === '' || po == null)){
+            tr.classList.add('kp-row-warn');
+          }
+        }
+      }
+    }
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+  // re-apply on DOM changes
+  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
+  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
+})();
+</script>
+
+<script id="kp360-cf2-ignore-fba">
+(function(){
+  function norm(s){ return String(s||'').trim().toUpperCase(); }
+  function headerIndex(table, name){
+    if (!table || !table.tHead) return -1;
+    var ths = table.tHead.querySelectorAll('th');
+    var key = norm(name);
+    for (var i=0;i<ths.length;i++){ if (norm(ths[i].textContent) === key) return i; }
+    return -1;
+  }
+  function looksLikeSalesOrder(table){
+    return headerIndex(table,'PO REFERENCE NUMBER') >= 0;
+  }
+  function val(td){
+    if (!td) return '';
+    var inp = td.querySelector('input,textarea,select');
+    if (inp) return (inp.value||'').trim();
+    return (td.textContent||'').trim();
+  }
+  function apply(){
+    var tables = document.querySelectorAll('table');
+    for (var t=0;t<tables.length;t++){
+      var table = tables[t];
+      // Apply only on Sales Report (skip SO)
+      if (looksLikeSalesOrder(table)) continue;
+      var idxSKU = headerIndex(table,'ITEM SKU');
+      var idxCF2 = headerIndex(table,'CUSTOM FIELD 2');
+      if (idxSKU < 0 || idxCF2 < 0) continue;
+
+      for (var b=0;b<table.tBodies.length;b++){
+        var rows = table.tBodies[b].rows;
+        for (var r=0;r<rows.length;r++){
+          var sku = norm(val(rows[r].children[idxSKU]));
+          if (/(\b|[^A-Z0-9])FBA(\b|[^A-Z0-9])/.test(sku)){
+            var td = rows[r].children[idxCF2];
+            if (td) td.classList.remove('kp-hl-red');
+          }
+        }
+      }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type === 'childList'){ apply(); break; }}});
+  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
+})();
+</script>
+
+<script id="kp360-row-warning-shipfrom">
+(function(){
+  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
+  function headerIndex(table, name){
+    if (!table || !table.tHead) return -1;
+    var ths = table.tHead.querySelectorAll('th');
+    var key = norm(name);
+    for (var i=0;i<ths.length;i++){
+      if (norm(ths[i].textContent) === key) return i;
+    }
+    return -1;
+  }
+  function val(td){
+    if (!td) return '';
+    var inp = td.querySelector('input,textarea,select');
+    if (inp) return (inp.value||'').trim();
+    return (td.textContent||'').trim();
+  }
+  function shipFromMatches(s){
+    s = norm(s);
+    return /\bUSAUTO\b/.test(s) || /\bUS AUTO\b/.test(s) || /\BMEYER\b/.test(s) || /\BTONSA\b/.test(s);
+  }
+  function apply(){
+    var tables = document.querySelectorAll('table');
+    for (var t=0;t<tables.length;t++){
+      var table = tables[t];
+      if (!table.tBodies || !table.tBodies.length) continue;
+
+      var idxShipFrom = headerIndex(table, 'SHIP FROM');
+      var idxFee = headerIndex(table, 'CARRIER FEE');
+      if (idxFee < 0) idxFee = headerIndex(table, 'RATE'); // Report uses "Rate"
+
+      if (idxShipFrom < 0 || idxFee < 0) continue;
+
+      for (var b=0;b<table.tBodies.length;b++){
+        var rows = table.tBodies[b].rows;
+        for (var r=0;r<rows.length;r++){
+          var tr = rows[r];
+          // clear any previous row-warn from older rule
+          tr.classList.remove('kp-row-warn');
+
+          var ship = val(tr.children[idxShipFrom]);
+          var fee  = val(tr.children[idxFee]);
+
+          if (shipFromMatches(ship) && fee !== ''){
+            tr.classList.add('kp-row-warn'); // entire line light yellow (style already defined)
+          }
+        }
+      }
+    }
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+  // re-apply on DOM changes
+  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
   obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
 })();
 </script>
