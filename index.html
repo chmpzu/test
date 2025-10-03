@@ -1,969 +1,643 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="auto">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WooParts & AutoApex — Sales Report/Order Generator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PO Team Projects</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg: #f6f8fb; --panel:#fff; --panel-2:#fcfdff; --text:#0f172a; --muted:#445268;--brand:#2563eb; --brand-2:#06b6d4; --border:#dbe2ea; --ring: rgba(37,99,235,.25);--chip-bg:#f8fafc; --chip-border:#e2e8f0; --input-bg:#fff; --input-border:#cbd5e1; --input-text:#0f172a;--table-alt:#f1f5f9; --table-hover:#eef6ff; --button-text:#fff;}
-    :root[data-theme="dark"]{--bg:#0b1220; --panel:#0f172a; --panel-2:#0b1224; --text:#e6edf3; --muted:#9fb1c7;--brand:#60a5fa; --brand-2:#22d3ee; --border:#1f2a3a; --ring:rgba(110,231,255,.35);--chip-bg:#0f172a; --chip-border:#1f2a3a; --input-bg:#0b1220; --input-border:#233048; --input-text:#e6edf3;--table-alt: rgba(255,255,255,.02); --table-hover: rgba(96,165,250,.07); --button-text:#0b1220;}
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui; padding:14px}
-    .shell{width:100%}
-    .header,.controls{background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:12px}
-    .controls{position:sticky;top:8px;z-index:10}
-    h1{margin:0;font-size:20px}
-    .left-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .right-tools{display:flex;gap:8px;align-items:center;justify-content:flex-end}
-    input[type="file"],.top-input{padding:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--input-text);border-radius:10px;min-width:240px}
-    button{padding:9px 12px;border:0;border-radius:10px;background:linear-gradient(180deg, var(--brand), var(--brand-2));color:var(--button-text);font-weight:600;cursor:pointer}
-    .pill{padding:6px 10px;border:1px solid var(--input-border);border-radius:999px;background:var(--input-bg);color:#445268;font-size:12px;cursor:pointer}
-    .pill.active{outline:3px solid var(--ring)}
-    #meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
-    .chip{font-size:12px;border:1px solid var(--chip-border);background:var(--chip-bg);border-radius:999px;padding:6px 10px;color:#475569}
-    .table-wrap{ width:100%; height:72vh; overflow:auto;border:1px solid var(--border); border-radius:12px;background:linear-gradient(180deg,var(--panel),var(--panel-2)); box-shadow:0 6px 18px rgba(0,0,0,.12); }
-    table{width:100%; border-collapse:separate; border-spacing:0}
-    thead th{ position:sticky; top:0; z-index:5; background:var(--panel); color:var(--text);
-      text-align:left; padding:10px 12px; font-weight:600; font-size:12px; letter-spacing:.2px; border-bottom:1px solid var(--border); white-space:nowrap; }
-    tbody td{ padding:9px 12px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text) }
-    tbody tr:nth-child(odd) td{ background:var(--table-alt) }
-    tbody tr:hover td{ background:var(--table-hover) }
-    .po-edit,.cf-edit{width: 220px; max-width: 100%; padding: 6px 8px;border:1px solid var(--input-border); border-radius:8px; background:var(--input-bg); color:var(--input-text);}
-    .hidden{display:none}
-    .author {margin: 4px 0 0 0;font-size: 13px;color: var(--muted);font-style: italic;}
-  </style>
-
-<style id="kp360-empty-highlights">
-/* === KP360: Empty-cell highlighting === */
-td.kp-hl-red { background: #fde2e1 !important; }      /* Light Red */
-td.kp-hl-yellow { background: #fef3c7 !important; }   /* Light Yellow */
-td.kp-hl-red input, td.kp-hl-yellow input { background-color: inherit !important; }
-</style>
-
-<style id="kp360-service-col-style">
-/* === KP360: widen Service/Carrier column === */
-th.kp-service-col, td.kp-service-col {
-  min-width: 120px !important;   /* give it breathing room */
-  width: 120px !important;
-  white-space: normal;            /* allow wrapping where needed */
-  word-break: break-word;         /* but avoid overflow */
-}
-</style>
-
-<style id="kp360-row-warning-style">
-/* === KP360: row-level warning === */
-tr.kp-row-warn > td { 
-  background: #fef3c7 !important;   /* light yellow across the whole line */
-}
-</style>
-
-<style id="kp360-tip-bubble-style">
-/* === KP360: Tip bubble for highlights === */
-.kp-tip {
-  position: fixed;
-  z-index: 999999;
-  max-width: 320px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  background: #111;
-  color: #fff;
-  font-size: 12px;
-  line-height: 1.35;
-  box-shadow: 0 6px 18px rgba(0,0,0,.25);
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity .12s ease, transform .12s ease;
-  white-space: normal;
-  word-break: break-word;
-}
-.kp-tip.show { opacity: 0.96; transform: translateY(0); }
-.kp-tip strong { font-weight: 600; }
-.kp-tip .kp-tip-head { display: block; margin-bottom: 4px; font-weight: 600; color: #fef3c7; } /* light yellow title */
-.kp-tip .kp-tip-rule { color: #cbd5e1; }
-td.kp-hl-red, td.kp-hl-yellow, tr.kp-row-warn > td { position: relative; }
+    :root {--bg: #f7f8fa;--card: #ffffff;--text: #111827;--muted: #6b7280;--border: #e5e7eb;--ring: 54 120 252; /* rgb */--primary: #1f2937;--primary-contrast: #ffffff;--chip-bg: #eef2ff;--chip-text: #3730a3; --radius: 14px;--space: 1.25rem;--shadow-sm: 0 1px 2px rgba(0,0,0,.06);--shadow-md: 0 6px 16px rgba(0,0,0,.08);--shadow-lg: 0 12px 28px rgba(0,0,0,.12);--transition: .25s cubic-bezier(.2,.7,.2,1);--maxw: 1200px;--header-h:64px;--viewerbar-h:44px;}
+    @media (prefers-color-scheme: dark)
+    {html[data-theme="auto"] {--bg: #0b0c0f;--card: #121318;--text: #e5e7eb;--muted: #a1a1aa;--border: #23242a;--ring: 103 163 255;--primary: #d1d5db;--primary-contrast: #0b0c0f;--chip-bg: #1e293b;--chip-text: #c7d2fe;--shadow-sm: 0 1px 2px rgba(0,0,0,.4);--shadow-md: 0 8px 24px rgba(0,0,0,.45); --shadow-lg: 0 18px 40px rgba(0,0,0,.55);}}
+    html[data-theme="dark"] {--bg: #0b0c0f;--card: #121318;--text: #e5e7eb;--muted: #a1a1aa;--border: #23242a;--ring: 103 163 255;--primary: #d1d5db;--primary-contrast: #0b0c0f;--chip-bg: #1e293b;--chip-text: #c7d2fe;--shadow-sm: 0 1px 2px rgba(0,0,0,.4);--shadow-md: 0 8px 24px rgba(0,0,0,.45);--shadow-lg: 0 18px 40px rgba(0,0,0,.55);}
+    html, body { height: 100%; }
+    * { box-sizing: border-box; }
+    body {margin: 0;font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans';background: var(--bg);color: var(--text);line-height: 1.45;display: flex;flex-direction: column;}
+    a { color: inherit; text-decoration: none; }
+    header {position: sticky; top: 0; z-index: 10;background: linear-gradient(180deg, rgba(0,0,0,0.04), transparent), var(--card);backdrop-filter: saturate(1.2) blur(6px);border-bottom: 1px solid var(--border);transition: box-shadow var(--transition), transform var(--transition), padding var(--transition), background var(--transition);box-shadow: var(--shadow-sm);}
+    .header-inner{max-width:var(--maxw);margin:0 auto;padding: .75rem var(--space);display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center}
+    .brand { display: flex; align-items: center; gap: .75rem; }
+    .brand img { height: 28px; width: auto; object-fit: contain; }
+    .brand-title { display: grid; line-height: 1.1; }
+    .brand-title strong { font-size: 1.15rem; letter-spacing: .2px; }
+    .brand-title span { font-size: .85rem; color: var(--muted); }
+    .actions { display: flex; align-items: center; gap: .5rem; }
+    .btn {appearance: none; border: 1px solid var(--border); background: var(--card); color: var(--text);padding: .55rem .85rem; border-radius: 999px; font-weight: 600; cursor: pointer;box-shadow: var(--shadow-sm);transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition), color var(--transition);} 
+    .btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(var(--ring) / .25); }
+    .btn-primary { border-color: transparent; background: var(--primary); color: var(--primary-contrast); }
+    #welcome-modal {position: fixed; inset: 0; display: none;align-items: center; justify-content: center;background: rgba(0,0,0,.45);z-index: 1000;padding: 1rem;}
+    #welcome-modal[open] { display: flex; }
+    .modal-content {background: var(--card);width: 100%; max-width: 520px;border-radius: 16px;padding: 1.5rem 1.25rem;box-shadow: var(--shadow-lg);border: 1px solid var(--border);text-align: left;}
+    .modal-content h2 { margin: 0 0 .6rem; font-size: 1.4rem; }
+    .modal-content p { margin: 0 0 1rem; color: var(--muted); }
+    .modal-row {display: flex; align-items: center; gap: .6rem;margin-top: .6rem;}
+    .modal-row label {display: inline-flex; align-items: center; gap: .55rem;color: var(--muted); font-size: .95rem; cursor: pointer;user-select: none;}
+    .modal-row input[type="checkbox"] {appearance: none;width: 18px; height: 18px; border-radius: 4px;border: 1.5px solid var(--border);display: grid; place-items: center;background: var(--card);transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);} 
+    .modal-row input[type="checkbox"]::after {content: "✓"; font-size: 14px; transform: scale(0); transition: transform var(--transition);} 
+    .modal-row input[type="checkbox"]:checked {background: var(--primary); border-color: var(--primary);color: var(--primary-contrast);} 
+    .modal-row input[type="checkbox"]:checked::after { transform: scale(1); color: var(--primary-contrast); }
+    .modal-actions {display:flex; justify-content:flex-end; gap:.75rem; margin-top: 1rem;}
+    main { width: 100%; max-width: var(--maxw); margin: 1rem auto 1.5rem; padding: 0 var(--space); flex: 1; }
+    .toolbar {display: grid; grid-template-columns: 1fr auto; gap: .75rem;margin-bottom: 1.25rem;}
+    .filters {display: grid;grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));gap: .75rem;align-items: center;}
+    .search {display: flex; gap: .5rem; align-items: center;background: var(--card);border: 1px solid var(--border);border-radius: 999px;padding: .5rem .75rem;box-shadow: var(--shadow-sm);} 
+    .search svg { flex: 0 0 18px; }
+    .search select {flex: 1; border: 0; background: transparent; color: var(--text);font-size: .98rem; padding: .35rem .25rem; outline: none;}
+    .projects-container {display: grid;grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));gap: 1.1rem;}
+    .project-card {background: var(--card);border: 1px solid var(--border);border-radius: var(--radius);box-shadow: var(--shadow-md);overflow: clip;display: grid;grid-template-rows: auto 1fr auto;transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);will-change: transform;}
+    .project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .projects-container {display: grid;grid-template-columns: repeat(auto-fill, minmax(320px, 360px));gap: 1.1rem;justify-content: start;}
+    .project-card {width: auto;}
+    @media (max-width: 640px) {.projects-container { grid-template-columns: 1fr; } .project-card { width: 100%; }}
+    .owner-strip {display: flex; gap: .5rem; flex-wrap: wrap;padding: .75rem .85rem .5rem;border-bottom: 1px dashed var(--border);background: color-mix(in oklab, var(--card), var(--bg) 35%);}
+    .owner-chip {display: inline-flex; align-items: center; gap: .4rem;background: var(--chip-bg); color: var(--chip-text);border: 1px solid var(--border);padding: .25rem .5rem; border-radius: 999px; font-size: .8rem; font-weight: 600;}
+    .owner-chip img {width: 20px; height: 20px; border-radius: 50%; object-fit: cover;border: 1px solid var(--border);} 
+    .project-content { padding: 1rem .95rem 0; }
+    .project-content h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
+    .project-content p { margin: 0 0 .75rem; color: var(--muted); font-size: .94rem; }
+    .card-actions {display: flex; justify-content: space-between; align-items: center; gap: .5rem;padding: .75rem .85rem 1rem; position: relative;}
+    .action {display: inline-flex; align-items: center; gap: .5rem;padding: .5rem .9rem;border-radius: 999px;font-weight: 700; font-size: .92rem;border: 1px solid var(--border); background: var(--card);cursor: pointer; user-select: none;transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition), border-color var(--transition);} 
+    .action:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .action:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(var(--ring)/.25); }
+    .action-primary { background: var(--primary); color: var(--primary-contrast); border-color: transparent; }
+    .action .checkmark {display: none; width: 1.2em; height: 1.2em; border-radius: 999px;align-items: center; justify-content: center; font-size: .9em; font-weight: 800;background: rgba(var(--ring)/.9); color: #fff;}
+    .action.clicked .checkmark { display: none; }
+    #tool-viewer { display: none; flex-direction: column; gap: .75rem; }
+    .viewer-bar {display: flex; align-items: center; justify-content: space-between; gap: .75rem;padding: .4rem var(--space);background: var(--card); border-bottom: 1px solid var(--border);box-shadow: var(--shadow-sm);} 
+    #back-btn {background: var(--card); color: var(--text); border: 1px solid var(--border);padding: .5rem .9rem; border-radius: 999px; font-weight: 700; cursor: pointer;transition: box-shadow var(--transition), transform var(--transition);} 
+    #back-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    #tool-title { font-weight: 700; }
+    .video-wrapper {position: relative; width: 100%; height: calc(100dvh - var(--header-h) - var(--viewerbar-h));overflow: hidden; background: var(--card); border-top: 1px solid var(--border);} 
+    .video-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .video-wrapper.tutorial iframe { left: 50%; transform: translateX(-50%); width: min(100%, calc(80vh * (16/9))); }
+	.video-wrapper.page-scroll { height: auto; }
+	.video-wrapper.page-scroll iframe { position: relative; inset: auto; display: block; width: 100%; height: var(--tool-height, auto); min-height: calc(100dvh - var(--header-h) - var(--viewerbar-h)); overflow: hidden; }
+	.empty {padding: 2.25rem; text-align: center; color: var(--muted);border: 2px dashed var(--border); border-radius: var(--radius);background: color-mix(in oklab, var(--card), var(--bg) 25%);} 
+    :focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(var(--ring)/.25); border-radius: 10px; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+	body.lock-scroll { overflow: hidden; }
+	:root { --maxw: 100%; }
+	.header-inner { max-width: none; }
+	main { max-width: none; }
+	.projects-container {grid-template-columns: repeat(5, minmax(0, 1fr));justify-content: stretch;}
+	.project-card { width: 100%; }
+	@media (max-width: 1400px) { .projects-container { grid-template-columns: repeat(4, 1fr); } }
+	@media (max-width: 1120px) { .projects-container { grid-template-columns: repeat(3, 1fr); } }
+	@media (max-width: 840px)  { .projects-container { grid-template-columns: repeat(2, 1fr); } }
+	body {padding-bottom: 20px;}
+	main {padding-bottom: 20px;}
 </style>
 </head>
 <body>
-  <div class="shell">
-    <div class="header" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center">
-  <div>
-    <h1>WooParts &amp; AutoApex — Sales Report/Order Generator</h1>
-    <p class="author">by Christine Anastacio</p>
+  <!-- WELCOME MODAL -->
+  <div id="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="modal-content">
+      <h2 id="welcome-title">Welcome!</h2>
+      <p>Explore all the projects created by the PO team.</p>
+      <div class="modal-row">
+        <label for="dont-show">
+          <input type="checkbox" id="dont-show" />
+          Don’t show this again
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button id="modal-close" class="btn btn-primary">Get Started</button>
+      </div>
+    </div>
   </div>
-  <div class="right-tools"><button id="themeToggle">🌗</button></div>
-</div>
 
-    <div class="controls" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center">
-      <div class="left-controls">
-        <input type="file" id="fileInput" multiple accept=".xlsx, .xls, .csv" />
-        <button class="secondary" onclick="resetAll()">Reset</button>
-        <div class="view-toggle" style="display:flex;gap:6px">
-          <span id="pillReport" class="pill active" onclick="switchView('report')">Sales Report</span>
-          <span id="pillOrder" class="pill" onclick="switchView('order')">Sales Order</span>
+  <!-- HEADER -->
+  <header id="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <!-- Logo removed -->
+        <div class="brand-title">
+          <strong>PO Team Projects</strong>
+          <span>Discover what our teammates are working on</span>
         </div>
       </div>
-      <div class="right-tools">
-        <label for="exportFilename">Export as</label>
-        <input type="text" id="exportFilename" class="top-input" placeholder="File name" value="Sales_Report" />
-        <button onclick="exportCurrent()">Export Current View</button>
+
+      <div></div>
+
+      <div class="actions">
+        <button id="theme-toggle" class="btn" aria-label="Toggle dark mode">🌓</button>
       </div>
     </div>
+  </header>
 
-    <div id="meta">
-      <div id="totalOrders" class="chip">Total Orders: 0</div>
-      <div id="ordersByDate" class="chip">Orders by Date:</div>
+  <!-- VIEWER -->
+  <div id="tool-viewer" aria-live="polite">
+    <div class="viewer-bar">
+      <button id="back-btn" type="button" aria-label="Back to project list">← Back</button>
+      <div id="tool-title"></div>
+      <span></span>
     </div>
-
-    <div class="table-wrap" id="reportWrap">
-      <table id="reportTable">
-        <thead>
-          <tr>
-            <th>Order Date</th><th>Ship From</th><th>Order Number</th><th>Item SKU</th><th>Quantity</th>
-            <th>Custom Field 1</th><th>Custom Field 2</th><th>Custom Field 3</th><th>Order Total</th>
-            <th>Recipient</th><th>Rate</th><th>Service</th><th>Tracking Number</th><th>PO Number</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div style="height:10px"></div>
-
-    <div class="table-wrap hidden" id="orderWrap">
-      <table id="orderTable">
-        <thead>
-          <tr>
-            <th>Order Date</th><th>Ship From</th><th>Order Number</th><th>Item SKU</th><th>Quantity</th>
-            <th>Custom Field 1</th><th>Custom Field 2</th><th>Custom Field 3</th><th>Order Total</th>
-            <th>Recipient</th><th>Carrier Fee</th><th>Service</th><th>Tracking Number</th><th>PO Reference Number</th><th>Memo</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <div class="video-wrapper">
+      <iframe id="tool-frame" src="" allowfullscreen scrolling="auto"></iframe>
     </div>
   </div>
 
+  <!-- MAIN -->
+  <main>
+    <div class="toolbar" role="search">
+      <div class="filters">
+        <!-- Filter by Owner -->
+        <div class="search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.9-3.9M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <select id="owner-filter" aria-label="Filter by owner">
+            <option value="">Filter by owner</option>
+            <option value="Marcus Bañez">Marcus Bañez</option>
+            <option value="Kathleen Delos Santos">Kathleen Delos Santos</option>
+            <option value="Christine Anastacio">Christine Anastacio</option>
+            <option value="Mary Guray">Mary Guray</option>
+            <option value="Jerrilyn Alarma">Jerrilyn Alarma</option>
+            <option value="Hannah Ranario">Hannah Ranario</option>
+            <option value="Daricalyn Rosales">Daricalyn Rosales</option>
+            <option value="CJ Paet">CJ Paet</option>
+            <option value="Cheztierlee Arlos">Cheztierlee Arlos</option>
+            <option value="Daryl Pagilagan">Daryl Pagilagan</option>
+            <option value="Jovilyn Leonaras">Jovilyn Leonaras</option>
+            <option value="Mariel Zipagan">Mariel Zipagan</option>
+            <option value="Ariane De Guzman">Ariane De Guzman</option>
+          </select>
+        </div>
+
+        <!-- NEW: Filter by Use -->
+        <div class="search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.9-3.9M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <select id="use-filter" aria-label="Filter by use">
+            <option value="">Filter by use</option>
+            <option value="Ordering">Ordering</option>
+            <option value="Labeling">Labeling</option>
+            <option value="Wholesale">Wholesale</option>
+            <option value="Inventory">Inventory</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Sweeping">Sweeping</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="clear-filter" class="btn" type="button" aria-label="Clear filters">Clear</button>
+    </div>
+
+    <div id="projects" class="projects-container">
+      
+      <!-- Ordering File Generator -->
+      <div class="project-card" data-title="Marcus Bañez,Kathleen Delos Santos" data-name="Ordering File Generator" data-use="Ordering">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Marcus.jpeg" alt=""/>Marcus Bañez</span>
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Kathleen.jpeg" alt=""/>Kathleen Delos Santos</span>
+        </div>
+        <div class="project-content">
+          <h2>Ordering File Generator</h2>
+          <p>Prepares and formats files for seamless NetSuite PO imports.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Depo_KSI_FileGenerator_Marcus_Kathleen.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1lfEG82__S6smKIIORzhrBSSCvfBYzbJS/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- NetSuite Importing Tool -->
+      <div class="project-card" data-title="Marcus Bañez,Kathleen Delos Santos" data-name="NetSuite Importing Tool" data-use="Ordering">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Marcus.jpeg" alt=""/>Marcus Bañez</span>
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Kathleen.jpeg" alt=""/>Kathleen Delos Santos</span>
+        </div>
+        <div class="project-content">
+          <h2>NetSuite Importing Tool</h2>
+          <p>Formats and validates data files for smooth import into NetSuite.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/NetSuite_Importing_Tool_Marcus_Kathleen.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1Mx3i0rijRrpVNtJ-DeO0Al4HnWgGTwal/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Order Tagging Tool -->
+      <div class="project-card" data-title="Christine Anastacio" data-name="Order Tagging Tool" data-use="Labeling">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/christine%20anastacio.jpeg" alt=""/>Christine Anastacio</span>
+        </div>
+        <div class="project-content">
+          <h2>Order Tagging Tool</h2>
+          <p>Processes detailed order data to ensure accurate tagging and fulfillment in ShipStation.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Order_Tagging_Christine.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1wjxVI9hu6p_xxtVdRixV2OELt50CUI2r/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- International Address Sweeping Tool -->
+      <div class="project-card" data-title="Marcus Bañez,Kathleen Delos Santos" data-name="International Address Sweeping Tool" data-use="Sweeping">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Marcus.jpeg" alt=""/>Marcus Bañez</span>
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Kathleen.jpeg" alt=""/>Kathleen Delos Santos</span>
+        </div>
+        <div class="project-content">
+          <h2>International Address Sweeping Tool</h2>
+          <p>Identifies and tracks international shipments to verify proper processing.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/International_Address_Sweep.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1wJpY_OGICPxCDCEXcb7odn78MVxql1Tm/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- PO Scrubbing Tool -->
+      <div class="project-card" data-title="Mary Guray" data-name="PO Scrubbing Tool" data-use="Ordering">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/mary guray.jpeg" alt=""/>Mary Guray</span>
+        </div>
+        <div class="project-content">
+          <h2>PO Scrubbing Tool</h2>
+          <p>Validates selected SKUs to prevent duplicates and ensure accurate fulfillment.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/POScrubbing_Mary.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/12gstWoW3w8UTcyXSz7gExR6yFfxMA30n/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Carrier Count Tool -->
+      <div class="project-card" data-title="Jerrilyn Alarma" data-name="Carrier Count Tool" data-use="Labeling">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Jerrilyn.jpg" alt=""/>Jerrilyn Alarma</span>
+        </div>
+        <div class="project-content">
+          <h2>Carrier Count Tool</h2>
+          <p>Generates daily summaries of carriers used to optimize shipping operations.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/carrier_count_Jerrilyn.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1z-dsegK9HjJd3tkr9UCVBYs_eBpv3m7R/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- NPM Calculator -->
+      <div class="project-card" data-title="Shari Kristine Torres,Hannah Ranario" data-name="NPM Calculator" data-use="Labeling">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Shari.jpeg" alt=""/>Shari Kristine Torres</span>
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Hannah.jpeg" alt=""/>Hannah Ranario</span>
+        </div>
+        <div class="project-content">
+          <h2>NPM Calculator</h2>
+          <p>Calculates net profit margins per order and flags high shipping costs to inform label selecting decisions.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/NPM_Calc_for_Labelling.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1i4g0AzzO6trKVGNkauefFumVhQlyag_E/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Amazon Logistics Count Tool -->
+      <div class="project-card" data-title="Daricalyn Rosales" data-name="Amazon Logistics Count Tool" data-use="Labeling">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Daricalyn.jpeg" alt=""/>Daricalyn Rosales</span>
+        </div>
+        <div class="project-content">
+          <h2>Amazon Logistics Count Tool</h2>
+          <p>Summarizes daily orders shipped via Amazon Logistics to streamline performance analysis.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Amazon_Logistics_Count_Dari.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1efayYJxbZUsOnjpKkBSGlt3d5qjBBmM5/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- KSI Inventory Generator -->
+      <div class="project-card" data-title="CJ Paet" data-name="KSI Inventory Generator" data-use="Inventory">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>CJ Paet</span>
+        </div>
+        <div class="project-content">
+          <h2>KSI Inventory Generator</h2>
+          <p>Organizes KSI inventory files for upload to ZM and CA.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/KSI_Inventory_File_Generator_CJ.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/155fXeCSwpIkjtJXc3nb9D2DOdRp_hih3/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- ZS File Sorter -->
+      <div class="project-card" data-title="Cheztierlee Arlos" data-name="ZS File Sorter" data-use="Labeling">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Chez.jpeg" alt=""/>Cheztierlee Arlos</span>
+        </div>
+        <div class="project-content">
+          <h2>ZS File Sorter</h2>
+          <p>Sorts and fixes files for Beta Zenmighty or ZS uploads.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Ordersortingandupload_Chez.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1Pi2Uct8KUWiMyimm_P1VMaF_aACHPpqV/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Eagle Inventory Refiner -->
+      <div class="project-card" data-title="Mariel Zipagan" data-name="Eagle Inventory Refiner" data-use="Inventory">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Mariel.jpeg" alt=""/>Mariel Zipagan</span>
+        </div>
+        <div class="project-content">
+          <h2>Eagle Inventory Refiner</h2>
+          <p>Organizes Eagle Inventory files for CA and ZM.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Eagle _Inventoy_Refiner.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1CMu1YvG7P23q8Ond0cnUEJsmP8p-_NME/preview"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- AAG Sales Order File Generator -->
+      <div class="project-card" data-title="CJ Paet" data-name="AAG Sales Order File Generator" data-use="Wholesale">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>CJ Paet</span>
+        </div>
+        <div class="project-content">
+          <h2>AAG Sales Order File Generator</h2>
+          <p>Organizes AAG sales orders for NetSuite import.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/AAG_SO_Processor.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Lookup / Fulfillment File -->
+      <div class="project-card" data-title="Ariane De Guzman" data-name="Lookup / Fulfillment File" data-use="Invoice">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>Ariane De Guzman</span>
+        </div>
+        <div class="project-content">
+          <h2>Lookup / Fulfillment File</h2>
+          <p>Organizes invoice files for NetSuite imports and other vlookup-like reports.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://aridg1999.github.io/aridg/FileMerge.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- KEMA Sales Order and Item Fulfillment -->
+      <div class="project-card" data-title="Christine Anastacio" data-name="KEMA Sales Order and Item Fulfillment" data-use="Wholesale">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/christine%20anastacio.jpeg" alt=""/>Christine Anastacio</span>
+        </div>
+        <div class="project-content">
+          <h2>KEMA Sales Order and Item Fulfillment</h2>
+          <p>Prepares KEMA Sales Orders and Item Fulfillment files for NetSuite.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/KEMA_SO&IF.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Alternative SKU Search Tool -->
+      <div class="project-card" data-title="Jerrilyn Alarma" data-name="Alternative SKU Search Tool" data-use="Ordering">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Jerrilyn.jpg" alt=""/>Jerrilyn Alarma</span>
+        </div>
+        <div class="project-content">
+          <h2>Alternative SKU Search Tool</h2>
+        <p>Finds cross-fulfillment options by searching with Partslink.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Partslink_Lookup.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      
+      <div class="project-card" data-title="Ariane De Guzman" data-name="PO File Processor" data-use="Ordering">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>Ariane De Guzman</span>
+        </div>
+        <div class="project-content">
+          <h2>PO File Processor</h2>
+        <p>Combine names, tidy SKUs, format Order Date, set PO Number, and export.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kpp360.github.io/ap/PO_File_Processor.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+
+      <div class="project-card" data-title="Ariane De Guzman" data-name="Box/Mailer Finder" data-use="Labeling">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>Ariane De Guzman</span>
+        </div>
+        <div class="project-content">
+          <h2>Box/Mailer Finder</h2>
+        <p>Finds suitable or alternative boxes/mailers for your items.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kpp360.github.io/ap/BoxFinder.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>      
+
+            <!-- WooParts & AutoApex Sales Report and Sales Order Generator -->
+      <div class="project-card" data-title="Christine Anastacio" data-name="WooParts & AutoApex — Sales Report/Order Generator" data-use="Wholesale">
+        <div class="owner-strip">
+          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/christine%20anastacio.jpeg" alt=""/>Christine Anastacio</span>
+        </div>
+        <div class="project-content">
+          <h2>WooParts & AutoApex Sales Report/Order Generator</h2>
+          <p>Prepares WooParts & AutoApex Sales Report and Sales Order files for processing in NetSuite.</p>
+        </div>
+        <div class="card-actions">
+          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/WP&AA_SR_SO.html"><span class="checkmark">✓</span>View Tool</a>
+          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
+        </div>
+      </div>
+      
+    </div>
+    <div id="empty-state" class="empty" style="display:none;">No projects match your filters.</div>
+  </main>
+
+  <!-- Footer removed -->
+
   <script>
-    // theme toggle
-    const htmlEl = document.documentElement;
-    const savedTheme = localStorage.getItem('kp360_theme_v1');
-    if(savedTheme){ htmlEl.setAttribute('data-theme', savedTheme); }
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      htmlEl.setAttribute('data-theme', next);
-      localStorage.setItem('kp360_theme_v1', next);
-    });
+    // Helpers
+    // Dynamic height calculation for viewer to remove bottom gap
+    function __setDynamicHeights(){
+      const header = document.getElementById('app-header');
+      const bar = document.querySelector('.viewer-bar');
+      if (header) document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+      if (bar) document.documentElement.style.setProperty('--viewerbar-h', bar.offsetHeight + 'px');
+    }
+    window.addEventListener('resize', __setDynamicHeights);
 
-    // === Original app JS with PO & CF edits wired to the data model ===
-    let masterDataRows = [];
-    let masterOrderNumbers = new Set();
-    let isFirstFile = true;
-    let updateFilesCount = 0;
-    let currentView = 'report'; // 'report' | 'order'
-    document.getElementById('fileInput').addEventListener('change', handleFiles);
+    const $ = (s, c=document) => c.querySelector(s);
+    const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
 
-    function switchView(view){
-      currentView = view;
-      document.getElementById('pillReport').classList.toggle('active', view==='report');
-      document.getElementById('pillOrder').classList.toggle('active', view==='order');
-      document.getElementById('reportWrap').classList.toggle('hidden', view!=='report');
-      document.getElementById('orderWrap').classList.toggle('hidden', view!=='order');
-      document.getElementById('reportTable').classList.toggle('hidden', view!=='report');
-      document.getElementById('orderTable').classList.toggle('hidden', view!=='order');
-      if(view==='order'){
-        document.getElementById('exportFilename').value = 'Sales_Order';
-        renderSalesOrder();
-      } else {
-        document.getElementById('exportFilename').value = 'Sales_Report';
-        renderReport();
+    // Theme toggle (kept)
+    (function initTheme(){
+      const saved = localStorage.getItem('po_theme');
+      const html = document.documentElement;
+      if (saved === 'light' || saved === 'dark') html.setAttribute('data-theme', saved);
+      $('#theme-toggle').addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'auto' : current === 'auto' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('po_theme', next);
+      });
+    })();
+
+    // Welcome modal (spacing fixed + don't show again)
+    (function welcomeModal(){
+      const KEY = 'po_welcome_dont_show';
+      const modal = $('#welcome-modal');
+      if (!localStorage.getItem(KEY)) modal.setAttribute('open','');
+      $('#modal-close').addEventListener('click', () => {
+        if ($('#dont-show').checked) localStorage.setItem(KEY, '1');
+        modal.removeAttribute('open');
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.hasAttribute('open')) modal.removeAttribute('open');
+      });
+    })();
+
+    // Click memory for ✓
+    (function clickMemory(){
+      const KEY = 'clickedLinks';
+      const getId = (el) => el.dataset.src || el.dataset.tutorialSrc || el.href;
+      function restore(){
+        const clicked = JSON.parse(localStorage.getItem(KEY) || '{}');
+        $$('.view-tool, .view-tutorial').forEach(a => { if (clicked[getId(a)]) a.classList.add('clicked'); });
       }
-    }
-
-    function skuHasFBA(sku) { return ((sku || '') + '').toUpperCase().includes('FBA'); }
-    function containsCodeAlphaBoundary(str, token) {
-      const s = (str || '').toUpperCase();
-      const t = token.toUpperCase().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
-      const re = new RegExp(`(^|[^A-Z])${t}([^A-Z]|$)`);
-      return re.test(s);
-    }
-    function computeShipFrom(row) {
-      const po = ((row["PO Number"] || '') + '').toUpperCase();
-      const skuRaw = row["Item SKU"] != null ? row["Item SKU"] : row["SKU"];
-      const sku = ((skuRaw || '') + '').toUpperCase();
-      if (po) {
-        if (po.includes('CALIFORNIA') || containsCodeAlphaBoundary(po, 'CALI') || containsCodeAlphaBoundary(po, 'CA')) return 'California Distribution Warehouse';
-        if (po.includes('GEORGIA') || containsCodeAlphaBoundary(po, 'GA')) return 'Georgia Distribution Warehouse';
-        if (containsCodeAlphaBoundary(po, 'NJ')) return 'New Jersey Distribution Warehouse';
-        if (containsCodeAlphaBoundary(po, 'IL')) return 'Chicago Distribution Warehouse';
+      function mark(el){
+        const id = getId(el);
+        const clicked = JSON.parse(localStorage.getItem(KEY) || '{}');
+        clicked[id] = true;
+        localStorage.setItem(KEY, JSON.stringify(clicked));
+        el.classList.add('clicked');
       }
-      if (sku.includes('FBA')) return 'FBA Warehouse';
-      if (sku.includes('USA')) return 'Usauto Dropship';
-      if (sku.includes('MLX')) return 'Meyer Dropship';
-      if (sku.includes('OLX')) return 'Tonsa Dropship';
-      return '';
-    }
-    function formatDate(dateValue) {
-      if (typeof dateValue === 'number') {
-        const d = XLSX.SSF.parse_date_code(dateValue);
-        if (d) return `${d.m}/${d.d}/${d.y}`;
+      window.__markClicked = mark;
+      restore();
+    })();
+
+    // Viewer
+    (function viewer(){
+      const wrapper = $('.video-wrapper');
+      const frame = $('#tool-frame');
+      const viewer = $('#tool-viewer');
+      const main = $('main');
+      const title = $('#tool-title');
+
+      function open(type, src, label){
+        __setDynamicHeights();
+
+        // Ensure iframe can scroll itself
+        try { document.getElementById('tool-frame')?.setAttribute('scrolling','auto'); } catch {}
+
+        // Lock the outer page scroll and jump to top
+        try { localStorage.setItem('po_projects_scroll', window.scrollY); } catch {}
+        document.body.classList.add('lock-scroll');
+        try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch {}
+
+        if (!src) return;
+        frame.src = src;
+        title.textContent = label || '';
+        wrapper.classList.toggle('tutorial', type === 'tutorial');
+        wrapper.classList.toggle('tool', type === 'tool');
+
+        // Show the viewer, hide the grid
+        main.style.display = 'none';
+        viewer.style.display = 'flex';
       }
-      const dt = new Date(dateValue); if (isNaN(dt)) return dateValue;
-      return `${dt.getMonth()+1}/${dt.getDate()}/${dt.getFullYear()}`;
-    }
-    function handleFiles(event) {
-      const files = Array.from(event.target.files);
-      files.forEach((file, fileIdx) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          let json = [];
-          if (file.name.endsWith('.csv')) { const wb = XLSX.read(e.target.result, {type:'string'}); json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); }
-          else { const wb = XLSX.read(e.target.result, {type:'binary'}); json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); }
-          if (isFirstFile) {
-            masterDataRows = []; masterOrderNumbers.clear();
-            json.forEach(row => {
-              const ord = row["Order Number"]||row["Site Order ID"]||row["Order #"]; if (!ord) return;
-              const rec = (row["Recipient"]||`${row["Shipping First Name"]||''} ${row["Shipping Last Name"]||''}`).trim();
-              const itemSku = row["Item SKU"]||row["SKU"]||'';
-              const computedShipFrom = computeShipFrom(row);
-              let cf1 = row["Custom Field 1"]||''; if (skuHasFBA(itemSku)) cf1 = itemSku;
-              masterDataRows.push({
-                "Order Date": formatDate(row["Order Date"]||''),
-                "Ship From": computedShipFrom,
-                "Order Number": ord,
-                "Item SKU": itemSku,
-                "Quantity": row["Quantity"]||'',
-                "Custom Field 1": cf1,
-                "Custom Field 2": row["Custom Field 2"]||'',
-                "Custom Field 3": row["Custom Field 3"]||'',
-                "Order Total": row["Order Total"]||'',
-                "Recipient": rec,
-                "Rate": row["Rate"]||'',
-                "Service": (row["Service"]||'').replace(/®/g,''),
-                "Tracking Number": row["Tracking Number"]||'',
-                "PO Number": row["PO Number"]||''
-              });
-              masterOrderNumbers.add(ord);
-            });
-            isFirstFile = false;
-          } else {
-            const updates = new Map();
-            json.forEach(r => {
-              const ord = r["Order Number"]||r["Site Order ID"]||r["Order #"];
-              if (!ord || !masterOrderNumbers.has(ord)) return;
-              if (!updates.has(ord)) updates.set(ord, []);
-              updates.get(ord).push(r);
-            });
-            updates.forEach((rows, ord) => {
-              let idx = 0;
-              for (let i = 0; i < masterDataRows.length && idx < rows.length; i++) {
-                if (masterDataRows[i]["Order Number"] === ord) {
-                  const u = rows[idx++];
-                  for (const k in u) {
-                    if ((!masterDataRows[i][k] || masterDataRows[i][k] === '') && u[k] !== undefined && u[k] !== '') {
-                      masterDataRows[i][k] = u[k];
-                    }
-                  }
-                }
-              }
-            });
-            masterDataRows = masterDataRows.map(r => {
-              const updated = { ...r };
-              updated["Ship From"] = computeShipFrom(updated);
-              if (skuHasFBA(r["Item SKU"])) updated["Custom Field 1"] = r["Item SKU"];
-              return updated;
-            });
-            updateFilesCount++;
-          }
-          if(currentView==='order') renderSalesOrder();
-          else renderReport();
-        };
-        if (file.name.endsWith('.csv')) reader.readAsText(file);
-        else reader.readAsBinaryString(file);
-      });
-    }
+      function back(){
+        __setDynamicHeights();
 
-    function renderReport(filteredData = null) {
-      const tbody = document.getElementById('reportTable').querySelector('tbody');
-      tbody.innerHTML = '';
-      const rows = filteredData || masterDataRows;
-      document.getElementById('totalOrders').textContent = `Total Orders: ${rows.length}`;
-      const counts = {};
-      rows.forEach(r => { counts[r["Order Date"]] = (counts[r["Order Date"]] || 0) + 1; });
-      const parts = Object.entries(counts).map(([d,c]) => `${d}: ${c}`);
-      document.getElementById('ordersByDate').textContent = `Orders by Date: ${parts.join('    |    ')}`;
+        // Hide viewer, show grid
+        viewer.style.display = 'none';
+        main.style.display = '';
+        frame.src = '';
 
-      rows.forEach((row, idx) => tbody.appendChild(buildReportRowTr(row, idx)));
-    }
+        // Restore outer page scroll position and unlock
+        let y = 0;
+        try { y = +localStorage.getItem('po_projects_scroll') || 0; } catch {}
+        document.body.classList.remove('lock-scroll');
+        try { setTimeout(() => window.scrollTo({ top: y, behavior: 'instant' }), 0); } catch {}
+      }
+      $('#back-btn').addEventListener('click', back);
 
-    // Build Report Row (PO Number + Custom Fields editable)
-    function buildReportRowTr(row, idx){
-      const tr = document.createElement('tr');
-      const keys = ["Order Date","Ship From","Order Number","Item SKU","Quantity","Custom Field 1","Custom Field 2","Custom Field 3","Order Total","Recipient","Rate","Service","Tracking Number","PO Number"];
-      keys.forEach(key => {
-        const td = document.createElement('td');
+      $$('.view-tool').forEach(a => a.addEventListener('click', e => {
+        e.preventDefault();
+        window.__markClicked(a);
+        open('tool', a.dataset.src, a.closest('.project-card')?.dataset.name || 'Tool');
+      }));
+      $$('.view-tutorial').forEach(a => a.addEventListener('click', e => {
+        e.preventDefault();
+        window.__markClicked(a);
+        open('tutorial', a.dataset.tutorialSrc, (a.closest('.project-card')?.dataset.name || '') + ' — Tutorial');
+      }));
+    })();
 
-        if (key === "Service") {
-          td.textContent = (row[key] || '').toString().replace(/®/g,'');
-        } else if (key === "PO Number") {
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'po-edit';
-          input.value = row["PO Number"] || '';
-          input.placeholder = 'Enter PO Number';
-          input.addEventListener('change', (e) => {
-            const newPO = e.target.value;
-            masterDataRows[idx]["PO Number"] = newPO;
-            // Recompute Ship From for this row
-            masterDataRows[idx]["Ship From"] = computeShipFrom(masterDataRows[idx]);
-            // Update UI cells for Ship From
-            const shipFromCell = tr.children[1]; // index 1 is "Ship From"
-            if (shipFromCell) shipFromCell.textContent = masterDataRows[idx]["Ship From"] || '';
-          });
-          td.appendChild(input);
-        } else if (key === "Custom Field 1" || key === "Custom Field 2" || key === "Custom Field 3") {
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'cf-edit';
-          input.value = row[key] || '';
-          input.placeholder = key;
-          input.addEventListener('change', (e) => {
-            masterDataRows[idx][key] = e.target.value || '';
-          });
-          td.appendChild(input);
-        } else {
-          td.textContent = row[key] || '';
-        }
-        tr.appendChild(td);
-      });
-      return tr;
-    }
+    // Filters (Owner + Use) with AND logic
+    (function filtering(){
+      const ownerSel = $('#owner-filter');
+      const useSel = $('#use-filter');
+      const clear = $('#clear-filter');
+      const cards = $$('#projects .project-card');
+      const empty = $('#empty-state');
 
-    // Sales Order row builder with new headers/mapping (data unchanged)
-    function buildOrderRowTr(row){
-      const tr = document.createElement('tr');
-      const map = [
-        ["Order Date","Order Date"],
-        ["Ship From","Ship From"],
-        ["Order Number","Order Number"],
-        ["Item SKU","Item SKU"],
-        ["Quantity","Quantity"],
-        ["Custom Field 1","Custom Field 1"],
-        ["Custom Field 2","Custom Field 2"],
-        ["Custom Field 3","Custom Field 3"],
-        ["Order Total","Order Total"],
-        ["Recipient","Recipient"],
-        ["Carrier Fee","Rate"],
-        ["Service","Service"],
-        ["Tracking Number","Tracking Number"],
-        ["PO Reference Number","PO Number"],
-        ["Memo",""]
-      ];
-      map.forEach(([header, key]) => {
-        let val = key ? (row[key] || '') : '';
-        if (header === "Service") val = (val+'').replace(/®/g,'');
-        const td = document.createElement('td'); td.textContent = val; tr.appendChild(td);
-      });
-      return tr;
-    }
+      function apply(){
+        const owner = (ownerSel.value || '').toLowerCase();
+        const use = (useSel.value || '').toLowerCase();
 
-    function buildSalesOrderLines(baseRow){
-      const lines = [];
-      const cfParts = [baseRow["Custom Field 1"], baseRow["Custom Field 2"]]
-        .map(v => (v || '').toString().trim())
-        .filter(v => v.length > 0)
-        .sort((a,b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}));
-      const common = {
-        "Order Date": baseRow["Order Date"],
-        "Ship From": baseRow["Ship From"],
-        "Order Number": baseRow["Order Number"],
-        "Item SKU": baseRow["Item SKU"],
-        "Quantity": baseRow["Quantity"] || 1,
-        "Order Total": baseRow["Order Total"],
-        "Recipient": baseRow["Recipient"],
-        "PO Number": baseRow["PO Number"],
-        "Rate": baseRow["Rate"] || "",
-        "Service": (baseRow["Service"] || "").replace(/®/g,''),
-        "Tracking Number": baseRow["Tracking Number"] || ""
-      };
-      // Item lines (no shipping data)
-      cfParts.forEach(val => {
-        lines.push({...common, "Custom Field 1": val, "Custom Field 2": "", "Custom Field 3": "", "Rate":"", "Service":"", "Tracking Number":""});
-      });
-      // Shipping line
-      lines.push({...common, "Custom Field 1":"Shipping (WD)", "Custom Field 2":"", "Custom Field 3":"", "Rate": baseRow["Rate"] || "", "Service": (baseRow["Service"] || "").replace(/®/g,''), "Tracking Number": baseRow["Tracking Number"] || ""});
-      return lines;
-    }
+        let visible = 0;
+        cards.forEach(card => {
+          const owners = (card.getAttribute('data-title') || '').toLowerCase();
+          const uses = (card.getAttribute('data-use') || '').toLowerCase();
 
-    function renderSalesOrder(){
-      const tbody = document.getElementById('orderTable').querySelector('tbody');
-      tbody.innerHTML = '';
-      const exploded = masterDataRows.flatMap(r => buildSalesOrderLines(r));
-      document.getElementById('totalOrders').textContent = `Total Orders (lines): ${exploded.length}`;
-      const counts = {}; exploded.forEach(r => { counts[r["Order Date"]] = (counts[r["Order Date"]] || 0) + 1; });
-      const parts = Object.entries(counts).map(([d,c]) => `${d}: ${c}`);
-      document.getElementById('ordersByDate').textContent = `Lines by Date: ${parts.join('    |    ')}`;
-      exploded.forEach(row => tbody.appendChild(buildOrderRowTr(row)));
-    }
+          const ownerOk = !owner || owners.includes(owner);
+          const useOk   = !use   || uses.includes(use);
 
-    function exportCurrent(){
-      let fn = document.getElementById('exportFilename').value.trim() || (currentView==='order' ? 'Sales_Order' : 'Sales_Report');
-      fn = fn.replace(/\.xlsx$/i,'');
-      let headers, data;
-
-      if(currentView==='order'){
-        const exploded = masterDataRows.flatMap(r => buildSalesOrderLines(r));
-        headers = ["Order Date","Ship From","Order Number","Item SKU","Quantity","Custom Field 1","Custom Field 2","Custom Field 3","Order Total","Recipient","Carrier Fee","Service","Tracking Number","PO Reference Number","Memo"];
-        data = exploded.map(r => ({
-          "Order Date": r["Order Date"] || "",
-          "Ship From": r["Ship From"] || "",
-          "Order Number": r["Order Number"] || "",
-          "Item SKU": r["Item SKU"] || "",
-          "Quantity": r["Quantity"] || "",
-          "Custom Field 1": r["Custom Field 1"] || "",
-          "Custom Field 2": r["Custom Field 2"] || "",
-          "Custom Field 3": r["Custom Field 3"] || "",
-          "Order Total": r["Order Total"] || "",
-          "Recipient": r["Recipient"] || "",
-          "Carrier Fee": r["Rate"] || "",
-          "Service": (r["Service"] || ""),
-          "Tracking Number": r["Tracking Number"] || "",
-          "PO Reference Number": r["PO Number"] || "",
-          "Memo": ""
-        }));
-      } else {
-        headers = ["Order Date","Ship From","Order Number","Item SKU","Quantity","Custom Field 1","Custom Field 2","Custom Field 3","Order Total","Recipient","Rate","Service","Tracking Number","PO Number"];
-        data = masterDataRows.map(r => {
-          const obj = {};
-          headers.forEach(h => obj[h] = r[h] || '');
-          return obj;
+          const show = ownerOk && useOk;
+          card.style.display = show ? '' : 'none';
+          if (show) visible++;
         });
+
+        empty.style.display = visible ? 'none' : '';
+        localStorage.setItem('po_owner_filter', ownerSel.value || '');
+        localStorage.setItem('po_use_filter', useSel.value || '');
       }
 
-      const ws = XLSX.utils.json_to_sheet(data, {header: headers});
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, currentView==='order' ? 'Sales Order' : 'Sales Report');
-      XLSX.writeFile(wb, fn + '.xlsx');
-    }
+      ownerSel.addEventListener('change', apply);
+      useSel.addEventListener('change', apply);
+      clear.addEventListener('click', () => { ownerSel.value = ''; useSel.value = ''; apply(); });
 
-    function resetAll() {
-      masterDataRows = []; masterOrderNumbers.clear(); isFirstFile = true; updateFilesCount = 0;
-      document.getElementById('fileInput').value = '';
-      document.getElementById('totalOrders').textContent = 'Total Orders: 0';
-      document.getElementById('ordersByDate').textContent = currentView==='order' ? 'Lines by Date:' : 'Orders by Date:';
-      document.querySelector('#reportTable tbody').innerHTML = '';
-      document.querySelector('#orderTable tbody').innerHTML = '';
-      switchView('report');
-    }
-  </script>
+      // restore saved filters
+      const savedOwner = localStorage.getItem('po_owner_filter');
+      const savedUse = localStorage.getItem('po_use_filter');
+      if (savedOwner) ownerSel.value = savedOwner;
+      if (savedUse) useSel.value = savedUse;
+      apply();
+    })();
 
-<script id="kp360-empty-highlight-script">
-(function(){
-  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
-
-  function isEmpty(v){
-    if (v == null) return true;
-    if (typeof v === 'string') return v.trim() === '';
-    // support inputs inside cells
-    if (v instanceof HTMLElement){
-      if (v.tagName === 'INPUT' || v.tagName === 'TEXTAREA') return v.value.trim() === '';
-      return v.textContent.trim() === '';
-    }
-    return String(v).trim() === '';
-  }
-
-  function hasSkuPLXorPAIR(s){ s = String(s||'').toUpperCase(); return /\bPLX\b/.test(s) || /\bPAIR\b/.test(s); }
-
-  function buildHeaderMap(table){
-    const map = {};
-    const ths = table.querySelectorAll('thead th');
-    ths.forEach((th, i) => { map[norm(th.textContent)] = i; });
-    return map;
-  }
-
-  function getCell(tr, idx){ return idx != null ? tr.children[idx] : null; }
-  function cellVal(td){
-    if (!td) return '';
-    const inp = td.querySelector('input,textarea,select');
-    if (inp) return (inp.value || '').trim();
-    return (td.textContent || '').trim();
-  }
-
-  function highlightTable(table){
-    if (!table || !table.tHead || !table.tBodies.length) return;
-
-    const H = buildHeaderMap(table);
-    // Canonical header keys (normalize both Report and Order views)
-    const idx = {
-      SHIP_FROM: H[norm('Ship From')],
-      ITEM_SKU: H[norm('Item SKU')],
-      CF1: H[norm('Custom Field 1')],
-      CF2: H[norm('Custom Field 2')],
-      SERVICE: H[norm('Service')] ?? H[norm('Carrier')],
-      CARRIER_FEE: H[norm('Rate')] ?? H[norm('Carrier Fee')],
-      TRACKING: H[norm('Tracking Number')],
-      PO_NUM: H[norm('PO Number')] ?? H[norm('PO Reference Number')]
-    };
-
-    const isSalesOrderView = idx.SERVICE != null && table.getAttribute('data-view') === 'order' ? true : false;
-
-    for (const tbody of table.tBodies){
-      for (const tr of tbody.rows){
-        // clear prior classes
-        tr.querySelectorAll('td.kp-hl-red,td.kp-hl-yellow').forEach(td => { td.classList.remove('kp-hl-red','kp-hl-yellow'); });
-
-        const val = {
-          shipFrom: cellVal(getCell(tr, idx.SHIP_FROM)),
-          itemSku: cellVal(getCell(tr, idx.ITEM_SKU)),
-          cf1: cellVal(getCell(tr, idx.CF1)),
-          cf2: cellVal(getCell(tr, idx.CF2)),
-          service: cellVal(getCell(tr, idx.SERVICE)),
-          fee: cellVal(getCell(tr, idx.CARRIER_FEE)),
-          tracking: cellVal(getCell(tr, idx.TRACKING)),
-          po: cellVal(getCell(tr, idx.PO_NUM)),
-        };
-
-        // Light Red
-        if (idx.SHIP_FROM != null && isEmpty(val.shipFrom)) getCell(tr, idx.SHIP_FROM)?.classList.add('kp-hl-red');
-        if (idx.CF1 != null && isEmpty(val.cf1)) getCell(tr, idx.CF1)?.classList.add('kp-hl-red');
-        if (idx.ITEM_SKU != null && idx.CF2 != null && hasSkuPLXorPAIR(val.itemSku) && isEmpty(val.cf2)) getCell(tr, idx.CF2)?.classList.add('kp-hl-red');
-        if (idx.PO_NUM != null && isEmpty(val.po)) getCell(tr, idx.PO_NUM)?.classList.add('kp-hl-red');
-
-        // Light Yellow
-        // Report view: highlight all rows
-        // Sales Order view: ONLY highlight "Shipping (WD)" line
-        let allowYellow = true;
-        const cf1Upper = norm(val.cf1);
-        if (cf1Upper && cf1Upper.length){
-          // heuristic: many tables don't label data-view, so infer SO by the "Shipping (WD)" rule
-          // If the row is not "Shipping (WD)", then yellow only if not an SO view or it's the shipping line
-          // We'll implement: if table *appears* to be SO (has PO Reference Number or similar) then constrain to Shipping (WD)
-        }
-        const looksLikeSalesOrder = (H[norm('PO Reference Number')] != null) || (table.getAttribute('data-view') === 'order');
-        if (looksLikeSalesOrder){
-          allowYellow = (cf1Upper === 'SHIPPING (WD)');
-        }
-
-        if (allowYellow){
-          if (idx.SERVICE != null && isEmpty(val.service)) getCell(tr, idx.SERVICE)?.classList.add('kp-hl-yellow');
-          if (idx.CARRIER_FEE != null && isEmpty(val.fee)) getCell(tr, idx.CARRIER_FEE)?.classList.add('kp-hl-yellow');
-          if (idx.TRACKING != null && isEmpty(val.tracking)) getCell(tr, idx.TRACKING)?.classList.add('kp-hl-yellow');
-        }
-      }
-    }
-  }
-
-  function highlightAll(){
-    const tables = document.querySelectorAll('table');
-    tables.forEach(highlightTable);
-  }
-
-  // Debounced observe
-  let t = null;
-  function schedule(){ if (t) cancelAnimationFrame(t); t = requestAnimationFrame(highlightAll); }
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-
-  const obs = new MutationObserver((muts) => {
-    for (const m of muts){
-      if (m.type === 'childList' || m.type === 'attributes'){
-        schedule();
-        break;
-      }
-    }
-  });
-  obs.observe(document.documentElement || document.body, {subtree:true, childList:true, attributes:true});
-})();
-</script>
-
-<script id="kp360-service-col-script">
-(function(){
-  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
-  function markServiceColumn(table){
-    if (!table || !table.tHead) return;
-    var ths = table.tHead.querySelectorAll('th');
-    var idx = -1;
-    for (var i=0;i<ths.length;i++){
-      var t = norm(ths[i].textContent);
-      if (t === 'SERVICE' || t === 'CARRIER'){
-        idx = i; break;
-      }
-    }
-    if (idx < 0) return;
-    ths[idx].classList.add('kp-service-col');
-    for (var b=0;b<table.tBodies.length;b++){
-      var rows = table.tBodies[b].rows;
-      for (var r=0;r<rows.length;r++){
-        if (rows[r].children[idx]) rows[r].children[idx].classList.add('kp-service-col');
-      }
-    }
-  }
-  function apply(){
-    var tables = document.querySelectorAll('table');
-    for (var i=0;i<tables.length;i++) markServiceColumn(tables[i]);
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', apply);
-  } else { apply(); }
-  // Re-apply on mutations in case the table rerenders
-  var obs = new MutationObserver(function(m){
-    for (var i=0;i<m.length;i++){
-      if (m[i].type === 'childList'){ apply(); break; }
-    }
-  });
-  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
-})();
-</script>
-
-<script id="kp360-cf2-sales-report-only">
-(function(){
-  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
-  function headerIndex(table, name){
-    if (!table || !table.tHead) return -1;
-    var ths = table.tHead.querySelectorAll('th');
-    for (var i=0;i<ths.length;i++){
-      if (norm(ths[i].textContent) === norm(name)) return i;
-    }
-    return -1;
-  }
-  function looksLikeSalesOrder(table){
-    // Sales Order view in this app uses "PO Reference Number"
-    return headerIndex(table,'PO REFERENCE NUMBER') >= 0;
-  }
-  function apply(){
-    var tables = document.querySelectorAll('table');
-    for (var t=0;t<tables.length;t++){
-      var table = tables[t];
-      if (!looksLikeSalesOrder(table)) continue; // rule only needs to remove on SO
-
-      var cf2Idx = headerIndex(table,'CUSTOM FIELD 2');
-      if (cf2Idx < 0) continue;
-      for (var b=0;b<table.tBodies.length;b++){
-        var rows = table.tBodies[b].rows;
-        for (var r=0;r<rows.length;r++){
-          var td = rows[r].children[cf2Idx];
-          if (td) td.classList.remove('kp-hl-red'); // ensure CF2 never red-highlighted on SO
-        }
-      }
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', apply);
-  } else { apply(); }
-  // re-apply on DOM mutations
-  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
-  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
-})();
-</script>
-
-<script id="kp360-row-warning-script">
-(function(){
-  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
-  function headerIndex(table, name){
-    if (!table || !table.tHead) return -1;
-    var ths = table.tHead.querySelectorAll('th');
-    var key = norm(name);
-    for (var i=0;i<ths.length;i++){
-      if (norm(ths[i].textContent) === key) return i;
-    }
-    return -1;
-  }
-  function val(td){
-    if (!td) return '';
-    var inp = td.querySelector('input,textarea,select');
-    if (inp) return (inp.value||'').trim();
-    return (td.textContent||'').trim();
-  }
-  function hasVendorSKU(s){
-    s = norm(s);
-    return /\bUSAUTO\b/.test(s) || /\BMEYER\b/.test(s) || /\BTONSA\b/.test(s) || /\bUS AUTO\b/.test(s);
-  }
-  function apply(){
-    var tables = document.querySelectorAll('table');
-    for (var t=0;t<tables.length;t++){
-      var table = tables[t];
-      if (!table.tBodies || !table.tBodies.length) continue;
-
-      var idxSKU = headerIndex(table, 'ITEM SKU');
-      var idxFee = headerIndex(table, 'CARRIER FEE');
-      if (idxFee < 0) idxFee = headerIndex(table, 'RATE'); // Report uses "Rate"
-      var idxPO  = headerIndex(table, 'PO NUMBER') >= 0 ? headerIndex(table, 'PO NUMBER') : headerIndex(table, 'PO REFERENCE NUMBER');
-
-      for (var b=0;b<table.tBodies.length;b++){
-        var rows = table.tBodies[b].rows;
-        for (var r=0;r<rows.length;r++){
-          var tr = rows[r];
-          tr.classList.remove('kp-row-warn');
-          var sku = val(tr.children[idxSKU]);
-          var fee = val(tr.children[idxFee]);
-          var po  = val(tr.children[idxPO]);
-          if (idxSKU>=0 && idxFee>=0 && hasVendorSKU(sku) && fee !== '' && (po === '' || po == null)){
-            tr.classList.add('kp-row-warn');
-          }
-        }
-      }
-    }
-  }
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', apply);
-  } else { apply(); }
-  // re-apply on DOM changes
-  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
-  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
-})();
-</script>
-
-<script id="kp360-cf2-ignore-fba">
-(function(){
-  function norm(s){ return String(s||'').trim().toUpperCase(); }
-  function headerIndex(table, name){
-    if (!table || !table.tHead) return -1;
-    var ths = table.tHead.querySelectorAll('th');
-    var key = norm(name);
-    for (var i=0;i<ths.length;i++){ if (norm(ths[i].textContent) === key) return i; }
-    return -1;
-  }
-  function looksLikeSalesOrder(table){
-    return headerIndex(table,'PO REFERENCE NUMBER') >= 0;
-  }
-  function val(td){
-    if (!td) return '';
-    var inp = td.querySelector('input,textarea,select');
-    if (inp) return (inp.value||'').trim();
-    return (td.textContent||'').trim();
-  }
-  function apply(){
-    var tables = document.querySelectorAll('table');
-    for (var t=0;t<tables.length;t++){
-      var table = tables[t];
-      // Apply only on Sales Report (skip SO)
-      if (looksLikeSalesOrder(table)) continue;
-      var idxSKU = headerIndex(table,'ITEM SKU');
-      var idxCF2 = headerIndex(table,'CUSTOM FIELD 2');
-      if (idxSKU < 0 || idxCF2 < 0) continue;
-
-      for (var b=0;b<table.tBodies.length;b++){
-        var rows = table.tBodies[b].rows;
-        for (var r=0;r<rows.length;r++){
-          var sku = norm(val(rows[r].children[idxSKU]));
-          if (/(\b|[^A-Z0-9])FBA(\b|[^A-Z0-9])/.test(sku)){
-            var td = rows[r].children[idxCF2];
-            if (td) td.classList.remove('kp-hl-red');
-          }
-        }
-      }
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', apply);
-  } else { apply(); }
-  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type === 'childList'){ apply(); break; }}});
-  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
-})();
-</script>
-
-<script id="kp360-row-warning-shipfrom">
-(function(){
-  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
-  function headerIndex(table, name){
-    if (!table || !table.tHead) return -1;
-    var ths = table.tHead.querySelectorAll('th');
-    var key = norm(name);
-    for (var i=0;i<ths.length;i++){
-      if (norm(ths[i].textContent) === key) return i;
-    }
-    return -1;
-  }
-  function val(td){
-    if (!td) return '';
-    var inp = td.querySelector('input,textarea,select');
-    if (inp) return (inp.value||'').trim();
-    return (td.textContent||'').trim();
-  }
-  function shipFromMatches(s){
-    s = norm(s);
-    return /\bUSAUTO\b/.test(s) || /\bUS AUTO\b/.test(s) || /\BMEYER\b/.test(s) || /\BTONSA\b/.test(s);
-  }
-  function apply(){
-    var tables = document.querySelectorAll('table');
-    for (var t=0;t<tables.length;t++){
-      var table = tables[t];
-      if (!table.tBodies || !table.tBodies.length) continue;
-
-      var idxShipFrom = headerIndex(table, 'SHIP FROM');
-      var idxFee = headerIndex(table, 'CARRIER FEE');
-      if (idxFee < 0) idxFee = headerIndex(table, 'RATE'); // Report uses "Rate"
-
-      if (idxShipFrom < 0 || idxFee < 0) continue;
-
-      for (var b=0;b<table.tBodies.length;b++){
-        var rows = table.tBodies[b].rows;
-        for (var r=0;r<rows.length;r++){
-          var tr = rows[r];
-          // clear any previous row-warn from older rule
-          tr.classList.remove('kp-row-warn');
-
-          var ship = val(tr.children[idxShipFrom]);
-          var fee  = val(tr.children[idxFee]);
-
-          if (shipFromMatches(ship) && fee !== ''){
-            tr.classList.add('kp-row-warn'); // entire line light yellow (style already defined)
-          }
-        }
-      }
-    }
-  }
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', apply);
-  } else { apply(); }
-  // re-apply on DOM changes
-  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList'){ apply(); break; }}});
-  obs.observe(document.documentElement||document.body, {subtree:true, childList:true});
-})();
-</script>
-
-<script id="kp360-tip-bubble-script">
-(function(){
-  // Utilities
-  function norm(s){ return String(s||'').trim().replace(/\s+/g,' ').toUpperCase(); }
-  function headerIndex(table, name){
-    if (!table || !table.tHead) return -1;
-    var ths = table.tHead.querySelectorAll('th');
-    var key = norm(name);
-    for (var i=0;i<ths.length;i++){ if (norm(ths[i].textContent) === key) return i; }
-    return -1;
-  }
-  function getHeaderText(table, idx){
-    if (!table || !table.tHead) return '';
-    var ths = table.tHead.querySelectorAll('th');
-    if (idx >= 0 && idx < ths.length) return (ths[idx].textContent||'').trim();
-    return '';
-  }
-  function val(td){
-    if (!td) return '';
-    var inp = td.querySelector('input,textarea,select');
-    if (inp) return (inp.value||'').trim();
-    return (td.textContent||'').trim();
-  }
-  function looksLikeSalesOrder(table){
-    return headerIndex(table,'PO REFERENCE NUMBER') >= 0;
-  }
-  function hasPLXorPAIR(s){ s = norm(s); return /\bPLX\b/.test(s) || /\bPAIR\b/.test(s); }
-  function hasFBA(s){ s = norm(s); return /(^|[^A-Z0-9])FBA([^A-Z0-9]|$)/.test(s); }
-  function shipFromVendor(s){ s = norm(s); return (/\bUSAUTO\b/.test(s) || /\bUS AUTO\b/.test(s) || /MEYER/.test(s) || /TONSA/.test(s)); }
-
-  // Tooltip element
-  var tip = document.createElement('div');
-  tip.className = 'kp-tip';
-  document.body.appendChild(tip);
-
-  var currentTarget = null;
-
-  function showTip(target, html){
-    tip.innerHTML = html;
-    tip.classList.add('show');
-    currentTarget = target;
-  }
-  function hideTip(){
-    tip.classList.remove('show');
-    currentTarget = null;
-  }
-  function positionTip(ev){
-    var x = ev.clientX + 12;
-    var y = ev.clientY + 12;
-    var w = tip.offsetWidth, h = tip.offsetHeight;
-    var vw = document.documentElement.clientWidth;
-    var vh = document.documentElement.clientHeight;
-    if (x + w + 12 > vw) x = Math.max(8, vw - w - 12);
-    if (y + h + 12 > vh) y = Math.max(8, vh - h - 12);
-    tip.style.left = x + 'px';
-    tip.style.top = y + 'px';
-  }
-
-  function reasonForCell(td){
-    var table = td.closest('table');
-    var idx = Array.prototype.indexOf.call(td.parentNode.children, td);
-    var header = getHeaderText(table, idx);
-    var clsRed = td.classList.contains('kp-hl-red');
-    var clsYellow = td.classList.contains('kp-hl-yellow');
-
-    // Gather row values for special rules
-    var idxSKU = headerIndex(table,'ITEM SKU');
-    var idxCF2 = headerIndex(table,'CUSTOM FIELD 2');
-    var idxService = headerIndex(table,'SERVICE'); if (idxService<0) idxService = headerIndex(table,'CARRIER');
-    var idxRate = headerIndex(table,'CARRIER FEE'); if (idxRate<0) idxRate = headerIndex(table,'RATE');
-    var idxTrack = headerIndex(table,'TRACKING NUMBER');
-    var idxShipFrom = headerIndex(table,'SHIP FROM');
-
-    var tr = td.parentNode;
-    var sku = idxSKU>=0 ? val(tr.children[idxSKU]) : '';
-    var shipFrom = idxShipFrom>=0 ? val(tr.children[idxShipFrom]) : '';
-
-    if (clsRed){
-      if (norm(header) === 'CUSTOM FIELD 2'){
-        if (!looksLikeSalesOrder(table) && hasPLXorPAIR(sku) && !hasFBA(sku)){
-          return '<span class="kp-tip-head">Missing required field</span><span class="kp-tip-rule">Custom Field 2 is required for PLX/PAIR SKUs on the Sales Report (ignored if SKU contains FBA).</span>';
-        }
-        return '<span class="kp-tip-head">Missing value</span><span class="kp-tip-rule">Custom Field 2 is empty.</span>';
-      }
-      return '<span class="kp-tip-head">Missing value</span><span class="kp-tip-rule">'+(header||'This field')+' is required.</span>';
-    }
-    if (clsYellow){
-      if (idxService===idx) return '<span class="kp-tip-head">Carrier Missing</span><span class="kp-tip-rule">Please provide a carrier/service.</span>';
-      if (idxRate===idx) return '<span class="kp-tip-head">Carrier Fee Missing</span><span class="kp-tip-rule">Please provide a fee if applicable.</span>';
-      if (idxTrack===idx) return '<span class="kp-tip-head">Tracking Number Missing</span><span class="kp-tip-rule">Add tracking when available.</span>';
-      return '<span class="kp-tip-head">Needs attention</span><span class="kp-tip-rule">'+(header||'This field')+' is empty.</span>';
-    }
-    // If part of a row-warn, defer to row reason
-    if (td.parentNode.classList.contains('kp-row-warn')){
-      return reasonForRow(td.parentNode);
-    }
-    return '<span class="kp-tip-head">Info</span><span class="kp-tip-rule">Highlighted cell.</span>';
-  }
-
-  function reasonForRow(tr){
-    var table = tr.closest('table');
-    var idxShipFrom = headerIndex(table,'SHIP FROM');
-    var idxRate = headerIndex(table,'CARRIER FEE'); if (idxRate<0) idxRate = headerIndex(table,'RATE');
-    var ship = idxShipFrom>=0 ? val(tr.children[idxShipFrom]) : '';
-    var fee = idxRate>=0 ? val(tr.children[idxRate]) : '';
-    if (shipFromVendor(ship) && fee !== ''){
-      return '<span class="kp-tip-head">Review: Unexpected Carrier Fee</span><span class="kp-tip-rule">This line has a Carrier Fee, but Ship From is '+(ship||'vendor')+'.</span>';
-    }
-    return '<span class="kp-tip-head">Row highlighted</span><span class="kp-tip-rule">Please review this line.</span>';
-  }
-
-  function attachHandlers(){
-    // target all highlighted cells and rows
-    var cells = document.querySelectorAll('td.kp-hl-red, td.kp-hl-yellow, tr.kp-row-warn > td');
-    cells.forEach(function(td){
-      // Avoid duplicate listeners
-      if (td._kpTipBound) return;
-      td._kpTipBound = true;
-      td.addEventListener('mouseenter', function(ev){
-        var html = td.parentNode.classList.contains('kp-row-warn') ? reasonForRow(td.parentNode) : reasonForCell(td);
-        showTip(td, html); positionTip(ev);
+    // Accessibility: enter key to open first action
+    (function keyboardOpen(){
+      $$('.project-card').forEach(card => {
+        card.tabIndex = 0;
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') card.querySelector('.view-tool')?.click();
+        });
       });
-      td.addEventListener('mousemove', positionTip);
-      td.addEventListener('mouseleave', hideTip);
-      td.addEventListener('scroll', hideTip, {passive:true});
-    });
-  }
+    })();
 
-  function scheduleAttach(){
-    attachHandlers();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scheduleAttach);
-  } else { scheduleAttach(); }
-
-  // Re-attach on DOM updates
-  var obs = new MutationObserver(function(m){ for (var i=0;i<m.length;i++){ if (m[i].type==='childList' || m[i].type==='attributes'){ scheduleAttach(); break; }}});
-  obs.observe(document.documentElement||document.body, {subtree:true, childList:true, attributes:true});
-})();
-</script>
+    // Decode images
+    (async function decodeImages(){
+      const imgs = $$('img[decoding="async"]');
+      for (const img of imgs) { if (!img.complete) { try { await img.decode(); } catch {} } }
+    })();
+      document.addEventListener('DOMContentLoaded', __setDynamicHeights);
+  </script>
 </body>
 </html>
+
