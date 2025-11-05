@@ -1,643 +1,253 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="auto">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PO Team Projects</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {--bg: #f7f8fa;--card: #ffffff;--text: #111827;--muted: #6b7280;--border: #e5e7eb;--ring: 54 120 252; /* rgb */--primary: #1f2937;--primary-contrast: #ffffff;--chip-bg: #eef2ff;--chip-text: #3730a3; --radius: 14px;--space: 1.25rem;--shadow-sm: 0 1px 2px rgba(0,0,0,.06);--shadow-md: 0 6px 16px rgba(0,0,0,.08);--shadow-lg: 0 12px 28px rgba(0,0,0,.12);--transition: .25s cubic-bezier(.2,.7,.2,1);--maxw: 1200px;--header-h:64px;--viewerbar-h:44px;}
-    @media (prefers-color-scheme: dark)
-    {html[data-theme="auto"] {--bg: #0b0c0f;--card: #121318;--text: #e5e7eb;--muted: #a1a1aa;--border: #23242a;--ring: 103 163 255;--primary: #d1d5db;--primary-contrast: #0b0c0f;--chip-bg: #1e293b;--chip-text: #c7d2fe;--shadow-sm: 0 1px 2px rgba(0,0,0,.4);--shadow-md: 0 8px 24px rgba(0,0,0,.45); --shadow-lg: 0 18px 40px rgba(0,0,0,.55);}}
-    html[data-theme="dark"] {--bg: #0b0c0f;--card: #121318;--text: #e5e7eb;--muted: #a1a1aa;--border: #23242a;--ring: 103 163 255;--primary: #d1d5db;--primary-contrast: #0b0c0f;--chip-bg: #1e293b;--chip-text: #c7d2fe;--shadow-sm: 0 1px 2px rgba(0,0,0,.4);--shadow-md: 0 8px 24px rgba(0,0,0,.45);--shadow-lg: 0 18px 40px rgba(0,0,0,.55);}
-    html, body { height: 100%; }
-    * { box-sizing: border-box; }
-    body {margin: 0;font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans';background: var(--bg);color: var(--text);line-height: 1.45;display: flex;flex-direction: column;}
-    a { color: inherit; text-decoration: none; }
-    header {position: sticky; top: 0; z-index: 10;background: linear-gradient(180deg, rgba(0,0,0,0.04), transparent), var(--card);backdrop-filter: saturate(1.2) blur(6px);border-bottom: 1px solid var(--border);transition: box-shadow var(--transition), transform var(--transition), padding var(--transition), background var(--transition);box-shadow: var(--shadow-sm);}
-    .header-inner{max-width:var(--maxw);margin:0 auto;padding: .75rem var(--space);display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center}
-    .brand { display: flex; align-items: center; gap: .75rem; }
-    .brand img { height: 28px; width: auto; object-fit: contain; }
-    .brand-title { display: grid; line-height: 1.1; }
-    .brand-title strong { font-size: 1.15rem; letter-spacing: .2px; }
-    .brand-title span { font-size: .85rem; color: var(--muted); }
-    .actions { display: flex; align-items: center; gap: .5rem; }
-    .btn {appearance: none; border: 1px solid var(--border); background: var(--card); color: var(--text);padding: .55rem .85rem; border-radius: 999px; font-weight: 600; cursor: pointer;box-shadow: var(--shadow-sm);transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition), color var(--transition);} 
-    .btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-    .btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(var(--ring) / .25); }
-    .btn-primary { border-color: transparent; background: var(--primary); color: var(--primary-contrast); }
-    #welcome-modal {position: fixed; inset: 0; display: none;align-items: center; justify-content: center;background: rgba(0,0,0,.45);z-index: 1000;padding: 1rem;}
-    #welcome-modal[open] { display: flex; }
-    .modal-content {background: var(--card);width: 100%; max-width: 520px;border-radius: 16px;padding: 1.5rem 1.25rem;box-shadow: var(--shadow-lg);border: 1px solid var(--border);text-align: left;}
-    .modal-content h2 { margin: 0 0 .6rem; font-size: 1.4rem; }
-    .modal-content p { margin: 0 0 1rem; color: var(--muted); }
-    .modal-row {display: flex; align-items: center; gap: .6rem;margin-top: .6rem;}
-    .modal-row label {display: inline-flex; align-items: center; gap: .55rem;color: var(--muted); font-size: .95rem; cursor: pointer;user-select: none;}
-    .modal-row input[type="checkbox"] {appearance: none;width: 18px; height: 18px; border-radius: 4px;border: 1.5px solid var(--border);display: grid; place-items: center;background: var(--card);transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);} 
-    .modal-row input[type="checkbox"]::after {content: "✓"; font-size: 14px; transform: scale(0); transition: transform var(--transition);} 
-    .modal-row input[type="checkbox"]:checked {background: var(--primary); border-color: var(--primary);color: var(--primary-contrast);} 
-    .modal-row input[type="checkbox"]:checked::after { transform: scale(1); color: var(--primary-contrast); }
-    .modal-actions {display:flex; justify-content:flex-end; gap:.75rem; margin-top: 1rem;}
-    main { width: 100%; max-width: var(--maxw); margin: 1rem auto 1.5rem; padding: 0 var(--space); flex: 1; }
-    .toolbar {display: grid; grid-template-columns: 1fr auto; gap: .75rem;margin-bottom: 1.25rem;}
-    .filters {display: grid;grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));gap: .75rem;align-items: center;}
-    .search {display: flex; gap: .5rem; align-items: center;background: var(--card);border: 1px solid var(--border);border-radius: 999px;padding: .5rem .75rem;box-shadow: var(--shadow-sm);} 
-    .search svg { flex: 0 0 18px; }
-    .search select {flex: 1; border: 0; background: transparent; color: var(--text);font-size: .98rem; padding: .35rem .25rem; outline: none;}
-    .projects-container {display: grid;grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));gap: 1.1rem;}
-    .project-card {background: var(--card);border: 1px solid var(--border);border-radius: var(--radius);box-shadow: var(--shadow-md);overflow: clip;display: grid;grid-template-rows: auto 1fr auto;transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);will-change: transform;}
-    .project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-    .projects-container {display: grid;grid-template-columns: repeat(auto-fill, minmax(320px, 360px));gap: 1.1rem;justify-content: start;}
-    .project-card {width: auto;}
-    @media (max-width: 640px) {.projects-container { grid-template-columns: 1fr; } .project-card { width: 100%; }}
-    .owner-strip {display: flex; gap: .5rem; flex-wrap: wrap;padding: .75rem .85rem .5rem;border-bottom: 1px dashed var(--border);background: color-mix(in oklab, var(--card), var(--bg) 35%);}
-    .owner-chip {display: inline-flex; align-items: center; gap: .4rem;background: var(--chip-bg); color: var(--chip-text);border: 1px solid var(--border);padding: .25rem .5rem; border-radius: 999px; font-size: .8rem; font-weight: 600;}
-    .owner-chip img {width: 20px; height: 20px; border-radius: 50%; object-fit: cover;border: 1px solid var(--border);} 
-    .project-content { padding: 1rem .95rem 0; }
-    .project-content h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
-    .project-content p { margin: 0 0 .75rem; color: var(--muted); font-size: .94rem; }
-    .card-actions {display: flex; justify-content: space-between; align-items: center; gap: .5rem;padding: .75rem .85rem 1rem; position: relative;}
-    .action {display: inline-flex; align-items: center; gap: .5rem;padding: .5rem .9rem;border-radius: 999px;font-weight: 700; font-size: .92rem;border: 1px solid var(--border); background: var(--card);cursor: pointer; user-select: none;transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition), border-color var(--transition);} 
-    .action:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-    .action:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(var(--ring)/.25); }
-    .action-primary { background: var(--primary); color: var(--primary-contrast); border-color: transparent; }
-    .action .checkmark {display: none; width: 1.2em; height: 1.2em; border-radius: 999px;align-items: center; justify-content: center; font-size: .9em; font-weight: 800;background: rgba(var(--ring)/.9); color: #fff;}
-    .action.clicked .checkmark { display: none; }
-    #tool-viewer { display: none; flex-direction: column; gap: .75rem; }
-    .viewer-bar {display: flex; align-items: center; justify-content: space-between; gap: .75rem;padding: .4rem var(--space);background: var(--card); border-bottom: 1px solid var(--border);box-shadow: var(--shadow-sm);} 
-    #back-btn {background: var(--card); color: var(--text); border: 1px solid var(--border);padding: .5rem .9rem; border-radius: 999px; font-weight: 700; cursor: pointer;transition: box-shadow var(--transition), transform var(--transition);} 
-    #back-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-    #tool-title { font-weight: 700; }
-    .video-wrapper {position: relative; width: 100%; height: calc(100dvh - var(--header-h) - var(--viewerbar-h));overflow: hidden; background: var(--card); border-top: 1px solid var(--border);} 
-    .video-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .video-wrapper.tutorial iframe { left: 50%; transform: translateX(-50%); width: min(100%, calc(80vh * (16/9))); }
-	.video-wrapper.page-scroll { height: auto; }
-	.video-wrapper.page-scroll iframe { position: relative; inset: auto; display: block; width: 100%; height: var(--tool-height, auto); min-height: calc(100dvh - var(--header-h) - var(--viewerbar-h)); overflow: hidden; }
-	.empty {padding: 2.25rem; text-align: center; color: var(--muted);border: 2px dashed var(--border); border-radius: var(--radius);background: color-mix(in oklab, var(--card), var(--bg) 25%);} 
-    :focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(var(--ring)/.25); border-radius: 10px; }
-    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-	body.lock-scroll { overflow: hidden; }
-	:root { --maxw: 100%; }
-	.header-inner { max-width: none; }
-	main { max-width: none; }
-	.projects-container {grid-template-columns: repeat(5, minmax(0, 1fr));justify-content: stretch;}
-	.project-card { width: 100%; }
-	@media (max-width: 1400px) { .projects-container { grid-template-columns: repeat(4, 1fr); } }
-	@media (max-width: 1120px) { .projects-container { grid-template-columns: repeat(3, 1fr); } }
-	@media (max-width: 840px)  { .projects-container { grid-template-columns: repeat(2, 1fr); } }
-	body {padding-bottom: 20px;}
-	main {padding-bottom: 20px;}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Q&A Showcase</title>
+<style>
+    :root {
+        --accent: #00796b;
+        --accent-hover: #00695c;
+        --bg: #ffffff;
+        --text: #222;
+        --muted: #555;
+        --border: #e0e0e0;
+    }
+
+    body {
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 40px 20px;
+        line-height: 1.6;
+    }
+
+    h1 {
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--accent);
+        letter-spacing: 0.5px;
+    }
+
+    h2 {
+        color: var(--accent);
+        font-size: 1.2rem;
+        margin-top: 50px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 5px;
+    }
+
+    .container {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .qa-item {
+        border-bottom: 1px solid var(--border);
+        padding: 15px 0;
+    }
+
+    .question {
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: color 0.2s ease;
+    }
+
+    .question:hover {
+        color: var(--accent);
+    }
+
+    .question::after {
+        content: '+';
+        font-weight: bold;
+        transition: transform 0.3s ease;
+        color: var(--accent);
+    }
+
+    .question.active::after {
+        content: '−';
+        transform: rotate(180deg);
+    }
+
+    .answer {
+        max-height: 0;
+        overflow: hidden;
+        color: var(--muted);
+        transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+        opacity: 0;
+        padding-left: 5px;
+    }
+
+    .answer.open {
+        max-height: 800px;
+        opacity: 1;
+        padding-top: 10px;
+    }
+
+    .tools {
+        background: #f5f7f7;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 20px;
+        line-height: 1.8;
+        color: var(--muted);
+    }
+
+    .buttons {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .btn {
+        background-color: var(--accent);
+        border: none;
+        color: #fff;
+        padding: 8px 18px;
+        margin: 0 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background 0.2s ease;
+    }
+
+    .btn:hover {
+        background-color: var(--accent-hover);
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 25px 15px;
+        }
+    }
 </style>
 </head>
 <body>
-  <!-- WELCOME MODAL -->
-  <div id="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-    <div class="modal-content">
-      <h2 id="welcome-title">Welcome!</h2>
-      <p>Explore all the projects created by the PO team.</p>
-      <div class="modal-row">
-        <label for="dont-show">
-          <input type="checkbox" id="dont-show" />
-          Don’t show this again
-        </label>
-      </div>
-      <div class="modal-actions">
-        <button id="modal-close" class="btn btn-primary">Get Started</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- HEADER -->
-  <header id="app-header">
-    <div class="header-inner">
-      <div class="brand">
-        <!-- Logo removed -->
-        <div class="brand-title">
-          <strong>PO Team Projects</strong>
-          <span>Discover what our teammates are working on</span>
-        </div>
-      </div>
+<div class="container">
+    <h1>Interview Q&A Showcase</h1>
 
-      <div></div>
-
-      <div class="actions">
-        <button id="theme-toggle" class="btn" aria-label="Toggle dark mode">🌓</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- VIEWER -->
-  <div id="tool-viewer" aria-live="polite">
-    <div class="viewer-bar">
-      <button id="back-btn" type="button" aria-label="Back to project list">← Back</button>
-      <div id="tool-title"></div>
-      <span></span>
-    </div>
-    <div class="video-wrapper">
-      <iframe id="tool-frame" src="" allowfullscreen scrolling="auto"></iframe>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <main>
-    <div class="toolbar" role="search">
-      <div class="filters">
-        <!-- Filter by Owner -->
-        <div class="search">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.9-3.9M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <select id="owner-filter" aria-label="Filter by owner">
-            <option value="">Filter by owner</option>
-            <option value="Marcus Bañez">Marcus Bañez</option>
-            <option value="Kathleen Delos Santos">Kathleen Delos Santos</option>
-            <option value="Christine Anastacio">Christine Anastacio</option>
-            <option value="Mary Guray">Mary Guray</option>
-            <option value="Jerrilyn Alarma">Jerrilyn Alarma</option>
-            <option value="Hannah Ranario">Hannah Ranario</option>
-            <option value="Daricalyn Rosales">Daricalyn Rosales</option>
-            <option value="CJ Paet">CJ Paet</option>
-            <option value="Cheztierlee Arlos">Cheztierlee Arlos</option>
-            <option value="Daryl Pagilagan">Daryl Pagilagan</option>
-            <option value="Jovilyn Leonaras">Jovilyn Leonaras</option>
-            <option value="Mariel Zipagan">Mariel Zipagan</option>
-            <option value="Ariane De Guzman">Ariane De Guzman</option>
-          </select>
-        </div>
-
-        <!-- NEW: Filter by Use -->
-        <div class="search">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.9-3.9M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <select id="use-filter" aria-label="Filter by use">
-            <option value="">Filter by use</option>
-            <option value="Ordering">Ordering</option>
-            <option value="Labeling">Labeling</option>
-            <option value="Wholesale">Wholesale</option>
-            <option value="Inventory">Inventory</option>
-            <option value="Invoice">Invoice</option>
-            <option value="Sweeping">Sweeping</option>
-          </select>
-        </div>
-      </div>
-
-      <button id="clear-filter" class="btn" type="button" aria-label="Clear filters">Clear</button>
+    <div class="buttons">
+        <button class="btn" onclick="toggleAll(true)">Expand All</button>
+        <button class="btn" onclick="toggleAll(false)">Collapse All</button>
     </div>
 
-    <div id="projects" class="projects-container">
-      
-      <!-- Ordering File Generator -->
-      <div class="project-card" data-title="Marcus Bañez,Kathleen Delos Santos" data-name="Ordering File Generator" data-use="Ordering">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Marcus.jpeg" alt=""/>Marcus Bañez</span>
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Kathleen.jpeg" alt=""/>Kathleen Delos Santos</span>
-        </div>
-        <div class="project-content">
-          <h2>Ordering File Generator</h2>
-          <p>Prepares and formats files for seamless NetSuite PO imports.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Depo_KSI_FileGenerator_Marcus_Kathleen.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1lfEG82__S6smKIIORzhrBSSCvfBYzbJS/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <h2>General Questions</h2>
 
-      <!-- NetSuite Importing Tool -->
-      <div class="project-card" data-title="Marcus Bañez,Kathleen Delos Santos" data-name="NetSuite Importing Tool" data-use="Ordering">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Marcus.jpeg" alt=""/>Marcus Bañez</span>
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Kathleen.jpeg" alt=""/>Kathleen Delos Santos</span>
-        </div>
-        <div class="project-content">
-          <h2>NetSuite Importing Tool</h2>
-          <p>Formats and validates data files for smooth import into NetSuite.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/NetSuite_Importing_Tool_Marcus_Kathleen.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1Mx3i0rijRrpVNtJ-DeO0Al4HnWgGTwal/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(1)">HOW DID YOU LEARN ABOUT THIS POSITION?</div>
+    <div class="answer" id="answer-1">I was catching up with Ash when I mentioned I was looking for new opportunities. She told me about an opening at her company. It sounded like a great opportunity to apply my customer service background while exploring something new and innovative, so I decided to go for it.</div></div>
 
-      <!-- Order Tagging Tool -->
-      <div class="project-card" data-title="Christine Anastacio" data-name="Order Tagging Tool" data-use="Labeling">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/christine%20anastacio.jpeg" alt=""/>Christine Anastacio</span>
-        </div>
-        <div class="project-content">
-          <h2>Order Tagging Tool</h2>
-          <p>Processes detailed order data to ensure accurate tagging and fulfillment in ShipStation.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Order_Tagging_Christine.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1wjxVI9hu6p_xxtVdRixV2OELt50CUI2r/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(2)">TELL ME SOMETHING ABOUT YOURSELF THAT’S NOT ON YOUR RESUME</div>
+    <div class="answer" id="answer-2">One thing not listed on my resume is my passion for manga, manhwa, anime, and movies. I enjoy how stories develop and how characters grow, which has helped me develop better empathy and become more observant. Watching international content has also exposed me to different communication styles and cultural nuances, which helps me understand and connect better with people, especially in customer service.</div></div>
 
-      <!-- International Address Sweeping Tool -->
-      <div class="project-card" data-title="Marcus Bañez,Kathleen Delos Santos" data-name="International Address Sweeping Tool" data-use="Sweeping">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Marcus.jpeg" alt=""/>Marcus Bañez</span>
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Kathleen.jpeg" alt=""/>Kathleen Delos Santos</span>
-        </div>
-        <div class="project-content">
-          <h2>International Address Sweeping Tool</h2>
-          <p>Identifies and tracks international shipments to verify proper processing.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/International_Address_Sweep.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1wJpY_OGICPxCDCEXcb7odn78MVxql1Tm/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(3)">EXPLAIN YOUR ROLE WITH YOUR PREVIOUS COMPANY</div>
+    <div class="answer" id="answer-3">At SLMP Digital Services Corporation, I worked as part of the customer support team handling communication via phone, email, and chat. Our focus was on appointment setting, ticket management, and platform support.
+        <br><br>
+        For appointment setting, I assisted customers with booking, confirming, or rescheduling appointments, and ensured that everything was properly coordinated with internal teams.
+        <br><br>
+        In ticket management, I served as a go-between for customers and internal departments — handling issues like website edits, ad changes, or subscription coverage, ensuring each request was properly routed and followed up until resolved.
+        <br><br>
+        I also provided support for our platform and mobile app, including account activation, user role management, and general questions. Clear, consistent communication and cross-team collaboration were key in maintaining customer satisfaction.</div></div>
 
-      <!-- PO Scrubbing Tool -->
-      <div class="project-card" data-title="Mary Guray" data-name="PO Scrubbing Tool" data-use="Ordering">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/mary guray.jpeg" alt=""/>Mary Guray</span>
-        </div>
-        <div class="project-content">
-          <h2>PO Scrubbing Tool</h2>
-          <p>Validates selected SKUs to prevent duplicates and ensure accurate fulfillment.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/POScrubbing_Mary.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/12gstWoW3w8UTcyXSz7gExR6yFfxMA30n/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(4)">WHY WERE YOU UNEMPLOYED FOR THE LAST 8 MONTHS?</div>
+    <div class="answer" id="answer-4">I took a break for personal reasons, which gave me the time I needed to recharge and reflect on my career path. It allowed me to refocus and clarify what I want to pursue professionally. I feel revitalized and excited to dive back into a customer service role where I can use my skills to make a positive impact.</div></div>
 
-      <!-- Carrier Count Tool -->
-      <div class="project-card" data-title="Jerrilyn Alarma" data-name="Carrier Count Tool" data-use="Labeling">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Jerrilyn.jpg" alt=""/>Jerrilyn Alarma</span>
-        </div>
-        <div class="project-content">
-          <h2>Carrier Count Tool</h2>
-          <p>Generates daily summaries of carriers used to optimize shipping operations.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/carrier_count_Jerrilyn.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1z-dsegK9HjJd3tkr9UCVBYs_eBpv3m7R/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(5)">WHY DID YOU LEAVE YOUR PREVIOUS COMPANY?</div>
+    <div class="answer" id="answer-5">I decided to leave because I felt that despite my efforts and consistent performance, my contributions weren’t being fully recognized. I’m proud of the work I did there, but I’m now looking for a company where I can continue to grow, feel valued, and apply my strengths in a supportive, forward-thinking environment.</div></div>
 
-      <!-- NPM Calculator -->
-      <div class="project-card" data-title="Shari Kristine Torres,Hannah Ranario" data-name="NPM Calculator" data-use="Labeling">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Shari.jpeg" alt=""/>Shari Kristine Torres</span>
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Hannah.jpeg" alt=""/>Hannah Ranario</span>
-        </div>
-        <div class="project-content">
-          <h2>NPM Calculator</h2>
-          <p>Calculates net profit margins per order and flags high shipping costs to inform label selecting decisions.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/NPM_Calc_for_Labelling.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1i4g0AzzO6trKVGNkauefFumVhQlyag_E/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(6)">WHY APPLY FOR THIS POSITION WHEN YOU’RE ALREADY A LEAD BEFORE?</div>
+    <div class="answer" id="answer-6">I’m intentionally looking to start from the ground up again. Since this role involves a different type of product — I want to gain hands-on experience with the tools and systems before stepping back into a leadership position. I believe the best leaders understand the work firsthand, and right now, I’m focused on learning the operations and contributing as a reliable team member first.</div></div>
 
-      <!-- Amazon Logistics Count Tool -->
-      <div class="project-card" data-title="Daricalyn Rosales" data-name="Amazon Logistics Count Tool" data-use="Labeling">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Daricalyn.jpeg" alt=""/>Daricalyn Rosales</span>
-        </div>
-        <div class="project-content">
-          <h2>Amazon Logistics Count Tool</h2>
-          <p>Summarizes daily orders shipped via Amazon Logistics to streamline performance analysis.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Amazon_Logistics_Count_Dari.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1efayYJxbZUsOnjpKkBSGlt3d5qjBBmM5/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(7)">HOW DO YOU WORK UNDER PRESSURE?</div>
+    <div class="answer" id="answer-7">I perform well under pressure by staying calm and focused. I break tasks into smaller, manageable pieces, prioritize based on urgency, and keep communication clear with teammates or customers. Staying organized and maintaining a positive mindset helps me stay productive and meet deadlines — even when things get hectic.</div></div>
 
-      <!-- KSI Inventory Generator -->
-      <div class="project-card" data-title="CJ Paet" data-name="KSI Inventory Generator" data-use="Inventory">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>CJ Paet</span>
-        </div>
-        <div class="project-content">
-          <h2>KSI Inventory Generator</h2>
-          <p>Organizes KSI inventory files for upload to ZM and CA.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/KSI_Inventory_File_Generator_CJ.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/155fXeCSwpIkjtJXc3nb9D2DOdRp_hih3/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(8)">HOW ARE YOU DIFFERENT FROM OTHER APPLICANTS? WHAT IS YOUR EDGE?</div>
+    <div class="answer" id="answer-8">What sets me apart is my blend of hands-on customer service and leadership experience. I’ve supported customers directly and also guided teams, so I understand how to meet individual needs while keeping overall service quality high. I’m also highly adaptable — I’ve worked in different industries and across various platforms, so I’m confident in my ability to learn fast, especially with new technologies like geofencing. On top of that, I’m empathetic, detail-oriented, and genuinely committed to helping both customers and teammates succeed.</div></div>
 
-      <!-- ZS File Sorter -->
-      <div class="project-card" data-title="Cheztierlee Arlos" data-name="ZS File Sorter" data-use="Labeling">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Chez.jpeg" alt=""/>Cheztierlee Arlos</span>
-        </div>
-        <div class="project-content">
-          <h2>ZS File Sorter</h2>
-          <p>Sorts and fixes files for Beta Zenmighty or ZS uploads.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Ordersortingandupload_Chez.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1Pi2Uct8KUWiMyimm_P1VMaF_aACHPpqV/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(9)">WHAT WILL BE THE DEAL BREAKER FOR YOU?</div>
+    <div class="answer" id="answer-9">A toxic work culture would be a deal breaker for me — especially if there’s a lack of respect, poor communication, or constant negativity. I’m comfortable with fast-paced environments and high expectations, but I do best when people collaborate, treat each other professionally, and support one another.</div></div>
 
-      <!-- Eagle Inventory Refiner -->
-      <div class="project-card" data-title="Mariel Zipagan" data-name="Eagle Inventory Refiner" data-use="Inventory">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Mariel.jpeg" alt=""/>Mariel Zipagan</span>
-        </div>
-        <div class="project-content">
-          <h2>Eagle Inventory Refiner</h2>
-          <p>Organizes Eagle Inventory files for CA and ZM.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Eagle _Inventoy_Refiner.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://drive.google.com/file/d/1CMu1YvG7P23q8Ond0cnUEJsmP8p-_NME/preview"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(10)">WHAT CAN YOU OFFER THE COMPANY?</div>
+    <div class="answer" id="answer-10">I’ve consistently been a top performer in customer service, particularly in my last role as a Customer Contact Lead at SLMP Digital Services. I was known for delivering high-quality support across multiple channels, and I often set the standard for how to handle customer interactions professionally. What I can offer is not just my experience but my reliability, adaptability, and focus on delivering excellent service that enhances the company’s reputation and keeps customers happy.</div></div>
 
-      <!-- AAG Sales Order File Generator -->
-      <div class="project-card" data-title="CJ Paet" data-name="AAG Sales Order File Generator" data-use="Wholesale">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>CJ Paet</span>
-        </div>
-        <div class="project-content">
-          <h2>AAG Sales Order File Generator</h2>
-          <p>Organizes AAG sales orders for NetSuite import.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/AAG_SO_Processor.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(11)">EXPECTATIONS FOR THE COMPANY</div>
+    <div class="answer" id="answer-11">I’m hoping to join a company that values teamwork, transparency, and employee growth. Clear communication, supportive leadership, and professional development opportunities — whether through training or mentorship — are important to me. I’m looking for a place where I can grow and contribute over the long term. In return, I aim to bring dedication, a strong work ethic, and a willingness to learn and contribute to the team’s success.</div></div>
 
-      <!-- Lookup / Fulfillment File -->
-      <div class="project-card" data-title="Ariane De Guzman" data-name="Lookup / Fulfillment File" data-use="Invoice">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>Ariane De Guzman</span>
-        </div>
-        <div class="project-content">
-          <h2>Lookup / Fulfillment File</h2>
-          <p>Organizes invoice files for NetSuite imports and other vlookup-like reports.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://aridg1999.github.io/aridg/FileMerge.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(12)">EXPECTATIONS FOR THE ROLE</div>
+    <div class="answer" id="answer-12">I expect to have a clear understanding of my responsibilities and how my work contributes to the team’s overall success. I’m excited to apply my skills while also learning new ones, gradually taking on more responsibility and growing within the role. Regular feedback and communication are important to me so I can continuously improve and stay aligned with team goals.</div></div>
 
-      <!-- KEMA Sales Order and Item Fulfillment -->
-      <div class="project-card" data-title="Christine Anastacio" data-name="KEMA Sales Order and Item Fulfillment" data-use="Wholesale">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/christine%20anastacio.jpeg" alt=""/>Christine Anastacio</span>
-        </div>
-        <div class="project-content">
-          <h2>KEMA Sales Order and Item Fulfillment</h2>
-          <p>Prepares KEMA Sales Orders and Item Fulfillment files for NetSuite.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/KEMA_SO&IF.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(13)">WHAT MADE YOU APPLY FOR THIS POSITION?</div>
+    <div class="answer" id="answer-13">What really stood out to me about Intrinsic Digital is how similar it feels to SLMP in terms of culture and client focus. At SLMP, I worked in a fast-paced digital environment where clear communication, responsiveness, and customer satisfaction were top priorities. I can see that Intrinsic values those same things — maintaining strong client relationships, delivering consistent results, and making sure every client feels supported and understood.
+        <br><br>
+        That familiarity is what excites me, because I already understand the rhythm of working with multiple clients, managing expectations, and coordinating with internal teams to deliver great outcomes. I see this as a natural next step — building on the foundation I had at SLMP, but expanding it into a more strategic, data-driven role where I can help clients succeed over the long term.</div></div>
 
-      <!-- Alternative SKU Search Tool -->
-      <div class="project-card" data-title="Jerrilyn Alarma" data-name="Alternative SKU Search Tool" data-use="Ordering">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/Jerrilyn.jpg" alt=""/>Jerrilyn Alarma</span>
-        </div>
-        <div class="project-content">
-          <h2>Alternative SKU Search Tool</h2>
-        <p>Finds cross-fulfillment options by searching with Partslink.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/Partslink_Lookup.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(14)">WHAT JOB OR ROLE IS RELATED TO THE POSITION YOU ARE APPLYING FOR?</div>
+    <div class="answer" id="answer-14">My most relevant role would be my experience as a Team Leader at SLMP Digital Services Corporation, where I managed a team that provided multi-channel customer support, handled appointment setting, and resolved technical and service-related tickets. While SLMP operated in a different industry, the core skills I developed — such as clear communication, client coordination, and platform support — directly translate to a role at Intrinsic Digital.
+        <br><br>
+        Supporting users on a platform, ensuring smooth onboarding, and troubleshooting issues in real time are all experiences that align with the type of client-facing or operational roles often found in tech and digital marketing companies. I may not have worked in geofencing specifically, but I’ve consistently adapted to new tools and processes, which I believe makes me a strong fit for this transition.</div></div>
 
-      
-      <div class="project-card" data-title="Ariane De Guzman" data-name="PO File Processor" data-use="Ordering">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>Ariane De Guzman</span>
-        </div>
-        <div class="project-content">
-          <h2>PO File Processor</h2>
-        <p>Combine names, tidy SKUs, format Order Date, set PO Number, and export.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kpp360.github.io/ap/PO_File_Processor.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(15)">HAVE YOU EVER WORKED WITH ANY PROJECT MANAGEMENT TOOLS?</div>
+    <div class="answer" id="answer-15">Yes, I’ve used Asana and Teamwork in my previous roles. In Asana, I primarily worked on tasks assigned to me, updating their status and adding any relevant comments or notes to keep the team informed. This helped me stay organized and focused on my responsibilities while ensuring clear communication with my teammates. With Teamwork, I used features like time tracking, comments, and task dependencies to stay organized and aligned with both internal teams and clients.</div></div>
 
-      <div class="project-card" data-title="Ariane De Guzman" data-name="Box/Mailer Finder" data-use="Labeling">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/test%20avatar.png" alt=""/>Ariane De Guzman</span>
-        </div>
-        <div class="project-content">
-          <h2>Box/Mailer Finder</h2>
-        <p>Finds suitable or alternative boxes/mailers for your items.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kpp360.github.io/ap/BoxFinder.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>      
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(16)">WHAT ARE YOUR STRENGTHS?</div>
+    <div class="answer" id="answer-16">I’m a fast learner who quickly picks up new skills and processes, allowing me to get up to speed with minimal guidance. I’m self-sufficient and require very little support to complete my tasks efficiently. I’m also highly flexible and adaptable, able to adjust smoothly to changes in priorities or work environments. Lastly, I’m straightforward and clear in my communication, which helps avoid misunderstandings and keeps teamwork efficient.</div></div>
 
-            <!-- WooParts & AutoApex Sales Report and Sales Order Generator -->
-      <div class="project-card" data-title="Christine Anastacio" data-name="WooParts & AutoApex — Sales Report/Order Generator" data-use="Wholesale">
-        <div class="owner-strip">
-          <span class="owner-chip"><img loading="lazy" decoding="async" src="https://kp360-po.github.io/KPP/path/to/photos/christine%20anastacio.jpeg" alt=""/>Christine Anastacio</span>
-        </div>
-        <div class="project-content">
-          <h2>WooParts & AutoApex Sales Report/Order Generator</h2>
-          <p>Prepares WooParts & AutoApex Sales Report and Sales Order files for processing in NetSuite.</p>
-        </div>
-        <div class="card-actions">
-          <a href="#" class="action action-primary view-tool" data-src="https://kp360-po.github.io/KPP/WP&AA_SR_SO.html"><span class="checkmark">✓</span>View Tool</a>
-          <a href="#" class="action view-tutorial" data-tutorial-src="https://your.video.url/here"><span class="checkmark">✓</span>View Tutorial</a>
-        </div>
-      </div>
-      
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(17)">WHAT ARE YOUR WEAKNESSES?</div>
+    <div class="answer" id="answer-17">I’ve noticed that building rapport with customers doesn’t come as naturally to me as other parts of the job. I tend to be very solution-focused and get straight to resolving issues, which sometimes makes interactions feel a bit too transactional.
+        <br><br>
+        I’m working on improving this by being more mindful of tone, taking time to connect on a human level, and showing empathy early in the conversation. It’s something I’ve become more aware of, and I’ve already seen positive changes by making small adjustments.</div></div>
+
+    <h2>Situational Questions</h2>
+
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(18)">DESCRIBE A SITUATION WHERE YOU HAD TO GO ABOVE AND BEYOND FOR A CUSTOMER.</div>
+    <div class="answer" id="answer-18">I had a repeat caller who was frustrated because they couldn't get hold of their account manager. They felt ignored, so I took full ownership of the issue. I escalated it to the manager’s supervisor and stayed on the line with the customer the entire time, keeping them updated while coordinating behind the scenes. Eventually, I connected them directly and ensured a smooth transition. The customer appreciated the effort, and it reinforced for me how important it is to follow through until the issue is truly resolved.</div></div>
+
+    <div class="qa-item"><div class="question" onclick="toggleAnswer(19)">DESCRIBE A TIME WHEN YOU HAD TO HANDLE MULTIPLE TASKS OR PRIORITIES ALL AT ONCE.</div>
+    <div class="answer" id="answer-19">There was a particular day when I had to juggle three important tasks with conflicting deadlines. One task was already overdue because I had been waiting on missing details from another department. Another was due by the end of the day, and the third had a hard deadline within the next hour.
+        <br><br>
+        To manage the situation, I immediately identified the task that had the most immediate impact — the one due within the hour — and focused all my attention on completing it accurately and on time. While working on that, I also sent a quick update to my supervisor to let them know about the status of the overdue task and explained the delay, taking responsibility while also being transparent about the circumstances.
+        <br><br>
+        Once the urgent task was submitted, I shifted to the overdue one, making sure to double-check everything for accuracy despite the time crunch. After that, I moved on to the task with the end-of-day deadline, which I was able to complete with time to spare.
+        <br><br>
+        Balancing those tasks required careful time management and strong prioritization, but also clear and proactive communication. It reminded me how important it is not only to stay organized under pressure, but also to keep stakeholders informed — especially when things aren’t going exactly as planned. In the end, all tasks were completed without compromising on quality, and I received positive feedback for handling the situation calmly and effectively.</div></div>
+
+    <h2>Tools</h2>
+
+    <div class="tools">
+        <strong>Productivity:</strong> MS Word, Excel, PowerPoint, Google Docs, Google Sheets<br>
+        <strong>Communication:</strong> Teams (Skype), Slack, Salesforce<br>
+        <strong>AI:</strong> ChatGPT<br>
+        <strong>Ticket Management:</strong> 3DSellers, Zendesk, Salesforce<br>
+        <strong>Project Management:</strong> Asana, Teamwork
     </div>
-    <div id="empty-state" class="empty" style="display:none;">No projects match your filters.</div>
-  </main>
+</div>
 
-  <!-- Footer removed -->
-
-  <script>
-    // Helpers
-    // Dynamic height calculation for viewer to remove bottom gap
-    function __setDynamicHeights(){
-      const header = document.getElementById('app-header');
-      const bar = document.querySelector('.viewer-bar');
-      if (header) document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
-      if (bar) document.documentElement.style.setProperty('--viewerbar-h', bar.offsetHeight + 'px');
+<script>
+function toggleAnswer(id) {
+    const q = document.querySelector(`[onclick="toggleAnswer(${id})"]`);
+    const a = document.getElementById('answer-' + id);
+    const isOpen = a.classList.contains('open');
+    if (!isOpen) {
+        a.classList.add('open');
+        q.classList.add('active');
+    } else {
+        a.classList.remove('open');
+        q.classList.remove('active');
     }
-    window.addEventListener('resize', __setDynamicHeights);
+}
 
-    const $ = (s, c=document) => c.querySelector(s);
-    const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+function toggleAll(expand) {
+    document.querySelectorAll('.answer').forEach(a => expand ? a.classList.add('open') : a.classList.remove('open'));
+    document.querySelectorAll('.question').forEach(q => expand ? q.classList.add('active') : q.classList.remove('active'));
+}
+</script>
 
-    // Theme toggle (kept)
-    (function initTheme(){
-      const saved = localStorage.getItem('po_theme');
-      const html = document.documentElement;
-      if (saved === 'light' || saved === 'dark') html.setAttribute('data-theme', saved);
-      $('#theme-toggle').addEventListener('click', () => {
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'auto' : current === 'auto' ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('po_theme', next);
-      });
-    })();
-
-    // Welcome modal (spacing fixed + don't show again)
-    (function welcomeModal(){
-      const KEY = 'po_welcome_dont_show';
-      const modal = $('#welcome-modal');
-      if (!localStorage.getItem(KEY)) modal.setAttribute('open','');
-      $('#modal-close').addEventListener('click', () => {
-        if ($('#dont-show').checked) localStorage.setItem(KEY, '1');
-        modal.removeAttribute('open');
-      });
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.hasAttribute('open')) modal.removeAttribute('open');
-      });
-    })();
-
-    // Click memory for ✓
-    (function clickMemory(){
-      const KEY = 'clickedLinks';
-      const getId = (el) => el.dataset.src || el.dataset.tutorialSrc || el.href;
-      function restore(){
-        const clicked = JSON.parse(localStorage.getItem(KEY) || '{}');
-        $$('.view-tool, .view-tutorial').forEach(a => { if (clicked[getId(a)]) a.classList.add('clicked'); });
-      }
-      function mark(el){
-        const id = getId(el);
-        const clicked = JSON.parse(localStorage.getItem(KEY) || '{}');
-        clicked[id] = true;
-        localStorage.setItem(KEY, JSON.stringify(clicked));
-        el.classList.add('clicked');
-      }
-      window.__markClicked = mark;
-      restore();
-    })();
-
-    // Viewer
-    (function viewer(){
-      const wrapper = $('.video-wrapper');
-      const frame = $('#tool-frame');
-      const viewer = $('#tool-viewer');
-      const main = $('main');
-      const title = $('#tool-title');
-
-      function open(type, src, label){
-        __setDynamicHeights();
-
-        // Ensure iframe can scroll itself
-        try { document.getElementById('tool-frame')?.setAttribute('scrolling','auto'); } catch {}
-
-        // Lock the outer page scroll and jump to top
-        try { localStorage.setItem('po_projects_scroll', window.scrollY); } catch {}
-        document.body.classList.add('lock-scroll');
-        try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch {}
-
-        if (!src) return;
-        frame.src = src;
-        title.textContent = label || '';
-        wrapper.classList.toggle('tutorial', type === 'tutorial');
-        wrapper.classList.toggle('tool', type === 'tool');
-
-        // Show the viewer, hide the grid
-        main.style.display = 'none';
-        viewer.style.display = 'flex';
-      }
-      function back(){
-        __setDynamicHeights();
-
-        // Hide viewer, show grid
-        viewer.style.display = 'none';
-        main.style.display = '';
-        frame.src = '';
-
-        // Restore outer page scroll position and unlock
-        let y = 0;
-        try { y = +localStorage.getItem('po_projects_scroll') || 0; } catch {}
-        document.body.classList.remove('lock-scroll');
-        try { setTimeout(() => window.scrollTo({ top: y, behavior: 'instant' }), 0); } catch {}
-      }
-      $('#back-btn').addEventListener('click', back);
-
-      $$('.view-tool').forEach(a => a.addEventListener('click', e => {
-        e.preventDefault();
-        window.__markClicked(a);
-        open('tool', a.dataset.src, a.closest('.project-card')?.dataset.name || 'Tool');
-      }));
-      $$('.view-tutorial').forEach(a => a.addEventListener('click', e => {
-        e.preventDefault();
-        window.__markClicked(a);
-        open('tutorial', a.dataset.tutorialSrc, (a.closest('.project-card')?.dataset.name || '') + ' — Tutorial');
-      }));
-    })();
-
-    // Filters (Owner + Use) with AND logic
-    (function filtering(){
-      const ownerSel = $('#owner-filter');
-      const useSel = $('#use-filter');
-      const clear = $('#clear-filter');
-      const cards = $$('#projects .project-card');
-      const empty = $('#empty-state');
-
-      function apply(){
-        const owner = (ownerSel.value || '').toLowerCase();
-        const use = (useSel.value || '').toLowerCase();
-
-        let visible = 0;
-        cards.forEach(card => {
-          const owners = (card.getAttribute('data-title') || '').toLowerCase();
-          const uses = (card.getAttribute('data-use') || '').toLowerCase();
-
-          const ownerOk = !owner || owners.includes(owner);
-          const useOk   = !use   || uses.includes(use);
-
-          const show = ownerOk && useOk;
-          card.style.display = show ? '' : 'none';
-          if (show) visible++;
-        });
-
-        empty.style.display = visible ? 'none' : '';
-        localStorage.setItem('po_owner_filter', ownerSel.value || '');
-        localStorage.setItem('po_use_filter', useSel.value || '');
-      }
-
-      ownerSel.addEventListener('change', apply);
-      useSel.addEventListener('change', apply);
-      clear.addEventListener('click', () => { ownerSel.value = ''; useSel.value = ''; apply(); });
-
-      // restore saved filters
-      const savedOwner = localStorage.getItem('po_owner_filter');
-      const savedUse = localStorage.getItem('po_use_filter');
-      if (savedOwner) ownerSel.value = savedOwner;
-      if (savedUse) useSel.value = savedUse;
-      apply();
-    })();
-
-    // Accessibility: enter key to open first action
-    (function keyboardOpen(){
-      $$('.project-card').forEach(card => {
-        card.tabIndex = 0;
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') card.querySelector('.view-tool')?.click();
-        });
-      });
-    })();
-
-    // Decode images
-    (async function decodeImages(){
-      const imgs = $$('img[decoding="async"]');
-      for (const img of imgs) { if (!img.complete) { try { await img.decode(); } catch {} } }
-    })();
-      document.addEventListener('DOMContentLoaded', __setDynamicHeights);
-  </script>
 </body>
 </html>
-
