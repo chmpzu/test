@@ -1,250 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interview Q&A Showcase</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DIM Calculator</title>
 <style>
-    :root {
-        --accent: #00796b;
-        --accent-hover: #00695c;
-        --bg: #ffffff;
-        --text: #222;
-        --muted: #555;
-        --border: #e0e0e0;
-    }
+  :root{
+    --bg:#ffffff;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --card:#ffffff;
+    --accent:#2563eb;
+    --radius:12px;
+    --gap:12px;
+    --shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+  }
 
-    body {
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-        background-color: var(--bg);
-        color: var(--text);
-        margin: 0;
-        padding: 40px 20px;
-        line-height: 1.6;
-    }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font:14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    background:var(--bg); color:var(--ink);
+  }
+  .wrap{max-width:940px; margin:36px auto 96px; padding:0 20px;}
 
-    h1 {
-        text-align: center;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--accent);
-        letter-spacing: 0.5px;
-    }
+  header{margin-bottom:18px}
+  h1{margin:0; font-size:20px; font-weight:600; letter-spacing:.2px}
+  .sub{color:var(--muted); font-size:12px; margin-top:6px}
 
-    h2 {
-        color: var(--accent);
-        font-size: 1.2rem;
-        margin-top: 50px;
-        margin-bottom: 20px;
-        font-weight: 600;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 5px;
-    }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+    box-shadow:var(--shadow);
+  }
 
-    .container {
-        max-width: 850px;
-        margin: 0 auto;
-    }
+  .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+  .controls{display:grid; gap:12px; grid-template-columns:repeat(4, minmax(140px, 1fr)); margin-top:14px}
+  label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
+  input[type="number"]{
+    width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; color:#0f172a;
+  }
+  input[type="number"]::placeholder{color:#9aa6b2}
 
-    .qa-item {
-        border-bottom: 1px solid var(--border);
-        padding: 15px 0;
-    }
+  .btn{
+    appearance:none; border:1px solid var(--line); background:#fff; color:var(--ink);
+    padding:10px 14px; border-radius:10px; font-size:14px; cursor:pointer; transition:filter .16s ease, transform .04s ease;
+  }
+  .btn:hover{filter:brightness(1.03)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{border-color:var(--accent); color:#fff; background:var(--accent)}
 
-    .question {
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: color 0.2s ease;
-    }
+  .items table{width:100%; border-collapse:collapse}
+  .items th,.items td{padding:8px 6px; border-bottom:1px solid var(--line); font-size:13px}
+  .items th{color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600; font-size:11px}
+  .items .muted{color:var(--muted)}
 
-    .question:hover {
-        color: var(--accent);
-    }
+  table.results{width:100%; border-collapse:collapse}
+  table.results th, table.results td{padding:12px 8px; border-bottom:1px solid var(--line); font-size:14px}
+  table.results th{color:var(--muted); text-transform:uppercase; font-size:11px; letter-spacing:.06em}
+  tr.win{background:rgba(37,99,235,.06)}
+  tr.win td{font-weight:700;} /* Bold the #1 row */
 
-    .question::after {
-        content: '+';
-        font-weight: bold;
-        transition: transform 0.3s ease;
-        color: var(--accent);
-    }
+  .pill{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px}
 
-    .question.active::after {
-        content: '−';
-        transform: rotate(180deg);
-    }
+  details{margin-top:12px}
+  details>summary{
+    list-style:none; cursor:pointer; padding:10px 12px; border-radius:10px; border:1px solid var(--line);
+    color:var(--muted); user-select:none; outline:none;
+  }
+  details[open]>summary{color:var(--ink); background:rgba(2,6,23,.02)}
+  details>summary::-webkit-details-marker{display:none}
+  .hint{color:var(--muted); font-size:12px}
 
-    .answer {
-        max-height: 0;
-        overflow: hidden;
-        color: var(--muted);
-        transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
-        opacity: 0;
-        padding-left: 5px;
-    }
+  #status{color:var(--muted); font-size:13px; margin-left:6px}
+  .danger{color:#dc2626}
+  .warn{color:#b45309}  /* amber */
+  .note{color:var(--muted); font-size:13px; margin-top:8px}
 
-    .answer.open {
-        max-height: 800px;
-        opacity: 1;
-        padding-top: 10px;
-    }
-
-    .tools {
-        background: #f5f7f7;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 20px;
-        line-height: 1.8;
-        color: var(--muted);
-    }
-
-    .buttons {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-
-    .btn {
-        background-color: var(--accent);
-        border: none;
-        color: #fff;
-        padding: 8px 18px;
-        margin: 0 5px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background 0.2s ease;
-    }
-
-    .btn:hover {
-        background-color: var(--accent-hover);
-    }
-
-    @media (max-width: 600px) {
-        body {
-            padding: 25px 15px;
-        }
-    }
+  @media (max-width:640px){ .controls{grid-template-columns:1fr 1fr} }
 </style>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <h1>DIM Calculator</h1>
+      <div class="sub">The tool tests every possible packing of your item dimensions, filters out boxes exceeding the girth limit, and lists the smallest total (L + W + H) combinations.</div>
+    </header>
 
-<div class="container"></div>
+    <section class="card" aria-label="Items">
+      <div class="row" style="justify-content:space-between; margin-bottom:8px">
+        <div class="row">
+          <button class="btn primary" id="addItemBtn">+ Add Item</button>
+          <button class="btn" id="clearItemsBtn">Clear</button>
+          <span id="status" role="status" aria-live="polite"></span>
+        </div>
+        <span class="hint">All dimensions in inches.</span>
+      </div>
 
-    <h2>General Questions</h2>
+      <div class="items" id="itemsWrap"></div>
 
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(1)">TELL ME SOMETHING ABOUT YOURSELF</div>
-    <div class="answer" id="answer-1">I thrive in fast-paced environments and enjoy tackling challenging projects. Over the past few years, I’ve built extensive experience in customer service and remote team leadership. At SLMP Digital Services, I led a remote team managing phone, email, and chat support, ensuring smooth appointment scheduling and high customer satisfaction. I also gained valuable experience working remotely as a Virtual Assistant at Conquest Media, where I handled e-commerce tasks for platforms like Amazon, eBay, and Shopify, including managing listings and customer inquiries.
-        <br><br>
-        Both roles taught me how to excel in a remote setting, relying on strong communication, time management, and self-discipline to deliver results. I’m excited to bring my experience to your company and contribute to its success.</div></div>
+      <details>
+        <summary>Advanced Options</summary>
+        <div class="controls" role="group" aria-label="Advanced Options">
+          <div>
+            <label for="girthLimit">Girth Limit</label>
+            <input id="girthLimit" type="number" min="1" step="0.01" value="105" />
+            <div class="hint">Length + 2×(Width + Height)</div>
+          </div>
+          <div>
+            <label for="topN">Show Top N</label>
+            <input id="topN" type="number" min="1" step="1" value="8" />
+          </div>
+          <div>
+            <label for="perItemK">Per-Item Search K</label>
+            <input id="perItemK" type="number" min="1" step="1" value="8" />
+            <div class="hint">Larger K = more precise</div>
+          </div>
+          <div>
+            <label for="beamWidth">Combine Beam</label>
+            <input id="beamWidth" type="number" min="1" step="1" value="60" />
+            <div class="hint">Controls multi-item combining breadth</div>
+          </div>
+        </div>
+      </details>
+    </section>
 
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(2)">TELL ME SOMETHING ABOUT YOURSELF THAT’S NOT ON YOUR RESUME</div>
-    <div class="answer" id="answer-2">One thing not listed on my resume is my passion for manga, manhwa, anime, and movies. I enjoy how stories develop and how characters grow, which has helped me develop better empathy and become more observant. Watching international content has also exposed me to different communication styles and cultural nuances, which helps me understand and connect better with people, especially in customer service.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(3)">EXPLAIN YOUR ROLE WITH YOUR PREVIOUS COMPANY</div>
-    <div class="answer" id="answer-3">At SLMP Digital Services Corporation, I worked as part of the customer support team handling communication via phone, email, and chat. Our focus was on appointment setting, ticket management, and platform support.
-        <br><br>
-        For appointment setting, I assisted customers with booking, confirming, or rescheduling appointments, and ensured that everything was properly coordinated with internal teams.
-        <br><br>
-        In ticket management, I served as a go-between for customers and internal departments — handling issues like website edits, ad changes, or subscription coverage, ensuring each request was properly routed and followed up until resolved.
-        <br><br>
-        I also provided support for our platform and mobile app, including account activation, user role management, and general questions. Clear, consistent communication and cross-team collaboration were key in maintaining customer satisfaction.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(4)">WHY WERE YOU UNEMPLOYED FOR THE LAST 8 MONTHS?</div>
-    <div class="answer" id="answer-4">I took a break for personal reasons, which gave me the time I needed to recharge and reflect on my career path. It allowed me to refocus and clarify what I want to pursue professionally. I feel revitalized and excited to dive back into a customer service role where I can use my skills to make a positive impact.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(5)">WHY DID YOU LEAVE YOUR PREVIOUS COMPANY?</div>
-    <div class="answer" id="answer-5">I decided to leave because I felt that despite my efforts and consistent performance, my contributions weren’t being fully recognized. I’m proud of the work I did there, but I’m now looking for a company where I can continue to grow, feel valued, and apply my strengths in a supportive, forward-thinking environment.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(6)">WHY APPLY FOR THIS POSITION WHEN YOU’RE ALREADY A LEAD BEFORE?</div>
-    <div class="answer" id="answer-6">I’m intentionally looking to start from the ground up again. Since this role involves a different type of product — I want to gain hands-on experience with the tools and systems before stepping back into a leadership position. I believe the best leaders understand the work firsthand, and right now, I’m focused on learning the operations and contributing as a reliable team member first.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(7)">HOW DO YOU WORK UNDER PRESSURE?</div>
-    <div class="answer" id="answer-7">I perform well under pressure by staying calm and focused. I break tasks into smaller, manageable pieces, prioritize based on urgency, and keep communication clear with teammates or customers. Staying organized and maintaining a positive mindset helps me stay productive and meet deadlines — even when things get hectic.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(8)">HOW ARE YOU DIFFERENT FROM OTHER APPLICANTS? WHAT IS YOUR EDGE?</div>
-    <div class="answer" id="answer-8">What sets me apart is my blend of hands-on customer service and leadership experience. I’ve supported customers directly and also guided teams, so I understand how to meet individual needs while keeping overall service quality high. I’m also highly adaptable — I’ve worked in different industries and across various platforms, so I’m confident in my ability to learn fast, especially with new technologies like geofencing. On top of that, I’m empathetic, detail-oriented, and genuinely committed to helping both customers and teammates succeed.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(9)">WHAT WILL BE THE DEAL BREAKER FOR YOU?</div>
-    <div class="answer" id="answer-9">A toxic work culture would be a deal breaker for me — especially if there’s a lack of respect, poor communication, or constant negativity. I’m comfortable with fast-paced environments and high expectations, but I do best when people collaborate, treat each other professionally, and support one another.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(10)">WHAT CAN YOU OFFER THE COMPANY?</div>
-    <div class="answer" id="answer-10">I’ve consistently been a top performer in customer service, particularly in my last role as a Customer Contact Lead at SLMP Digital Services. I was known for delivering high-quality support across multiple channels, and I often set the standard for how to handle customer interactions professionally. What I can offer is not just my experience but my reliability, adaptability, and focus on delivering excellent service that enhances the company’s reputation and keeps customers happy.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(11)">EXPECTATIONS FOR THE COMPANY</div>
-    <div class="answer" id="answer-11">I’m hoping to join a company that values teamwork, transparency, and employee growth. Clear communication, supportive leadership, and professional development opportunities — whether through training or mentorship — are important to me. I’m looking for a place where I can grow and contribute over the long term. In return, I aim to bring dedication, a strong work ethic, and a willingness to learn and contribute to the team’s success.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(12)">EXPECTATIONS FOR THE ROLE</div>
-    <div class="answer" id="answer-12">I expect to have a clear understanding of my responsibilities and how my work contributes to the team’s overall success. I’m excited to apply my skills while also learning new ones, gradually taking on more responsibility and growing within the role. Regular feedback and communication are important to me so I can continuously improve and stay aligned with team goals.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(13)">WHAT MADE YOU APPLY FOR THIS POSITION?</div>
-    <div class="answer" id="answer-13">What really stood out to me about Intrinsic Digital is how similar it feels to SLMP in terms of culture and client focus. At SLMP, I worked in a fast-paced digital environment where clear communication, responsiveness, and customer satisfaction were top priorities. I can see that Intrinsic values those same things — maintaining strong client relationships, delivering consistent results, and making sure every client feels supported and understood.
-        <br><br>
-        That familiarity is what excites me, because I already understand the rhythm of working with multiple clients, managing expectations, and coordinating with internal teams to deliver great outcomes. I see this as a natural next step — building on the foundation I had at SLMP, but expanding it into a more strategic, data-driven role where I can help clients succeed over the long term.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(14)">WHAT JOB OR ROLE IS RELATED TO THE POSITION YOU ARE APPLYING FOR?</div>
-    <div class="answer" id="answer-14">My most relevant role would be my experience at SLMP Digital Services Corporation. The core skills I developed — such as clear communication, client coordination, and platform support — directly translate to a role at Intrinsic Digital.
-        <br><br>
-        Supporting users on a platform, ensuring smooth onboarding, and troubleshooting issues in real time are all experiences that align with the type of client-facing or operational roles often found in tech and digital marketing companies. I may not have worked in geofencing specifically, but I’ve consistently adapted to new tools and processes, which I believe makes me a strong fit for this transition.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(15)">HAVE YOU EVER WORKED WITH ANY PROJECT MANAGEMENT TOOLS?</div>
-    <div class="answer" id="answer-15">Yes, I’ve used Asana and Teamwork in my previous roles. In Asana, I primarily worked on tasks assigned to me, updating their status and adding any relevant comments or notes to keep the team informed. This helped me stay organized and focused on my responsibilities while ensuring clear communication with my teammates. With Teamwork, I used features like time tracking, comments, and task dependencies to stay organized and aligned with both internal teams and clients.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(16)">WHAT ARE YOUR STRENGTHS?</div>
-    <div class="answer" id="answer-16">I’m a fast learner who quickly picks up new skills and processes, allowing me to get up to speed with minimal guidance. I’m self-sufficient and require very little support to complete my tasks efficiently. I’m also highly flexible and adaptable, able to adjust smoothly to changes in priorities or work environments. Lastly, I’m straightforward and clear in my communication, which helps avoid misunderstandings and keeps teamwork efficient.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(17)">WHAT ARE YOUR WEAKNESSES?</div>
-    <div class="answer" id="answer-17">I’ve noticed that building rapport with customers doesn’t come as naturally to me as other parts of the job. I tend to be very solution-focused and get straight to resolving issues, which sometimes makes interactions feel a bit too transactional.
-        <br><br>
-        I’m working on improving this by being more mindful of tone, taking time to connect on a human level, and showing empathy early in the conversation. It’s something I’ve become more aware of, and I’ve already seen positive changes by making small adjustments.</div></div>
-    
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(20)">HOW HAVE YOU BEEN USING CHATGPT</div>
-    <div class="answer" id="answer-20">I use ChatGPT for a variety of daily tasks, such as finding new recipes, brainstorming ideas, and crafting email responses. Recently, I’ve been exploring coding and web development, so I’ve been using ChatGPT to help me with HTML and other coding-related questions. It’s been a great resource for learning new skills and improving my coding knowledge, while also making day-to-day tasks more efficient.</div></div>
-
-    <h2>Situational Questions</h2>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(18)">DESCRIBE A SITUATION WHERE YOU HAD TO GO ABOVE AND BEYOND FOR A CUSTOMER.</div>
-    <div class="answer" id="answer-18">I had a repeat caller who was frustrated because they couldn't get hold of their account manager. They felt ignored, so I took full ownership of the issue. I escalated it to the manager’s supervisor and stayed on the line with the customer the entire time, keeping them updated while coordinating behind the scenes. Eventually, I connected them directly and ensured a smooth transition. The customer appreciated the effort, and it reinforced for me how important it is to follow through until the issue is truly resolved.</div></div>
-
-    <div class="qa-item"><div class="question" onclick="toggleAnswer(19)">DESCRIBE A TIME WHEN YOU HAD TO HANDLE MULTIPLE TASKS OR PRIORITIES ALL AT ONCE.</div>
-    <div class="answer" id="answer-19">One time, I had to manage multiple tasks at once while working on a small team. Two of my teammates had a power outage, so I was left alone to handle the queue. I needed to follow up on a callback, assist a new client on the phone, and manage the growing queue of customers.
-        <br><br>
-        I prioritized by focusing on the call at hand, then squeezed in the callback between calls. It was a balancing act, but I stayed organized by making quick notes and staying calm under pressure. Working in a BPO environment with a telco account has taught me to multitask efficiently and stay organized, while always keeping communication clear, even when teammates aren’t available.       
-        </div></div>
-
-        
-    <h2>Tools</h2>
-
-    <div class="tools">
-        <strong>Productivity:</strong> MS Word, Excel, PowerPoint, Google Docs, Google Sheets<br>
-        <strong>Communication:</strong> Teams (Skype), Slack, Salesforce<br>
-        <strong>AI:</strong> ChatGPT<br>
-        <strong>Ticket Management:</strong> 3DSellers, Zendesk, Salesforce<br>
-        <strong>Project Management:</strong> Asana, Teamwork
-    </div>
-</div>
+    <section class="card" style="margin-top:14px" aria-label="Results">
+      <div class="row" style="justify-content:space-between; align-items:baseline">
+        <span id="bestTag" class="pill" style="display:none">Best</span>
+        <div id="summary" class="hint"></div>
+      </div>
+      <div id="suggestion" class="note" style="display:none"></div>
+      <div id="results" style="margin-top:6px"></div>
+    </section>
+  </div>
 
 <script>
-function toggleAnswer(id) {
-    const q = document.querySelector(`[onclick="toggleAnswer(${id})"]`);
-    const a = document.getElementById('answer-' + id);
-    const isOpen = a.classList.contains('open');
-    if (!isOpen) {
-        a.classList.add('open');
-        q.classList.add('active');
-    } else {
-        a.classList.remove('open');
-        q.classList.remove('active');
+(function(){
+  const $ = (id)=>document.getElementById(id);
+  const fmt = (n)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
+  const permutations = (a)=>[
+    [a[0],a[1],a[2]], [a[0],a[2],a[1]], [a[1],a[0],a[2]],
+    [a[1],a[2],a[0]], [a[2],a[0],a[1]], [a[2],a[1],a[0]],
+  ];
+
+  function girthOK(L,W,H,limit){
+    const s=[L,W,H].sort((x,y)=>y-x);
+    const g=s[0] + 2*(s[1]+s[2]);
+    return {ok:g<=limit, girth:g};
+  }
+
+  function uniqueTriplesForQty(Q){
+    const out=[], seen=new Set(), Qc=Math.max(1,Math.ceil(Q));
+    for(let a=1;a<=Qc;a++){
+      const maxB=Math.ceil(Qc/a);
+      for(let b=a;b<=maxB;b++){
+        const c=Math.ceil(Qc/(a*b));
+        const t=[a,b,Math.max(b,c)].sort((x,y)=>x-y);
+        const k=t.join('x');
+        if(!seen.has(k)){seen.add(k); out.push(t);}
+      }
     }
-}
+    return out;
+  }
 
-function toggleAll(expand) {
-    document.querySelectorAll('.answer').forEach(a => expand ? a.classList.add('open') : a.classList.remove('open'));
-    document.querySelectorAll('.question').forEach(q => expand ? q.classList.add('active') : q.classList.remove('active'));
-}
+  function buildBlocksForItem(L,W,H,Q,keepK){
+    const triples=uniqueTriplesForQty(Q), orients=permutations([L,W,H]), rows=[];
+    for(const t of triples){
+      for(const o of orients){
+        const dims=[t[0]*o[0], t[1]*o[1], t[2]*o[2]];
+        const [L2,W2,H2]=dims.map(x=>+x.toFixed(4));
+        rows.push({L:L2,W:W2,H:H2,sum:L2+W2+H2, a:t[0],b:t[1],c:t[2], orient:o.slice()});
+      }
+    }
+    // dedupe per-item outer dims
+    const seen=new Set(), dedup=[];
+    for(const r of rows){
+      const key=[r.L,r.W,r.H].map(v=>v.toFixed(4)).sort((a,b)=>Number(a)-Number(b)).join('|');
+      if(!seen.has(key)){seen.add(key); dedup.push(r);}
+    }
+    dedup.sort((x,y)=>x.sum-y.sum || (x.L*x.W*x.H)-(y.L*y.W*y.H));
+    return dedup.slice(0, keepK);
+  }
+
+  function combineBlocks(blockLists, beamWidth, girthLimit){
+    let beams=[{L:0,W:0,H:0,sum:0,picked:[]}];
+    const axes=['X','Y','Z'];
+    for(let i=0;i<blockLists.length;i++){
+      const next=[];
+      for(const b of beams){
+        for(const blk of blockLists[i]){
+          for(const ax of axes){
+            let L=b.L,W=b.W,H=b.H;
+            if(ax==='X'){ L=b.L+blk.L; W=Math.max(b.W,blk.W); H=Math.max(b.H,blk.H); }
+            if(ax==='Y'){ L=Math.max(b.L,blk.L); W=b.W+blk.W; H=Math.max(b.H,blk.H); }
+            if(ax==='Z'){ L=Math.max(b.L,blk.L); W=Math.max(b.W,blk.W); H=b.H+blk.H; }
+            const s=L+W+H;
+            if(!girthOK(L,W,H,girthLimit).ok) continue;
+            next.push({L,W,H,sum:s,picked:b.picked.concat([{i,ax,blk}])});
+          }
+        }
+      }
+      next.sort((x,y)=>x.sum-y.sum || (x.L*x.W*x.H)-(y.L*y.W*y.H));
+      beams=next.slice(0, beamWidth);
+      if(!beams.length) break;
+    }
+    beams.sort((x,y)=>x.sum-y.sum || (x.L*x.W*x.H)-(y.L*y.W*y.H));
+    return beams;
+  }
+
+  // de-duplicate identical outer cartons after combining
+  function dedupeBoxes(list){
+    const out=[], seen=new Set();
+    for(const r of list){
+      const key=[r.L,r.W,r.H].map(v=>v.toFixed(4)).sort((a,b)=>Number(a)-Number(b)).join('|');
+      if(!seen.has(key)){ seen.add(key); out.push(r); }
+    }
+    return out;
+  }
+
+  function renderItemsTable(){
+    const wrap=$('itemsWrap');
+    wrap.innerHTML = `
+      <table id="itemsTable">
+        <thead>
+          <tr><th style="width:44px">#</th><th>Length</th><th>Width</th><th>Height</th><th>Qty</th><th style="width:86px"></th></tr>
+        </thead>
+        <tbody id="itemsTbody"></tbody>
+      </table>`;
+  }
+
+  function addItemRow(vals={}){
+    const tb=$('itemsTbody');
+    const idx=tb.children.length+1;
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td class="muted">${idx}</td>
+      <td><input type="number" step="0.01" min="0.01" value="${vals.L ?? ''}" placeholder="Length"></td>
+      <td><input type="number" step="0.01" min="0.01" value="${vals.W ?? ''}" placeholder="Width"></td>
+      <td><input type="number" step="0.01" min="0.01" value="${vals.H ?? ''}" placeholder="Height"></td>
+      <td><input type="number" step="1" min="1" value="${vals.Q ?? ''}" placeholder="Qty"></td>
+      <td><button class="btn remove" title="Remove row">Remove</button></td>`;
+    tb.appendChild(tr);
+    tr.querySelector('.remove').addEventListener('click',()=>{
+      tr.remove();
+      [...tb.children].forEach((r,i)=> r.children[0].textContent=String(i+1));
+      compute();
+    });
+  }
+
+  function getItems(){
+    const rows=[...document.querySelectorAll('#itemsTbody tr')];
+    return rows.map(r=>{
+      const [L,W,H,Q]=[...r.querySelectorAll('input')].map(i=>parseFloat(i.value));
+      return {L,W,H,Q};
+    }).filter(x=>!Number.isNaN(x.L)||!Number.isNaN(x.W)||!Number.isNaN(x.H)||!Number.isNaN(x.Q));
+  }
+
+  function validateItems(items){
+    if(!items.length) return "Add at least one item.";
+    for(let i=0;i<items.length;i++){
+      const {L,W,H,Q}=items[i];
+      if(!(L>0&&W>0&&H>0)) return `Line ${i+1}: enter positive L/W/H.`;
+      if(!(Q>=1)) return `Line ${i+1}: Qty must be at least 1.`;
+      if(L>10000||W>10000||H>10000) return `Line ${i+1}: dimensions look too large (inches).`;
+    }
+    return "";
+  }
+
+  function renderTable(rows, topN, girthLimit){
+    const el=$('results'); if(!rows||!rows.length){ el.innerHTML=''; $('bestTag').style.display='none'; $('summary').textContent=''; return; }
+    const n=Math.min(topN, rows.length);
+    let html=`<table class="results"><thead><tr>
+      <th>#</th><th>Carton (L × W × H)</th><th>L + W + H</th><th>Length + 2×(W+H)</th>
+    </tr></thead><tbody>`;
+    for(let i=0;i<n;i++){
+      const r=rows[i]; const g=girthOK(r.L,r.W,r.H,girthLimit);
+      html+=`<tr ${i===0?'class="win"':''}>
+        <td>${i+1}</td>
+        <td>${fmt(r.L)} × ${fmt(r.W)} × ${fmt(r.H)} in</td>
+        <td>${fmt(r.sum)}</td>
+        <td>${fmt(g.girth)} / ${fmt(girthLimit)}</td>
+      </tr>`;
+    }
+    html+='</tbody></table>';
+    $('bestTag').style.display='';
+    el.innerHTML=html;
+  }
+
+  // smart suggestion line under summary
+  function setSuggestion(text, cls){
+    const s=$('suggestion');
+    if(!text){ s.style.display='none'; s.textContent=''; s.className='note'; return; }
+    s.textContent=text;
+    s.className='note ' + (cls||'');
+    s.style.display='';
+  }
+
+  function compute(){
+    $('status').textContent='';
+    const items=getItems();
+    const err=validateItems(items);
+    const girthLimit=parseFloat($('girthLimit').value)||105;
+    const keepK=Math.max(1, parseInt($('perItemK').value,10)||8);
+    const beamWidth=Math.max(1, parseInt($('beamWidth').value,10)||60);
+    const topN=Math.max(1, parseInt($('topN').value,10)||8);
+
+    if(err){
+      $('summary').textContent='';
+      $('results').innerHTML='';
+      $('bestTag').style.display='none';
+      setSuggestion('');
+      $('status').textContent=err;
+      return;
+    }
+
+    const t0=performance.now();
+    const blockLists=items.map(({L,W,H,Q})=>buildBlocksForItem(L,W,H,Q, keepK));
+    let candidates=combineBlocks(blockLists, beamWidth, girthLimit);
+    candidates = dedupeBoxes(candidates);
+    const t1=performance.now();
+
+    if(!candidates.length){
+      $('summary').textContent='';
+      $('results').innerHTML='';
+      $('bestTag').style.display='none';
+      $('status').innerHTML=`<span class="danger">No combined carton fits girth ${fmt(girthLimit)}.</span>`;
+      setSuggestion('Recommendation: split into multiple boxes/labels for this shipment.', 'danger');
+      return;
+    }
+
+    const best=candidates[0];
+    $('summary').textContent=`Best: ${fmt(best.L)} × ${fmt(best.W)} × ${fmt(best.H)} in • L+W+H ${fmt(best.sum)} • ${fmt(t1-t0)} ms`;
+    renderTable(candidates, topN, girthLimit);
+
+    // suggestion if near limit
+    const g=girthOK(best.L,best.W,best.H,girthLimit);
+    if(g.girth >= girthLimit - 5){  // within 5 inches of limit
+      setSuggestion('Tip: this is near the girth limit — multiple smaller boxes may be cheaper/faster.', 'warn');
+    } else {
+      setSuggestion('');
+    }
+  }
+
+  // --- wiring ---
+  const wrap=$('itemsWrap');
+  wrap.innerHTML = `
+    <table id="itemsTable">
+      <thead>
+        <tr><th style="width:44px">#</th><th>Length</th><th>Width</th><th>Height</th><th>Qty</th><th style="width:86px"></th></tr>
+      </thead>
+      <tbody id="itemsTbody"></tbody>
+    </table>`;
+  addItemRow({});   // start with one blank row
+  compute();        // auto-run on landing
+
+  $('addItemBtn').addEventListener('click',()=>{ addItemRow({}); compute(); });
+  $('clearItemsBtn').addEventListener('click',()=>{ $('itemsTbody').innerHTML=''; addItemRow({}); compute(); });
+
+  let t=null;
+  document.addEventListener('input',(e)=>{
+    if(e.target.closest('#itemsWrap') || e.target.closest('.controls')){
+      clearTimeout(t);
+      t=setTimeout(compute, 120);
+    }
+  });
+})();
 </script>
-
 </body>
 </html>
