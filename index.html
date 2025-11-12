@@ -6,75 +6,65 @@
 <title>DIM Calculator</title>
 <style>
   :root{
-    --bg:#ffffff;
-    --ink:#0f172a;
-    --muted:#64748b;
-    --line:#e2e8f0;
-    --card:#ffffff;
-    --accent:#2563eb;
-    --radius:12px;
-    --gap:12px;
-    --shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+    --bg:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --card:#ffffff; --accent:#2563eb;
+    --radius:12px; --gap:12px; --shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
   }
-
   html,body{height:100%}
-  body{
-    margin:0;
-    font:14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-    background:var(--bg); color:var(--ink);
-  }
-  .wrap{max-width:940px; margin:36px auto 96px; padding:0 20px;}
-
+  body{margin:0; font:14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:var(--bg); color:var(--ink)}
+  .wrap{max-width:980px; margin:36px auto 96px; padding:0 20px}
   header{margin-bottom:18px}
   h1{margin:0; font-size:20px; font-weight:600; letter-spacing:.2px}
   .sub{color:var(--muted); font-size:12px; margin-top:6px}
 
-  .card{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
-    box-shadow:var(--shadow);
-  }
-
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)}
   .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+
   .controls{display:grid; gap:12px; grid-template-columns:repeat(4, minmax(140px, 1fr)); margin-top:14px}
   label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
-  input[type="number"]{
-    width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; color:#0f172a;
-  }
+  input[type="number"]{width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; color:#0f172a}
   input[type="number"]::placeholder{color:#9aa6b2}
 
-  .btn{
-    appearance:none; border:1px solid var(--line); background:#fff; color:var(--ink);
-    padding:10px 14px; border-radius:10px; font-size:14px; cursor:pointer; transition:filter .16s ease, transform .04s ease;
-  }
+  .btn{appearance:none; border:1px solid var(--line); background:#fff; color:var(--ink); padding:10px 14px; border-radius:10px; font-size:14px; cursor:pointer; transition:filter .16s ease, transform .04s ease}
   .btn:hover{filter:brightness(1.03)}
   .btn:active{transform:translateY(1px)}
   .btn.primary{border-color:var(--accent); color:#fff; background:var(--accent)}
 
+  /* Items table */
   .items table{width:100%; border-collapse:collapse}
   .items th,.items td{padding:8px 6px; border-bottom:1px solid var(--line); font-size:13px}
   .items th{color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600; font-size:11px}
-  .items .muted{color:var(--muted)}
 
+  /* Results */
   table.results{width:100%; border-collapse:collapse}
-  table.results th, table.results td{padding:12px 8px; border-bottom:1px solid var(--line); font-size:14px}
+  table.results th, table.results td{padding:12px 8px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top}
   table.results th{color:var(--muted); text-transform:uppercase; font-size:11px; letter-spacing:.06em}
   tr.win{background:rgba(37,99,235,.06)}
-  tr.win td{font-weight:700;} /* Bold the #1 row */
+  tr.win td{font-weight:700} /* Bold the #1 row */
+
+  /* Collapsible 3D inside table */
+  details.viz-det{margin:0}
+  details.viz-det > summary{
+    list-style:none; cursor:pointer; user-select:none;
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 10px; border:1px solid var(--line); border-radius:999px; font-size:12px; color:var(--muted);
+  }
+  details.viz-det > summary::-webkit-details-marker{display:none}
+  details.viz-det[open] > summary{color:#0f172a; background:#f8fafc}
+  .viz-box{padding:10px 0}
+  .viz-canvas{width:100%; height:220px; display:block; border:1px solid var(--line); border-radius:10px; background:#fff}
+  .viz-caption{color:var(--muted); font-size:12px; margin-top:6px}
 
   .pill{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px}
 
   details{margin-top:12px}
-  details>summary{
-    list-style:none; cursor:pointer; padding:10px 12px; border-radius:10px; border:1px solid var(--line);
-    color:var(--muted); user-select:none; outline:none;
-  }
+  details>summary{list-style:none; cursor:pointer; padding:10px 12px; border-radius:10px; border:1px solid var(--line); color:var(--muted); user-select:none; outline:none}
   details[open]>summary{color:var(--ink); background:rgba(2,6,23,.02)}
   details>summary::-webkit-details-marker{display:none}
   .hint{color:var(--muted); font-size:12px}
 
-  #status{color:var(--muted); font-size:13px; margin-left:6px}
+  #status{color:var(--muted); font-size:13px}
   .danger{color:#dc2626}
-  .warn{color:#b45309}  /* amber */
+  .warn{color:#b45309}
   .note{color:var(--muted); font-size:13px; margin-top:8px}
 
   @media (max-width:640px){ .controls{grid-template-columns:1fr 1fr} }
@@ -87,6 +77,7 @@
       <div class="sub">The tool tests every possible packing of your item dimensions, filters out boxes exceeding the girth limit, and lists the smallest total (L + W + H) combinations.</div>
     </header>
 
+    <!-- Items -->
     <section class="card" aria-label="Items">
       <div class="row" style="justify-content:space-between; margin-bottom:8px">
         <div class="row">
@@ -125,6 +116,7 @@
       </details>
     </section>
 
+    <!-- Results -->
     <section class="card" style="margin-top:14px" aria-label="Results">
       <div class="row" style="justify-content:space-between; align-items:baseline">
         <span id="bestTag" class="pill" style="display:none">Best</span>
@@ -140,14 +132,14 @@
   const $ = (id)=>document.getElementById(id);
   const fmt = (n)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
   const permutations = (a)=>[
-    [a[0],a[1],a[2]], [a[0],a[2],a[1]], [a[1],a[0],a[2]],
-    [a[1],a[2],a[0]], [a[2],a[0],a[1]], [a[2],a[1],a[0]],
+    [a[0],a[1],a[2]],[a[0],a[2],a[1]],[a[1],a[0],a[2]],[a[1],a[2],a[0]],[a[2],a[0],a[1]],[a[2],a[1],a[0]],
   ];
 
+  /* ---------- Core math ---------- */
   function girthOK(L,W,H,limit){
     const s=[L,W,H].sort((x,y)=>y-x);
     const g=s[0] + 2*(s[1]+s[2]);
-    return {ok:g<=limit, girth:g};
+    return {ok:g<=limit, girth:g, length:s[0], other1:s[1], other2:s[2]};
   }
 
   function uniqueTriplesForQty(Q){
@@ -219,6 +211,7 @@
     return out;
   }
 
+  /* ---------- Items UI ---------- */
   function renderItemsTable(){
     const wrap=$('itemsWrap');
     wrap.innerHTML = `
@@ -239,7 +232,7 @@
       <td><input type="number" step="0.01" min="0.01" value="${vals.L ?? ''}" placeholder="Length"></td>
       <td><input type="number" step="0.01" min="0.01" value="${vals.W ?? ''}" placeholder="Width"></td>
       <td><input type="number" step="0.01" min="0.01" value="${vals.H ?? ''}" placeholder="Height"></td>
-      <td><input type="number" step="1" min="1" value="${vals.Q ?? ''}" placeholder="Qty"></td>
+      <td><input type="number" step="1" min="1" value="${vals.Q ?? 1}" placeholder="Qty"></td>
       <td><button class="btn remove" title="Remove row">Remove</button></td>`;
     tb.appendChild(tr);
     tr.querySelector('.remove').addEventListener('click',()=>{
@@ -268,27 +261,129 @@
     return "";
   }
 
+  /* ---------- Table with collapsible 3D per row ---------- */
+  function drawIsometric(canvas, L, W, H){
+    const ctx = canvas.getContext('2d');
+    // clear & size to CSS
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+    canvas.width = Math.max(1, Math.floor(cssW * dpr));
+    canvas.height = Math.max(1, Math.floor(cssH * dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cssW,cssH);
+
+    if(!(L>0 && W>0 && H>0)) return;
+
+    const pad = 16;
+    const drawW = cssW - pad*2;
+    const drawH = cssH - pad*2;
+
+    const ax = Math.cos(Math.PI/6), ay = Math.sin(Math.PI/6);
+    const maxX = L*ax + W*ax;
+    const maxY = H + L*ay + W*ay;
+    const scale = Math.min(drawW/(maxX||1), drawH/(maxY||1));
+    const offsetX = pad + (drawW - maxX*scale)/2;
+    const offsetY = pad + (drawH - maxY*scale)/2;
+
+    const P = (x,y,z)=>({
+      x: offsetX + (x*ax - y*ax)*scale,
+      y: offsetY + (z + x*ay + y*ay)*scale
+    });
+
+    const A=P(0,0,0), B=P(L,0,0), C=P(L,W,0), D=P(0,W,0);
+    const A2=P(0,0,H), B2=P(L,0,H), C2=P(L,W,H), D2=P(0,W,H);
+
+    const line=(p,q,stroke='#0f172a',w=1)=>{ ctx.strokeStyle=stroke; ctx.lineWidth=w; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); };
+    const poly=(pts,fill,stroke,w=1)=>{ ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y); for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.closePath(); if(fill){ctx.fillStyle=fill; ctx.fill();} if(stroke){ctx.strokeStyle=stroke; ctx.lineWidth=w; ctx.stroke();} };
+    const text=(s,x,y,c='#64748b',size=12,align='center')=>{ ctx.fillStyle=c; ctx.font=`${size}px ui-sans-serif, system-ui`; ctx.textAlign=align; ctx.textBaseline='middle'; ctx.fillText(s,x,y); };
+
+    // faces
+    poly([A2,B2,C2,D2],'rgba(99,102,241,0.06)','#e2e8f0',1);
+    poly([B,B2,C2,C],'rgba(14,165,233,0.06)','#e2e8f0',1);
+    poly([A,A2,D2,D],'rgba(16,185,129,0.06)','#e2e8f0',1);
+
+    // edges
+    [ [A,B],[B,C],[C,D],[D,A],[A,A2],[B,B2],[C,C2],[D,D2],[A2,B2],[B2,C2],[C2,D2],[D2,A2] ].forEach(seg=>line(seg[0],seg[1],'#0f172a',1));
+
+    // arrows & labels
+    const arrow=(p,q,label,color='#2563eb')=>{
+      line(p,q,color,1.6);
+      const ang=Math.atan2(q.y-p.y, q.x-p.x), ah=8;
+      const t1={x:q.x - Math.cos(ang)*ah + Math.sin(ang)*ah, y:q.y - Math.sin(ang)*ah - Math.cos(ang)*ah};
+      const t2={x:q.x - Math.cos(ang)*ah - Math.sin(ang)*ah, y:q.y - Math.sin(ang)*ah + Math.cos(ang)*ah};
+      line(q,t1,color,1.6); line(q,t2,color,1.6);
+    };
+    arrow(A,B,'L'); text(`L ${fmt(L)} in`, (A.x+B.x)/2, (A.y+B.y)/2 - 10, '#2563eb');
+    arrow(B,C,'W'); text(`W ${fmt(W)} in`, (B.x+C.x)/2 + 10, (B.y+C.y)/2 + 2, '#2563eb', 12, 'left');
+    arrow(B,B2,'H'); text(`H ${fmt(H)} in`, B.x + 10, (B.y+B2.y)/2, '#2563eb', 12, 'left');
+  }
+
   function renderTable(rows, topN, girthLimit){
-    const el=$('results'); if(!rows||!rows.length){ el.innerHTML=''; $('bestTag').style.display='none'; $('summary').textContent=''; return; }
+    const el=$('results');
+    if(!rows || !rows.length){
+      el.innerHTML='';
+      $('bestTag').style.display='none';
+      $('summary').textContent='';
+      return;
+    }
     const n=Math.min(topN, rows.length);
     let html=`<table class="results"><thead><tr>
-      <th>#</th><th>Carton (L × W × H)</th><th>L + W + H</th><th>Length + 2×(W+H)</th>
+      <th>#</th><th>Carton (L × W × H)</th><th>L + W + H</th><th>Length + 2×(W+H)</th><th>3D</th>
     </tr></thead><tbody>`;
     for(let i=0;i<n;i++){
-      const r=rows[i]; const g=girthOK(r.L,r.W,r.H,girthLimit);
+      const r=rows[i];
+      const g=girthOK(r.L,r.W,r.H,girthLimit);
+      const rowId=`r${i}`;
       html+=`<tr ${i===0?'class="win"':''}>
         <td>${i+1}</td>
         <td>${fmt(r.L)} × ${fmt(r.W)} × ${fmt(r.H)} in</td>
         <td>${fmt(r.sum)}</td>
         <td>${fmt(g.girth)} / ${fmt(girthLimit)}</td>
+        <td>
+          <details class="viz-det" data-L="${r.L}" data-W="${r.W}" data-H="${r.H}">
+            <summary>3D view</summary>
+            <div class="viz-box">
+              <canvas class="viz-canvas" id="cv-${rowId}"></canvas>
+              <div class="viz-caption">Isometric view of this carton</div>
+            </div>
+          </details>
+        </td>
       </tr>`;
     }
     html+='</tbody></table>';
     $('bestTag').style.display='';
     el.innerHTML=html;
+
+    // Hook up drawing on open + redraw on resize
+    const allDetails = [...el.querySelectorAll('details.viz-det')];
+
+    allDetails.forEach(det=>{
+      det.addEventListener('toggle', ()=>{
+        if(det.open){
+          const L=parseFloat(det.dataset.l), W=parseFloat(det.dataset.w), H=parseFloat(det.dataset.h);
+          const canvas = det.querySelector('canvas.viz-canvas');
+          drawIsometric(canvas, L, W, H);
+        }
+      });
+    });
+
+    // Redraw visible canvases on resize
+    const redrawOpen = ()=>{
+      allDetails.forEach(det=>{
+        if(det.open){
+          const L=parseFloat(det.dataset.l), W=parseFloat(det.dataset.w), H=parseFloat(det.dataset.h);
+          const canvas = det.querySelector('canvas.viz-canvas');
+          drawIsometric(canvas, L, W, H);
+        }
+      });
+    };
+    // store for cleanup/overwrite on next render
+    window.__dimVizResize && window.removeEventListener('resize', window.__dimVizResize);
+    window.__dimVizResize = redrawOpen;
+    window.addEventListener('resize', redrawOpen);
   }
 
-  // smart suggestion line under summary
+  /* ---------- Suggestion line ---------- */
   function setSuggestion(text, cls){
     const s=$('suggestion');
     if(!text){ s.style.display='none'; s.textContent=''; s.className='note'; return; }
@@ -297,6 +392,7 @@
     s.style.display='';
   }
 
+  /* ---------- Compute ---------- */
   function compute(){
     $('status').textContent='';
     const items=getItems();
@@ -307,10 +403,7 @@
     const topN=Math.max(1, parseInt($('topN').value,10)||8);
 
     if(err){
-      $('summary').textContent='';
-      $('results').innerHTML='';
-      $('bestTag').style.display='none';
-      setSuggestion('');
+      $('summary').textContent=''; $('results').innerHTML=''; $('bestTag').style.display='none'; setSuggestion('');
       $('status').textContent=err;
       return;
     }
@@ -322,9 +415,7 @@
     const t1=performance.now();
 
     if(!candidates.length){
-      $('summary').textContent='';
-      $('results').innerHTML='';
-      $('bestTag').style.display='none';
+      $('summary').textContent=''; $('results').innerHTML=''; $('bestTag').style.display='none';
       $('status').innerHTML=`<span class="danger">No combined carton fits girth ${fmt(girthLimit)}.</span>`;
       setSuggestion('Recommendation: split into multiple boxes/labels for this shipment.', 'danger');
       return;
@@ -334,24 +425,16 @@
     $('summary').textContent=`Best: ${fmt(best.L)} × ${fmt(best.W)} × ${fmt(best.H)} in • L+W+H ${fmt(best.sum)} • ${fmt(t1-t0)} ms`;
     renderTable(candidates, topN, girthLimit);
 
-    // suggestion if near limit
     const g=girthOK(best.L,best.W,best.H,girthLimit);
-    if(g.girth >= girthLimit - 5){  // within 5 inches of limit
+    if(g.girth >= girthLimit - 5){
       setSuggestion('Tip: this is near the girth limit — multiple smaller boxes may be cheaper/faster.', 'warn');
     } else {
       setSuggestion('');
     }
   }
 
-  // --- wiring ---
-  const wrap=$('itemsWrap');
-  wrap.innerHTML = `
-    <table id="itemsTable">
-      <thead>
-        <tr><th style="width:44px">#</th><th>Length</th><th>Width</th><th>Height</th><th>Qty</th><th style="width:86px"></th></tr>
-      </thead>
-      <tbody id="itemsTbody"></tbody>
-    </table>`;
+  /* ---------- wiring ---------- */
+  renderItemsTable();
   addItemRow({});   // start with one blank row
   compute();        // auto-run on landing
 
@@ -361,8 +444,7 @@
   let t=null;
   document.addEventListener('input',(e)=>{
     if(e.target.closest('#itemsWrap') || e.target.closest('.controls')){
-      clearTimeout(t);
-      t=setTimeout(compute, 120);
+      clearTimeout(t); t=setTimeout(compute, 120);
     }
   });
 })();
