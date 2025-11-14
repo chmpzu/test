@@ -66,6 +66,33 @@
   .danger{color:#dc2626}
   .warn{color:#b45309}
   .note{color:var(--muted); font-size:13px; margin-top:8px}
+  
+  /* --- ALERT / TIP VISUALS --- */
+
+/* Status line (validation errors, no fit, etc.) */
+#status{font-size:13px;margin-left:12px;padding:6px 10px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-weight:500;display:inline-flex;align-items:center;gap:6px;}
+
+/* icon for status (using the existing span.danger inside) */
+#status .danger::before{content:"⛔";font-size:14px;}
+
+/* Generic "note" area (your #suggestion box) */
+.note{font-size:13px;margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#f8fafc;color:var(--ink);display:flex;align-items:flex-start;gap:8px;line-height:1.4;}
+
+/* Default tip icon */
+.note::before{content:"💡";flex:none;margin-top:1px;}
+
+/* Warning tip (near girth limit) */
+.note.warn{border-color:#f97316;background:#fffbeb;color:#92400e;}
+.note.warn::before{content:"⚠️";}
+
+/* Strong “danger” tip (no box fits / split shipment) */
+.note.danger{border-color:#ef4444;background:#fef2f2;color:#b91c1c;}
+.note.danger::before{content:"⛔";}
+
+/* Keep text-only versions if you ever use .danger/.warn inline elsewhere */
+.danger{ color:#b91c1c; font-weight:600; }
+.warn{ color:#b45309; font-weight:500; }
+
 
   @media (max-width:640px){ .controls{grid-template-columns:1fr 1fr} }
 </style>
